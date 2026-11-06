@@ -1,0 +1,233 @@
+@extends('layout.master')
+
+@section('title', 'Bookings')
+@section('header-title', 'Bookings')
+
+@section('content')
+
+    <div class="content-page">
+        <div class="content">
+            <div class="container">
+
+                <!-- PAGE TITLE -->
+                <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
+                    <div class="flex-grow-1">
+                        <h4 class="fs-18 fw-semibold m-0">Dashboard</h4>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+
+                            <!-- HEADER -->
+                            <div class="card-header d-flex justify-content-between align-items-center">
+
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <h5 class="mb-0 me-2">Booking List</h5>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-12 px-2 py-1">
+                                        <i class="mdi mdi-book-open-outline me-1"></i>Total Bookings: <strong>{{ $bookings->count() }}</strong>
+                                    </span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle fs-12 px-2 py-1">
+                                        <i class="mdi mdi-account-group me-1"></i>Total Pax: <strong>{{ $totalPax ?? $bookings->sum('no_of_pax') }}</strong>
+                                    </span>
+                                </div>
+
+                                <div class="d-flex gap-2">
+
+                                    @can('booking_create')
+                                        <a href="{{ route('booking.create') }}"
+                                            class="btn btn-primary btn-sm d-flex gap-1 align-items-center">
+                                            Add Booking
+                                        </a>
+                                    @endcan
+                                    @can('booking_trash_view')
+                                        <a href="{{ route('booking.trash') }}"
+                                            class="btn btn-danger btn-sm d-flex gap-1 align-items-center">
+                                            Trash <span>{{ $trashCount ?? 0 }}</span>
+                                        </a>
+                                    @endcan
+                                </div>
+
+                            </div>
+
+                            <!-- BODY -->
+                            <div class="card-body">
+
+                                <div class="table-responsive">
+                                    <table id="datatable" class="table table-bordered dt-responsive nowrap align-middle">
+
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>S:NO</th>
+                                                <th>Booking Date</th>
+                                                <th>HB #</th>
+                                                <th>Client / Company</th>
+                                                <th>Package Type</th>
+                                                <th>No of Pax</th>
+                                                <th>Total Amount</th>
+                                                <th>Balance</th>
+                                                <th>Year</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @foreach ($bookings as $booking)
+                                                <tr>
+
+                                                    <td>{{ $loop->iteration }}</td>
+
+                                                    <td>
+                                                        <span class="badge bg-light text-dark border px-2 py-1" style="font-size:11.5px; font-weight:600;">
+                                                            <i class="mdi mdi-calendar-blank-outline me-1 text-primary"></i>
+                                                            {{ $booking->created_at ? $booking->created_at->format('d M Y') : '—' }}
+                                                        </span>
+                                                    </td>
+
+                                                    <td>
+                                                        @php
+                                                            $hbList = $booking->persons->pluck('hb_number')->filter()->map(function($val) {
+                                                                return \App\Models\BookingPerson::formatHbNumber($val);
+                                                            })->filter()->unique()->values();
+                                                        @endphp
+                                                        @if($hbList->count() > 0)
+                                                            @foreach($hbList as $hb)
+                                                                <span class="badge bg-dark text-white fw-bold px-2 py-1 me-1 mb-1" style="font-size:11px; letter-spacing:0.5px;">{{ $hb }}</span>
+                                                            @endforeach
+                                                        @else
+                                                            <span class="text-muted">—</span>
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        <strong>
+                                                            {{ $booking->booking_for === 'company' ? $booking->company->name ?? 'N/A' : $booking->client->name ?? 'N/A' }}
+                                                        </strong>
+                                                        @if ($booking->booking_for === 'company')
+                                                            <span class="badge bg-secondary ms-1"
+                                                                style="font-size:10px;">Company</span>
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        <div>
+                                                            @if ($booking->package && ($booking->package->code || $booking->package->package_number))
+                                                                <span class="badge bg-dark text-light me-1" style="font-size:10px;">
+                                                                    {{ $booking->package->code ?? $booking->package->package_number }}
+                                                                </span>
+                                                            @endif
+                                                            <span class="badge bg-primary">
+                                                                {{ $booking->package->package_title ?? $booking->package->name ?? $booking->package_name ?? ucfirst($booking->package_type) }}
+                                                            </span>
+                                                            @if ($booking->camp)
+                                                                <span class="badge bg-info-subtle text-info border border-info-subtle d-block mt-1 text-truncate" style="font-size:10.5px; max-width:180px;">
+                                                                    <i class="mdi mdi-tent"></i> {{ $booking->camp }}
+                                                                </span>
+                                                            @endif
+                                                            @if ($booking->qurbani_charges > 0 || ($booking->qurbani_option && $booking->qurbani_option !== 'not_included'))
+                                                                <span class="badge bg-success-subtle text-success border border-success-subtle d-block mt-1" style="font-size:10px;">
+                                                                    <i class="mdi mdi-sheep"></i> {{ ucfirst(str_replace('_', ' ', $booking->qurbani_option)) }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    </td>
+
+                                                    <td>{{ $booking->no_of_pax ?? 0 }}</td>
+
+                                                    <td>
+                                                        {{ number_format($booking->total_amount) }}
+                                                    </td>
+
+                                                    <td>
+                                                        <span class="badge bg-warning text-dark">
+                                                            {{ number_format($booking->balance) }}
+                                                        </span>
+                                                    </td>
+
+                                                    <td>{{ $booking->package_year ?? 'N/A' }}</td>
+
+                                                    <td>
+                                                        <div class="d-flex gap-2">
+
+                                                            <!-- VIEW -->
+                                                            @can('booking_show')
+                                                                <a href="{{ route('booking.show', $booking->id) }}"
+                                                                    class="btn btn-sm btn-outline-primary">
+                                                                    <i class="mdi mdi-eye"></i>
+                                                                </a>
+                                                            @endcan
+
+                                                            <!-- EDIT -->
+                                                            @can('booking_edit')
+                                                                <a href="{{ route('booking.edit', $booking->id) }}"
+                                                                    class="btn btn-sm btn-outline-success">
+                                                                    <i class="mdi mdi-pencil"></i>
+                                                                </a>
+                                                            @endcan
+
+                                                            <a href="{{ route('booking.voucher', $booking->id) }}"
+                                                                target="_blank" class="btn btn-sm btn-outline-warning"
+                                                                title="Hotel Voucher">
+                                                                <i class="mdi mdi-file-document-outline"></i>
+                                                            </a>
+
+                                                            @can('pilgrim_badge_view')
+                                                            <a href="{{ route('pilgrim.bulk-badges', $booking->id) }}"
+                                                                target="_blank" class="btn btn-sm btn-outline-dark"
+                                                                title="Hajji ID Card">
+                                                                <i class="mdi mdi-badge-account-horizontal"></i>
+                                                            </a>
+                                                            @endcan
+
+
+                                                            <!-- DELETE -->
+                                                            @can('booking_trash')
+                                                                <form action="{{ route('booking.delete', $booking->id) }}"
+                                                                    method="POST" onsubmit="return confirm('Are you sure?');">
+                                                                    @csrf
+                                                                    @method('DELETE')
+
+                                                                    <button type="submit"
+                                                                        class="btn btn-sm btn-outline-danger">
+                                                                        <i class="mdi mdi-delete"></i>
+                                                                    </button>
+                                                                </form>
+                                                            @endcan
+                                                            <!-- AGREEENT -->
+                                                            {{-- <a target="_blank"
+                                                            href="{{ \Illuminate\Support\Facades\URL::signedRoute('booking.agreement', ['booking' => $booking->id]) }}"
+                                                            class="btn btn-sm btn-outline-success"
+                                                            title="View Agreement">
+                                                                <i class="mdi mdi-file-document-outline"></i>
+                                                            </a> --}}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot class="table-light fw-bold">
+                                            <tr>
+                                                <td colspan="5" class="text-end text-uppercase" style="font-size:12px; letter-spacing:0.5px;">Grand Total:</td>
+                                                <td class="text-primary fw-bold fs-13">
+                                                    <i class="mdi mdi-account-group me-1"></i>{{ $totalPax ?? $bookings->sum('no_of_pax') }}
+                                                </td>
+                                                <td class="fw-bold">{{ number_format($bookings->sum('total_amount')) }}</td>
+                                                <td class="fw-bold text-danger">{{ number_format($bookings->sum('balance')) }}</td>
+                                                <td colspan="2"></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+@endsection

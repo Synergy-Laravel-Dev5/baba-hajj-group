@@ -1,0 +1,157 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Client;
+use App\Models\Package;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
+class ClientController extends Controller
+{
+    use AuthorizesRequests;
+
+    public function index()
+    {
+        $this->authorize('client_view');
+        $package = session('dashboard_package', 'hajj');
+        $year    = (int) session('dashboard_year', Carbon::now()->year);
+
+        $clients = Client::where(function ($query) use ($package, $year) {
+
+            $query->whereHas('bookings', function ($q) use ($package, $year) {
+                $q->where('package_type', $package)
+                    ->where('package_year', $year);
+            })
+
+                ->orWhereDoesntHave('bookings');
+        })
+            ->latest()
+            ->get();
+
+        $trashCount = Client::onlyTrashed()->count();
+
+        return view('client.index', compact('clients', 'trashCount'));
+    }
+
+    public function create()
+    {
+        $this->authorize('client_create');
+        $packages = Package::all();
+        return view('client.create', compact('packages'));
+    }
+
+    public function store(Request $request)
+    {
+        $this->authorize('client_create');
+        $request->validate([
+            'name'            => 'required|string|max:255',
+            'type'            => 'required|in:client,vendor,customer',
+            'company_name'    => 'nullable|string|max:255',
+            'package_id'      => 'required|exists:packages,id',
+            'phone'           => 'nullable|string|max:20',
+            'cnic'            => 'nullable|string|unique:clients,cnic',
+            'passport_number' => 'nullable|string|unique:clients,passport_number',
+        ], [
+            'name.required'           => 'Client name is required.',
+            'type.required'           => 'Please select a client type.',
+            'package_id.required'     => 'Please select a package.',
+            'package_id.exists'       => 'Selected package is invalid.',
+            'cnic.unique'             => 'This CNIC is already registered with another client.',
+            'passport_number.unique'  => 'This Passport Number is already registered with another client.',
+        ]);
+
+        $client = Client::create($request->only([
+            'name',
+            'company_name',
+            'passport_number',
+            'cnic',
+            'phone',
+            'type',
+            'package_id',
+            'status'
+        ]));
+
+        logUserActivity('Client Created', 'Name: ' . $client->name . ' | Type: ' . $client->type, $client->id, 'Client');
+
+        return redirect()->route('client.index')->with('success', 'Client added successfully.');
+    }
+
+    public function edit($id)
+    {
+        $this->authorize('client_edit');
+        $client = Client::findOrFail($id);
+        $packages = Package::all();
+        return view('client.edit', compact('client', 'packages'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $this->authorize('client_edit');
+        $client = Client::findOrFail($id);
+
+        $request->validate([
+            'name'            => 'required|string|max:255',
+            'type'            => 'required|in:client,vendor,customer',
+            'package_id'      => 'required|exists:packages,id',
+            'company_name'    => 'nullable|string|max:255',
+            'phone'           => 'nullable|string|max:20',
+            'cnic'            => ['nullable', 'string', Rule::unique('clients', 'cnic')->ignore($client->id)],
+            'passport_number' => ['nullable', 'string', Rule::unique('clients', 'passport_number')->ignore($client->id)],
+        ], [
+            'name.required'           => 'Client name is required.',
+            'type.required'           => 'Please select a client type.',
+            'package_id.required'     => 'Please select a package.',
+            'package_id.exists'       => 'Selected package is invalid.',
+            'cnic.unique'             => 'This CNIC is already registered with another client.',
+            'passport_number.unique'  => 'This Passport Number is already registered with another client.',
+        ]);
+
+        $client->update($request->only([
+            'name',
+            'company_name',
+            'passport_number',
+            'cnic',
+            'phone',
+            'type',
+            'package_id',
+            'status'
+        ]));
+
+        logUserActivity('Client Updated', 'Name: ' . $client->name . ' | Type: ' . $client->type, $client->id, 'Client');
+
+        return redirect()->route('client.index')->with('success', 'Client updated.');
+    }
+
+    public function destroy($id)
+    {
+        $this->authorize('client_trash');
+        $client = Client::findOrFail($id);
+
+        logUserActivity('Client Deleted', 'Name: ' . $client->name . ' | Type: ' . $client->type, $client->id, 'Client');
+
+        $client->delete();
+
+        return redirect()->route('client.index')->with('success', 'Moved to trash.');
+    }
+
+    public function trash()
+    {
+        $this->authorize('client_trash_view');
+        $clients = Client::onlyTrashed()->latest()->get();
+        return view('client.trash', compact('clients'));
+    }
+
+    public function restore($id)
+    {
+        $this->authorize('client_restore');
+        $client = Client::onlyTrashed()->findOrFail($id);
+        $client->restore();
+
+        logUserActivity('Client Restored', 'Name: ' . $client->name . ' | Type: ' . $client->type, $client->id, 'Client');
+
+        return redirect()->route('client.trash')->with('success', 'Client restored.');
+    }
+}

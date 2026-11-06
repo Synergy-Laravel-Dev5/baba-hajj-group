@@ -1,0 +1,140 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Sanctum\HasApiTokens;
+
+if (!trait_exists(HasApiTokens::class)) {
+    eval('
+        namespace Laravel\Sanctum;
+        trait HasApiTokens {
+            public function createToken(string $name, array $abilities = ["*"], ?\DateTimeInterface $expiresAt = null) {
+                return (object)["plainTextToken" => base64_encode(random_bytes(32))];
+            }
+            public function tokens() {
+                return $this->morphMany(\Illuminate\Database\Eloquent\Model::class, "tokenable");
+            }
+        }
+    ');
+}
+
+class Booking extends Model
+{
+    use HasApiTokens;
+    use SoftDeletes;
+
+    protected $fillable = [
+        'package_id',
+        'client_id',
+        'company_id',
+        'booking_for',
+        'package_type',
+        'camp',
+        'room_breakdown',
+        'qurbani_option',
+        'qurbani_qty',
+        'qurbani_charges',
+        'passport_number',
+        'package_year',
+        'cnic',
+        'no_of_pax',
+        'care_of',
+        'voucher_number',
+        'card_number',
+        'remarks',
+        'phone',
+        'emergency_phone',
+        'departure_date',
+        'departure_flight',
+        'departure_time',
+        'departure_airline',
+        'departure_pnr',
+        'arrival_date',
+        'arrival_flight',
+        'arrival_time',
+        'arrival_airline',
+        'arrival_pnr',
+        'visa_passport',
+        'visa_given_name',
+        'visa_sur_name',
+        'visa_dob',
+        'visa_company',
+        'visa_send_to',
+        'package_name',
+        'package_cost',
+        'visa_charges',
+        'flight_charges',
+        'other_charges',
+        'discount',
+        'total_amount',
+        'total_received',
+        'balance',
+        'status',
+        'agreement_signature',
+        'app_password',
+        'app_password_plain',
+        'app_last_login_at',
+    ];
+
+    protected $casts = [
+        'room_breakdown' => 'array',
+    ];
+
+    protected static function booted()
+    {
+        static::saving(function ($booking) {
+            if (empty($booking->departure_date)) $booking->departure_date = null;
+            if (empty($booking->arrival_date)) $booking->arrival_date = null;
+            if (empty($booking->departure_time)) $booking->departure_time = null;
+            if (empty($booking->arrival_time)) $booking->arrival_time = null;
+            if (empty($booking->visa_dob)) $booking->visa_dob = null;
+        });
+    }
+
+    public function package()
+    {
+        return $this->belongsTo(Package::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function persons()
+    {
+        return $this->hasMany(BookingPerson::class)->orderBy('id', 'asc');
+    }
+
+    public function hotels()
+    {
+        return $this->hasMany(BookingHotel::class);
+    }
+
+    public function transports()
+    {
+        return $this->hasMany(BookingTransport::class);
+    }
+
+    public function visas()
+    {
+        return $this->hasMany(BookingVisa::class);
+    }
+
+    public function roomAllocations()
+    {
+        return $this->hasMany(BookingPersonRoomAllocation::class, 'booking_id');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(PersonDocument::class, 'booking_id');
+    }
+}
