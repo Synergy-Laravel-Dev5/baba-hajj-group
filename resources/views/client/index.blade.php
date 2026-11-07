@@ -14,6 +14,11 @@
                                 + Add Client
                             </a>
                         @endcan
+                        @can('invoice_create')
+                            <a href="{{ route('invoice.create') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="mdi mdi-receipt me-1"></i> + Create Invoice
+                            </a>
+                        @endcan
                         @can('client_trash_view')
                             <a href="{{ route('client.trash') }}" class="btn btn-danger btn-sm">
                                 🗑 Trash <span class="badge bg-white text-danger ms-1">{{ $trashCount }}</span>
@@ -80,6 +85,12 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-1">
+                                                    @can('invoice_create')
+                                                    <a href="{{ route('invoice.create', ['client_id' => $client->id]) }}"
+                                                        class="btn btn-sm btn-outline-primary" title="Create Invoice for {{ $client->name }}">
+                                                        <i class="mdi mdi-receipt"></i>
+                                                    </a>
+                                                    @endcan
                                                     @can('client_edit')
                                                         <a href="{{ route('client.edit', $client->id) }}"
                                                             class="btn btn-sm btn-outline-success" title="Edit">

@@ -262,3 +262,37 @@ if (!function_exists('getMediaUrl')) {
         return asset('assets/uploads/' . $clean);
     }
 }
+
+if (!function_exists('formatDate')) {
+    /**
+     * Format a date into '26-October-2026' (d-F-Y) display format
+     */
+    function formatDate($date, $default = '—')
+    {
+        if (empty($date)) {
+            return $default;
+        }
+        try {
+            return \Carbon\Carbon::parse($date)->format('d-F-Y');
+        } catch (\Throwable $e) {
+            return (string) $date;
+        }
+    }
+}
+
+if (!function_exists('formatDateTime')) {
+    /**
+     * Format a date & time into '26-October-2026, 07:30 PM' display format
+     */
+    function formatDateTime($date, $default = '—')
+    {
+        if (empty($date)) {
+            return $default;
+        }
+        try {
+            return \Carbon\Carbon::parse($date)->format('d-F-Y, h:i A');
+        } catch (\Throwable $e) {
+            return (string) $date;
+        }
+    }
+}

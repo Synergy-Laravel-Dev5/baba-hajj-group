@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Transaction;
+use App\Models\Invoice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -314,6 +315,11 @@ class TransactionController extends Controller
                 'status' => 'active',
             ];
 
+            $invoices = Invoice::latest()->get();
+            $totalInvoiced        = (float) $invoices->sum('total_amount');
+            $totalInvoicedPaid    = (float) $invoices->sum('payment_made');
+            $totalInvoicedBalance = (float) $invoices->sum('balance_due');
+
             return view('transaction.ledger', compact(
                 'client',
                 'transactions',
@@ -321,7 +327,11 @@ class TransactionController extends Controller
                 'totalBooking',
                 'balance',
                 'bookingReceived',
-                'transactionsPaid'
+                'transactionsPaid',
+                'invoices',
+                'totalInvoiced',
+                'totalInvoicedPaid',
+                'totalInvoicedBalance'
             ));
         }
 
@@ -346,6 +356,18 @@ class TransactionController extends Controller
         $totalPaid        = $bookingReceived + $transactionsPaid;
         $balance          = $totalBooking - $totalPaid;
 
+        $invoicesQuery = Invoice::where('client_id', $clientId);
+        if ($request->from_date && $request->to_date) {
+            $invoicesQuery->whereBetween('invoice_date', [
+                $request->from_date,
+                $request->to_date,
+            ]);
+        }
+        $invoices = $invoicesQuery->latest()->get();
+        $totalInvoiced        = (float) $invoices->sum('total_amount');
+        $totalInvoicedPaid    = (float) $invoices->sum('payment_made');
+        $totalInvoicedBalance = (float) $invoices->sum('balance_due');
+
         return view('transaction.ledger', compact(
             'client',
             'transactions',
@@ -353,7 +375,11 @@ class TransactionController extends Controller
             'totalBooking',
             'balance',
             'bookingReceived',
-            'transactionsPaid'
+            'transactionsPaid',
+            'invoices',
+            'totalInvoiced',
+            'totalInvoicedPaid',
+            'totalInvoicedBalance'
         ));
     }
 

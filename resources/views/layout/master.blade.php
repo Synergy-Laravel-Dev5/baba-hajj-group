@@ -764,6 +764,8 @@
                 this.dispatchEvent(new Event('change', { bubbles: true }));
             });
         </script>
+
+        @stack('scripts')
 </body>
 
 
