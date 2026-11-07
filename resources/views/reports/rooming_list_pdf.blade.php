@@ -254,7 +254,7 @@
 <body>
 
     <div class="header-box">
-        <div class="header-title">Pirwani Hajj Group</div>
+        <div class="header-title">Baba Hajj Group</div>
         <div class="header-subtitle">Official Rooming List & Manifest Report</div>
         <div class="header-meta">
             Generated on: <strong>{{ date('d M Y, h:i A') }}</strong>

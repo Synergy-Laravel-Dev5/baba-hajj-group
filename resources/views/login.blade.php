@@ -3,20 +3,22 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>PIRWANI HAJJ GROUP — Portal Login</title>
+    <title>Baba Hajj Group — Executive Management Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Pirwani Hajj Group (Pvt.) Ltd. Management System Login" />
-    <meta name="author" content="Pirwani Hajj Group" />
+    <meta name="description" content="Baba Hajj Group (Pvt.) Ltd. - Official Management & Operations Portal" />
+    <meta name="author" content="Baba Hajj Group" />
 
     <!-- App Favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/PIRWANI PNG FILE.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 
-    <!-- CSS -->
+    <!-- CSS & Icons -->
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.2.96/css/materialdesignicons.min.css">
@@ -24,16 +26,16 @@
 
     <style>
         :root {
-            --gold-primary: #C9A84C;
-            --gold-light: #F3DC9B;
-            --gold-dark: #96711E;
-            --gold-glow: rgba(201, 168, 76, 0.35);
-            --navy-deep: #081426;
-            --navy-surface: #0F233D;
-            --navy-card: #152E4D;
-            --text-main: #0F172A;
+            --gold-primary: #C5A059;
+            --gold-light: #F4E5BE;
+            --gold-bright: #E5C368;
+            --gold-dark: #8F6F25;
+            --gold-gradient: linear-gradient(135deg, #ECC870 0%, #D4AF37 50%, #B88E28 100%);
+            --navy-midnight: #060C17;
+            --navy-deep: #0B1424;
+            --navy-card: #121F35;
+            --text-dark: #0F172A;
             --text-muted: #64748B;
-            --border-soft: #E2E8F0;
         }
 
         * {
@@ -45,153 +47,348 @@
         body {
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
-            background: #F4F7FB;
-            color: var(--text-main);
+            background-color: var(--navy-midnight);
+            color: #FFFFFF;
             overflow-x: hidden;
+            position: relative;
         }
 
-        .auth-wrapper {
-            min-height: 100vh;
-            display: flex;
-            width: 100vw;
+        /* ════ BACKGROUND HERO ATMOSPHERE ════ */
+        .portal-bg {
+            position: fixed;
+            inset: 0;
+            background: url('/assets/images/logo/omer-f-arslan-W0FhhtnMd8k-unsplash.jpg') center center no-repeat;
+            background-size: cover;
+            z-index: 1;
+            animation: slowZoom 24s ease-in-out infinite alternate;
         }
 
-        /* ════ LEFT AUTH FORM SECTION ════ */
-        .auth-left {
-            width: 46%;
+        @keyframes slowZoom {
+            0% { transform: scale(1.0); }
+            100% { transform: scale(1.06); }
+        }
+
+        /* Vignette Dark Gradient Overlay */
+        .portal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            background: radial-gradient(circle at 50% 20%, rgba(6, 12, 23, 0.72) 0%, rgba(6, 12, 23, 0.92) 70%, rgba(3, 7, 14, 0.97) 100%);
+        }
+
+        /* Subtle Ambient Gold Light Ray */
+        .portal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 500px;
+            background: radial-gradient(ellipse at top, rgba(212, 175, 55, 0.22) 0%, rgba(212, 175, 55, 0.05) 50%, transparent 75%);
+            pointer-events: none;
+            animation: pulseAura 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseAura {
+            0% { opacity: 0.7; transform: translateX(-50%) scale(0.95); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
+
+        /* ════ FLOATING SPIRITUAL PARTICLES (NOOR PARTICLES) ════ */
+        .particles-wrap {
+            position: fixed;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            bottom: -20px;
+            background: radial-gradient(circle, rgba(244, 229, 190, 0.85) 0%, rgba(212, 175, 55, 0.4) 60%, transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatUpward linear infinite;
+        }
+
+        .p1 { left: 12%; width: 5px; height: 5px; animation-duration: 14s; animation-delay: 0s; }
+        .p2 { left: 24%; width: 7px; height: 7px; animation-duration: 18s; animation-delay: 3s; }
+        .p3 { left: 38%; width: 4px; height: 4px; animation-duration: 12s; animation-delay: 1s; }
+        .p4 { left: 52%; width: 6px; height: 6px; animation-duration: 16s; animation-delay: 5s; }
+        .p5 { left: 68%; width: 5px; height: 5px; animation-duration: 13s; animation-delay: 2s; }
+        .p6 { left: 82%; width: 8px; height: 8px; animation-duration: 20s; animation-delay: 4s; }
+        .p7 { left: 91%; width: 4px; height: 4px; animation-duration: 15s; animation-delay: 6s; }
+
+        @keyframes floatUpward {
+            0% {
+                transform: translateY(0) scale(0.6);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.75;
+            }
+            85% {
+                opacity: 0.75;
+            }
+            100% {
+                transform: translateY(-105vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* ════ MAIN PORTAL SHELL ════ */
+        .portal-container {
+            position: relative;
+            z-index: 10;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 36px 52px;
-            background: #FFFFFF;
-            position: relative;
-            z-index: 2;
-            box-shadow: 12px 0 45px rgba(8, 20, 38, 0.06);
+            align-items: center;
+            padding: 24px 20px 20px 20px;
         }
 
-        .auth-left::before {
+        /* ════ TOP TALBIYAH / BISMILLAH RIBBON ════ */
+        .top-spiritual-ribbon {
+            text-align: center;
+            padding: 8px 0;
+            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .talbiyah-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 40px;
+            padding: 9px 26px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(212, 175, 55, 0.12);
+            transition: all 0.3s ease;
+        }
+
+        .talbiyah-pill:hover {
+            border-color: var(--gold-bright);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .talbiyah-pill span.arabic {
+            font-family: 'Amiri', serif;
+            font-size: 21px;
+            color: var(--gold-light);
+            letter-spacing: 1.2px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+        }
+
+        .talbiyah-pill span.divider {
+            color: rgba(212, 175, 55, 0.5);
+            font-size: 15px;
+        }
+
+        .talbiyah-pill span.sub {
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #E2E8F0;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ════ CENTRAL AUTH CARD (COMPACT LUXURY HEIGHT) ════ */
+        .auth-card-wrap {
+            width: 100%;
+            max-width: 490px;
+            margin: 10px auto;
+            animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(25px) scale(0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border-radius: 22px;
+            border: 1.5px solid rgba(212, 175, 55, 0.45);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(255, 255, 255, 0.9),
+                        0 0 35px rgba(212, 175, 55, 0.18);
+            padding: 26px 36px 22px 36px; /* Compact height padding */
+            position: relative;
+            overflow: hidden;
+            color: var(--text-dark);
+            transition: box-shadow 0.4s ease, transform 0.4s ease;
+        }
+
+        .auth-card:hover {
+            box-shadow: 0 26px 70px rgba(0, 0, 0, 0.55),
+                        0 0 0 1px rgba(255, 255, 255, 1),
+                        0 0 45px rgba(212, 175, 55, 0.25);
+        }
+
+        /* Top Ornate Gold Bar */
+        .auth-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(90deg, var(--gold-dark), var(--gold-primary), var(--gold-light), var(--gold-primary));
+            background: linear-gradient(90deg, #8F6F25 0%, #D4AF37 25%, #F4E5BE 50%, #D4AF37 75%, #8F6F25 100%);
         }
 
-        /* Centered Brand Header */
-        .brand-header-center {
+        /* ════ LOGO MEDALLION (COMPACT) ════ */
+        .logo-medallion {
             text-align: center;
-            padding-top: 10px;
-        }
-
-        .brand-logo-img {
-            height: 120px;
-            width: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 6px 16px rgba(201, 168, 76, 0.28));
-            transition: transform 0.3s ease;
-        }
-
-        .brand-logo-img:hover {
-            transform: scale(1.03);
-        }
-
-        /* Main Form Container */
-        .form-box {
-            max-width: 420px;
-            width: 100%;
-            margin: 20px auto;
-        }
-
-        .welcome-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(201, 168, 76, 0.12);
-            color: var(--gold-dark);
-            border: 1px solid rgba(201, 168, 76, 0.28);
-            padding: 5px 14px;
-            border-radius: 30px;
-            font-size: 11.5px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
             margin-bottom: 12px;
         }
 
-        .welcome-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--navy-deep);
-            line-height: 1.2;
+        .logo-frame {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 20px;
+            background: #FFFFFF;
+            border-radius: 16px;
+            border: 1.5px solid rgba(212, 175, 55, 0.38);
+            box-shadow: 0 6px 20px rgba(11, 20, 36, 0.06), 0 0 0 4px rgba(212, 175, 55, 0.06);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .logo-frame:hover {
+            transform: translateY(-2px) scale(1.02);
+            border-color: var(--gold-bright);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.22);
+        }
+
+        .portal-logo-img {
+            height: 82px; /* Sleek, crisp & perfectly proportioned */
+            width: auto;
+            max-width: 220px;
+            object-fit: contain;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        /* ════ BRAND HEADER ════ */
+        .brand-header-text {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(197, 160, 89, 0.12);
+            color: #8F6F25;
+            border: 1px solid rgba(197, 160, 89, 0.38);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
             margin-bottom: 6px;
+            transition: all 0.3s ease;
         }
 
-        .welcome-desc {
-            font-size: 13.5px;
+        .brand-badge:hover {
+            background: rgba(197, 160, 89, 0.2);
+            border-color: var(--gold-bright);
+        }
+
+        .brand-title-main {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: #08111E;
+            letter-spacing: 0.2px;
+            margin-bottom: 2px;
+        }
+
+        .brand-subtitle-main {
+            font-size: 12.5px;
             color: var(--text-muted);
-            margin-bottom: 24px;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
-        /* Custom Input Groups */
-        .form-group-custom {
-            margin-bottom: 18px;
+        /* ════ FORM CONTROLS WITH ANIMATION (COMPACT) ════ */
+        .form-floating-custom {
+            margin-bottom: 13px;
             position: relative;
         }
 
-        .form-label-custom {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--navy-surface);
-            margin-bottom: 7px;
-            display: block;
+        .form-label-portal {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            letter-spacing: 0.2px;
         }
 
-        .input-icon-wrap {
+        .input-wrapper-portal {
             position: relative;
             display: flex;
             align-items: center;
         }
 
-        .input-icon-wrap .input-icon-left {
+        .input-icon-portal {
             position: absolute;
-            left: 15px;
+            left: 14px;
             color: #94A3B8;
             font-size: 18px;
             pointer-events: none;
-            transition: color 0.2s ease;
+            transition: all 0.25s ease;
         }
 
-        .input-custom {
+        .input-control-portal {
             width: 100%;
-            height: 48px;
-            padding: 10px 16px 10px 45px;
+            height: 44px; /* Sleek, comfortable height */
+            padding: 8px 14px 8px 42px;
             font-size: 14px;
             font-weight: 500;
-            color: var(--navy-deep);
+            color: #08111E;
             background: #F8FAFC;
-            border: 1.5px solid var(--border-soft);
-            border-radius: 12px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 11px;
             transition: all 0.25s ease;
             outline: none;
         }
 
-        .input-custom:focus {
+        .input-control-portal:focus {
             background: #FFFFFF;
             border-color: var(--gold-primary);
-            box-shadow: 0 0 0 4px var(--gold-glow);
+            box-shadow: 0 0 0 3.5px rgba(212, 175, 55, 0.22);
+            transform: translateY(-1px);
         }
 
-        .input-custom:focus + .input-icon-left,
-        .input-custom:focus ~ .input-icon-left {
+        .input-control-portal:focus + .input-icon-portal,
+        .input-control-portal:focus ~ .input-icon-portal {
             color: var(--gold-dark);
+            transform: scale(1.08);
         }
 
-        .toggle-password-btn {
+        .btn-toggle-eye {
             position: absolute;
             right: 12px;
             background: none;
@@ -199,244 +396,216 @@
             color: #94A3B8;
             cursor: pointer;
             font-size: 18px;
-            padding: 6px;
+            padding: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.2s;
+            transition: all 0.2s ease;
         }
 
-        .toggle-password-btn:hover {
-            color: var(--navy-deep);
+        .btn-toggle-eye:hover {
+            color: #08111E;
         }
 
-        /* Button */
-        .btn-submit-login {
-            width: 100%;
-            height: 50px;
-            background: linear-gradient(135deg, #081426 0%, #0F233D 60%, #1A395F 100%);
-            color: #FFFFFF;
-            border: 1px solid rgba(201, 168, 76, 0.35);
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
+        /* ════ CHECKBOX & SECURITY ROW ════ */
+        .remember-wrap {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .remember-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #475569;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(8, 20, 38, 0.28);
+            user-select: none;
+            transition: color 0.2s ease;
+        }
+
+        .remember-label:hover {
+            color: #0F172A;
+        }
+
+        .remember-input {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            accent-color: var(--gold-primary);
+            cursor: pointer;
+        }
+
+        /* ════ METALLIC LUXURY SUBMIT BUTTON ════ */
+        .btn-portal-submit {
+            width: 100%;
+            height: 46px; /* Compact luxury height */
+            background: linear-gradient(135deg, #08111E 0%, #112038 50%, #1A3052 100%);
+            color: #FFFFFF;
+            border: 1.5px solid rgba(212, 175, 55, 0.55);
+            border-radius: 11px;
+            font-size: 14.5px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 8px 22px rgba(8, 17, 30, 0.35);
             position: relative;
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            margin-top: 10px;
         }
 
-        .btn-submit-login::before {
+        /* Continuous light sheen sweep */
+        .btn-portal-submit::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
+            left: -120%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.35), transparent);
-            transition: left 0.6s ease;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.4), transparent);
+            animation: lightSheen 4.5s ease-in-out infinite;
         }
 
-        .btn-submit-login:hover {
+        @keyframes lightSheen {
+            0%, 55% { left: -120%; }
+            100% { left: 140%; }
+        }
+
+        .btn-portal-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(8, 20, 38, 0.38);
-            background: linear-gradient(135deg, #050E1B 0%, #081426 100%);
-            border-color: var(--gold-primary);
-            color: #FFFFFF;
+            background: linear-gradient(135deg, #D4AF37 0%, #ECC870 50%, #B88E28 100%);
+            color: #070D18;
+            border-color: #D4AF37;
+            box-shadow: 0 14px 34px rgba(212, 175, 55, 0.48);
         }
 
-        .btn-submit-login:hover::before {
-            left: 100%;
+        .btn-portal-submit:hover .btn-icon-arrow {
+            transform: translateX(4px);
         }
 
-        .btn-submit-login:active {
+        .btn-icon-arrow {
+            transition: transform 0.25s ease;
+        }
+
+        .btn-portal-submit:active {
             transform: translateY(0);
         }
 
-        /* Footer Info */
-        .auth-footer {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-align: center;
-            padding-top: 16px;
-            border-top: 1px solid #F1F5F9;
-        }
-
-        /* ════ RIGHT HERO / VISUAL SECTION ════ */
-        .auth-right {
-            width: 54%;
-            min-height: 100vh;
-            position: relative;
-            background: url('/assets/images/logo/omer-f-arslan-W0FhhtnMd8k-unsplash.jpg') center center no-repeat;
-            background-size: cover;
+        /* ════ SECURITY TRUST BADGES ════ */
+        .security-badges {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 56px;
-            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 14px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.75);
+            animation: fadeInUp 0.9s ease-out;
         }
 
-        /* High-class Dark Gold/Navy Overlay */
-        .auth-right::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(145deg, rgba(8, 20, 38, 0.94) 0%, rgba(15, 35, 61, 0.88) 50%, rgba(150, 113, 30, 0.78) 100%);
-            z-index: 1;
+        .security-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
         }
 
-        /* Ambient Radial Glow */
-        .auth-right::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(circle at 80% 20%, rgba(201, 168, 76, 0.28) 0%, transparent 50%),
-                              radial-gradient(circle at 20% 80%, rgba(26, 107, 74, 0.22) 0%, transparent 45%);
-            z-index: 1;
-            pointer-events: none;
+        .security-item i {
+            color: var(--gold-bright);
+            font-size: 14px;
         }
 
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            color: #FFFFFF;
+        /* ════ FOOTER ════ */
+        .portal-footer {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 8px 0;
+            animation: fadeInUp 1s ease-out;
         }
 
-        .arabic-badge {
-            font-family: 'Amiri', serif;
-            font-size: 25px;
+        .portal-footer a {
             color: var(--gold-light);
-            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
-            margin-bottom: 22px;
-            display: inline-block;
-            letter-spacing: 1px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 7px 22px;
-            border-radius: 40px;
-            border: 1px solid rgba(243, 220, 155, 0.3);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
         }
 
-        .hero-title {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(32px, 3.4vw, 44px);
-            font-weight: 800;
-            line-height: 1.2;
+        .portal-footer a:hover {
             color: #FFFFFF;
-            margin-bottom: 18px;
-            text-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+            text-decoration: underline;
         }
 
-        .hero-title em {
-            font-style: italic;
-            background: linear-gradient(120deg, #FFFFFF 20%, var(--gold-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-desc {
-            font-size: 15px;
-            line-height: 1.65;
-            color: #E2E8F0;
-            max-width: 480px;
-            margin-bottom: 32px;
-            font-weight: 300;
-        }
-
-        /* Feature Pillars Grid */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-top: auto;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 18px 16px;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            background: rgba(255, 255, 255, 0.14);
-            border-color: rgba(201, 168, 76, 0.45);
-            transform: translateY(-3px);
-        }
-
-        .feature-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-            display: inline-block;
-        }
-
-        .feature-card h6 {
-            color: #FFFFFF;
-            font-size: 13.5px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .feature-card p {
-            color: #CBD5E1;
-            font-size: 11.5px;
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        /* Alert Styling */
-        .alert-custom-danger {
+        /* Alerts */
+        .alert-portal-danger {
             background: #FEF2F2;
             border: 1px solid #FCA5A5;
             color: #991B1B;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 12px 16px;
             font-size: 13px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
+            animation: shakeAlert 0.4s ease-in-out;
         }
 
-        .alert-custom-success {
+        @keyframes shakeAlert {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .alert-portal-success {
             background: #ECFDF5;
             border: 1px solid #6EE7B7;
             color: #065F46;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 12px 16px;
             font-size: 13px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
-        /* Responsive Adjustments */
-        @media (max-width: 1024px) {
-            .auth-wrapper {
-                flex-direction: column;
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 580px) {
+            .auth-card-wrap {
+                max-width: 100%;
             }
-            .auth-left {
-                width: 100%;
-                min-height: auto;
-                padding: 36px 24px;
+            .auth-card {
+                padding: 30px 22px 26px 22px;
+                border-radius: 22px;
             }
-            .auth-right {
-                width: 100%;
-                min-height: 380px;
-                padding: 40px 24px;
+            .talbiyah-pill {
+                padding: 8px 18px;
             }
-            .feature-grid {
-                grid-template-columns: 1fr;
+            .talbiyah-pill span.sub,
+            .talbiyah-pill span.divider {
+                display: none;
             }
-            .brand-logo-img {
-                height: 100px;
+            .portal-logo-img {
+                height: 95px;
+            }
+            .brand-title-main {
+                font-size: 24px;
+            }
+            .security-badges {
+                flex-wrap: wrap;
+                gap: 10px;
             }
         }
     </style>
@@ -444,37 +613,64 @@
 
 <body>
 
-    <div class="auth-wrapper">
+    <!-- Atmospheric Panorama Background with Slow Zoom Animation -->
+    <div class="portal-bg"></div>
+    <div class="portal-overlay"></div>
 
-        <!-- ════ LEFT FORM CONTAINER ════ -->
-        <div class="auth-left">
+    <!-- Floating Noor Particles -->
+    <div class="particles-wrap">
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+        <div class="particle p3"></div>
+        <div class="particle p4"></div>
+        <div class="particle p5"></div>
+        <div class="particle p6"></div>
+        <div class="particle p7"></div>
+    </div>
 
-            <!-- Brand Centered Header with 120px Logo -->
-            <div class="brand-header-center">
-                <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" alt="Pirwani Hajj Group (Pvt.) Ltd." class="brand-logo-img">
+    <div class="portal-container">
+
+        <!-- ════ TOP SPIRITUAL RIBBON ════ -->
+        <header class="top-spiritual-ribbon">
+            <div class="talbiyah-pill">
+                <span class="arabic">لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ &bull; بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>
+                <span class="divider">|</span>
+                <span class="sub"><i class="ri-shield-star-fill text-warning"></i> Official Portal</span>
             </div>
+        </header>
 
-            <!-- Form Box -->
-            <div class="form-box">
+        <!-- ════ AUTHENTICATION CARD (EXPANDED & ANIMATED) ════ -->
+        <main class="auth-card-wrap">
+            <div class="auth-card">
 
-                <div class="text-center mb-3">
-                    <div class="welcome-badge">
-                        <i class="ri-shield-check-line"></i> Official Management Portal
+                <!-- Logo Medallion Frame (High-Contrast, Clean & Large) -->
+                <div class="logo-medallion">
+                    <div class="logo-frame">
+                        <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}?v={{ time() }}"
+                             alt="Baba Hajj Group (Pvt.) Ltd."
+                             class="portal-logo-img">
                     </div>
-                    <h1 class="welcome-title">Welcome Back</h1>
-                    <p class="welcome-desc">Sign in to manage Hajj bookings, flights, and operations</p>
+                </div>
+
+                <!-- Brand Header -->
+                <div class="brand-header-text">
+                    <div class="brand-badge">
+                        <i class="ri-government-line"></i> HAJJ & UMRAH PORTAL
+                    </div>
+                    <h1 class="brand-title-main">Sign In to Dashboard</h1>
+                    <p class="brand-subtitle-main">Enter your credentials to access Baba Hajj Group operations</p>
                 </div>
 
                 <!-- Status & Alerts -->
                 @if (session('success'))
-                    <div class="alert-custom-success d-flex align-items-center gap-2">
+                    <div class="alert-portal-success d-flex align-items-center gap-2">
                         <i class="ri-checkbox-circle-fill fs-16"></i>
                         <span>{{ session('success') }}</span>
                     </div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="alert-custom-danger">
+                    <div class="alert-portal-danger">
                         <div class="d-flex align-items-center gap-2 mb-1">
                             <i class="ri-error-warning-fill fs-16"></i>
                             <strong>Authentication Failed</strong>
@@ -492,94 +688,82 @@
                     @csrf
 
                     <!-- Email Field -->
-                    <div class="form-group-custom">
-                        <label class="form-label-custom" for="email">Email Address</label>
-                        <div class="input-icon-wrap">
+                    <div class="form-floating-custom">
+                        <label class="form-label-portal" for="email">
+                            <span>Email Address</span>
+                            <span class="text-muted fw-normal" style="font-size: 11px;">Authorized Staff</span>
+                        </label>
+                        <div class="input-wrapper-portal">
                             <input type="email" id="email" name="email"
-                                class="input-custom @error('email') is-invalid @enderror"
+                                class="input-control-portal @error('email') is-invalid @enderror"
                                 value="{{ old('email') }}" required autofocus
-                                placeholder="name@pirwanihajj.com">
-                            <i class="ri-mail-line input-icon-left"></i>
+                                placeholder="admin@babahajjgroup.com">
+                            <i class="ri-mail-line input-icon-portal"></i>
                         </div>
                     </div>
 
                     <!-- Password Field -->
-                    <div class="form-group-custom">
-                        <label class="form-label-custom" for="password">Password</label>
-                        <div class="input-icon-wrap">
+                    <div class="form-floating-custom">
+                        <label class="form-label-portal" for="password">
+                            <span>Password</span>
+                            <span class="text-muted fw-normal" style="font-size: 11px;">Case-sensitive</span>
+                        </label>
+                        <div class="input-wrapper-portal">
                             <input type="password" id="password" name="password"
-                                class="input-custom @error('password') is-invalid @enderror"
+                                class="input-control-portal @error('password') is-invalid @enderror"
                                 required placeholder="••••••••••••">
-                            <i class="ri-lock-line input-icon-left"></i>
-                            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+                            <i class="ri-lock-line input-icon-portal"></i>
+                            <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
                                 <i id="togglePasswordIcon" class="ri-eye-line"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- Remember Me Option -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <label class="d-flex align-items-center gap-2" style="font-size: 13px; color: var(--text-muted); cursor: pointer;">
-                            <input type="checkbox" name="remember" style="accent-color: var(--gold-primary); width: 16px; height: 16px; border-radius: 4px;">
-                            Remember me on this device
+                    <div class="remember-wrap">
+                        <label class="remember-label">
+                            <input type="checkbox" name="remember" class="remember-input">
+                            <span>Keep me signed in</span>
                         </label>
+                        <span class="text-muted" style="font-size: 12px;">
+                            <i class="ri-shield-keyhole-line text-warning"></i> Secure Auth
+                        </span>
                     </div>
 
-                    <!-- Submit Button -->
-                    <button type="submit" class="btn-submit-login">
+                    <!-- Submit Button with Sheen Animation -->
+                    <button type="submit" class="btn-portal-submit">
                         <span>Sign In to Hajj Portal</span>
-                        <i class="ri-arrow-right-line fs-18"></i>
+                        <i class="ri-arrow-right-line fs-18 btn-icon-arrow"></i>
                     </button>
                 </form>
 
             </div>
 
-            <!-- Footer -->
-            <div class="auth-footer">
-                &copy; {{ date('Y') }} Pirwani Hajj Group (Pvt.) Ltd. &bull; All Rights Reserved.
+            <!-- Security Badges -->
+            <div class="security-badges">
+                <span class="security-item">
+                    <i class="ri-lock-2-line"></i> 256-Bit Encrypted
+                </span>
+                <span class="security-item">&bull;</span>
+                <span class="security-item">
+                    <i class="ri-shield-check-line"></i> Ministry Authorized
+                </span>
+                <span class="security-item">&bull;</span>
+                <span class="security-item">
+                    <i class="ri-refresh-line"></i> Real-Time Sync
+                </span>
             </div>
+        </main>
 
-        </div>
-
-        <!-- ════ RIGHT HERO PANEL ════ -->
-        <div class="auth-right">
-
-            <div class="hero-content">
-                <div class="arabic-badge">
-                    لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ &bull; بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                </div>
-
-                <h2 class="hero-title">
-                    Serving the Blessed Pilgrims with <em>Excellence & Trust</em>
-                </h2>
-
-                <p class="hero-desc">
-                    Comprehensive portal for organizing Hajj operations, pilgrim contracts, flight logistics, and real-time financial reporting.
-                </p>
+        <!-- ════ FOOTER ════ -->
+        <footer class="portal-footer">
+            <div>
+                &copy; {{ date('Y') }} <strong>Baba Hajj Group (Pvt.) Ltd.</strong> &bull; All Rights Reserved.
             </div>
-
-            <!-- Feature Cards Bottom Grid -->
-            <div class="feature-grid hero-content">
-                <div class="feature-card">
-                    <div class="feature-icon">🕋</div>
-                    <h6>Hajj Operations</h6>
-                    <p>Complete pilgrim application & package management.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">✈️</div>
-                    <h6>Travel & Logistics</h6>
-                    <p>Real-time flight bookings, hotels & transportation.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">📑</div>
-                    <h6>Vouchers & Accounts</h6>
-                    <p>Automated invoices, multi-currency ledger & reports.</p>
-                </div>
+            <div style="font-size: 11px; margin-top: 4px; opacity: 0.85;">
+                Licensed Hajj & Umrah Tour Operator &bull; System Designed &amp; Developed by <a href="#!">Synergy Integrated Solutions</a>
             </div>
-
-        </div>
+        </footer>
 
     </div>
 

@@ -1,20 +1,20 @@
 @extends('layout.master')
-@section('title', 'Companies')
-@section('header-title', 'Companies')
+@section('title', 'Referrals')
+@section('header-title', 'Referrals')
 @section('content')
     <div class="content-page">
         <div class="content">
             <div class="container-fluid">
                 <div class="row mt-5">
                     <div class="col-md-12 d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 text-uppercase">All Companies</h6>
+                        <h6 class="mb-0 text-uppercase">All Referrals</h6>
                         <div class="mb-1 d-flex gap-2">
                             @can('company_create')
                             <a href="{{ route('company.create') }}"
                                 class="btn btn-primary btn-sm d-flex align-items-center gap-1"
                                 style="font-size: 12px; padding: 4px 12px;">
                                 <i data-feather="plus" style="width:14px; height:14px;"></i>
-                                Add Company
+                                Add Referral
                             </a>
                             @endcan
                             @can('company_trash_view')
@@ -38,8 +38,8 @@
                                 <thead class="text-center">
                                     <tr>
                                         <th>S:NO</th>
-                                        <th>Company Name</th>
-                                        <th>Company Code</th>
+                                        <th>Referral Name</th>
+                                        <th>Referral Code</th>
                                         <th>Established Date</th>
                                         <th>Action</th>
                                     </tr>
@@ -68,7 +68,7 @@
                                                     @can('company_trash')
                                                     <form action="{{ route('company.delete', $company->id) }}"
                                                         method="POST"
-                                                        onsubmit="return confirm('Are you sure you want to delete this Company?');">
+                                                        onsubmit="return confirm('Are you sure you want to delete this Referral?');">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"

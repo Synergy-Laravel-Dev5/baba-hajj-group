@@ -25,7 +25,7 @@
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link active" id="company-tab" data-bs-toggle="tab"
                                                     data-bs-target="#company-details" type="button">
-                                                    Company Details
+                                                    Referral Details
                                                 </button>
                                             </li>
                                             <li class="nav-item" role="presentation">
@@ -42,14 +42,14 @@
                                             </li>
                                         </ul>
                                         <div class="tab-pane fade show active" id="company-details">
-                                            <h5 class="mb-3"><b>Company Details</b></h5>
+                                            <h5 class="mb-3"><b>Referral Details</b></h5>
                                             <div class="row">
                                                 <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                                     <div class="mb-3">
-                                                        <label for="company_name"><b>Company Name</b><span
+                                                        <label for="company_name"><b>Referral Name</b><span
                                                                 class="text-danger"></span></label>
                                                         <input type="text" id="company_name" name="company_name"
-                                                            placeholder="Enter Company Name"
+                                                            placeholder="Enter Referral Name"
                                                             value="{{ old('company_name', $company->company_name ?? '') }}"
                                                             class="form-control">
                                                         @error('company_name')
@@ -59,10 +59,10 @@
                                                 </div>
                                                 <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                                     <div class="mb-3">
-                                                        <label for="company_code"><b>Company Code</b><span
+                                                        <label for="company_code"><b>Referral Code</b><span
                                                                 class="text-danger"></span></label>
                                                         <input type="text" id="company_code" name="company_code"
-                                                            placeholder="Enter Company Code"
+                                                            placeholder="Enter Referral Code"
                                                             value="{{ old('company_code', $company->company_code ?? '') }}"
                                                             class="form-control">
                                                         @error('company_code')
@@ -146,7 +146,7 @@
                                                 </div>
                                                 <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                                     <div class="mb-3">
-                                                        <label for="current_company_status"><b>Current Company
+                                                        <label for="current_company_status"><b>Current Referral
                                                                 Status</b></label>
                                                         <input type="text" id="current_company_status"
                                                             name="current_company_status"
@@ -160,11 +160,11 @@
                                                 </div>
                                                 @php
                                                     $imageFields = [
-                                                        'company_logo' => 'Company Logo',
-                                                        'company_stamp' => 'Company Stamp',
+                                                        'company_logo' => 'Referral Logo',
+                                                        'company_stamp' => 'Referral Stamp',
                                                         'letter_head_header' => 'Letter Head Header',
                                                         'letter_head_footer' => 'Letter Head Footer',
-                                                        'company_signature' => 'Company Signature',
+                                                        'company_signature' => 'Referral Signature',
                                                     ];
                                                 @endphp
                                                 @foreach ($imageFields as $field => $label)
@@ -189,7 +189,7 @@
                                                     </div>
                                                 @endforeach
                                             </div>
-                                            <h5 class="mb-3"><b>Company Registrations</b></h5>
+                                            <h5 class="mb-3"><b>Referral Registrations</b></h5>
                                             <div class="row">
                                                 <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                                     <div class="mb-3">
@@ -703,7 +703,7 @@
                                         <div class="mt-3 d-flex justify-content-end">
                                             <button type="submit"
                                                 class="btn btn-primary btn-sm px-3 d-flex align-items-center gap-1">
-                                                {{ isset($company) && $company ? 'Update Company' : 'Create Company' }}
+                                                {{ isset($company) && $company ? 'Update Referral' : 'Create Referral' }}
                                             </button>
                                         </div>
                                     </div>

@@ -52,9 +52,9 @@
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label fw-medium">Company</label>
+                                <label class="form-label fw-medium">Referral</label>
                                 <select name="company_id" class="form-select">
-                                    <option value="">-- All Companies --</option>
+                                    <option value="">-- All Referrals --</option>
                                     @foreach ($companies as $company)
                                         <option value="{{ $company->id }}"
                                             {{ request('company_id') == $company->id ? 'selected' : '' }}>

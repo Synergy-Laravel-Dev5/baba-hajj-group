@@ -119,7 +119,7 @@
     <table class="header-table">
         <tr>
             <td style="width: 60%; vertical-align: middle;">
-                <div class="header-title">PIRWANI HAJJ GROUP</div>
+                <div class="header-title">BABA HAJJ GROUP</div>
                 <div class="header-subtitle">Official Bus Passenger Manifest</div>
                 <div style="font-size: 10px; color: #475569; margin-top: 2px;">
                     Licensed Hajj & Umrah Tour Operator &bull; Kingdom of Saudi Arabia & Pakistan

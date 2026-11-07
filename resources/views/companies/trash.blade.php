@@ -1,19 +1,19 @@
 @extends('layout.master')
-@section('title', 'Trashed Companies')
-@section('header-title', 'Trashed Companies')
+@section('title', 'Trashed Referrals')
+@section('header-title', 'Trashed Referrals')
 @section('content')
     <div class="content-page">
         <div class="content">
             <div class="container-fluid">
                 <div class="row mt-5">
                     <div class="col-md-12 d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 text-uppercase">Trashed Companies</h6>
+                        <h6 class="mb-0 text-uppercase">Trashed Referrals</h6>
                         <div class="mb-1 d-flex gap-2">
                             <a href="{{ route('company.index') }}"
                                 class="btn btn-secondary btn-sm d-flex align-items-center gap-1"
                                 style="font-size: 12px; padding: 4px 12px;">
                                 <i data-feather="arrow-left" style="width:14px; height:14px;"></i>
-                                Back to Companies
+                                Back to Referrals
                             </a>
                         </div>
                     </div>
@@ -26,8 +26,8 @@
                                 <thead class="text-center">
                                     <tr>
                                         <th>S:NO</th>
-                                        <th>Company Name</th>
-                                        <th>Company Code</th>
+                                        <th>Referral Name</th>
+                                        <th>Referral Code</th>
                                         <th>Established Date</th>
                                         <th>Action</th>
                                     </tr>
@@ -44,7 +44,7 @@
                                                     @can('company_restore')
                                                     <a href="{{ route('company.restore', $company->id) }}"
                                                         class="btn btn-outline-success btn-sm d-flex align-items-center justify-content-center"
-                                                        onclick="return confirm('Are you sure you want to restore this Company?');">
+                                                        onclick="return confirm('Are you sure you want to restore this Referral?');">
                                                         <i data-feather="rotate-ccw" style="width:16px; height:16px;"></i>
                                                     </a>
                                                     @endcan
@@ -53,7 +53,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center">No trashed companies found.</td>
+                                            <td colspan="5" class="text-center">No trashed referrals found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

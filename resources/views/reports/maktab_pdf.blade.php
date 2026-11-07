@@ -137,7 +137,7 @@
 
     <!-- Header Box -->
     <div class="header-box">
-        <div class="header-title">PIRWANI HAJJ GROUP (PVT) LTD.</div>
+        <div class="header-title">BABA HAJJ GROUP (PVT) LTD.</div>
         <div class="header-subtitle">Official Maktab Report & Manifest • Hajj 1448 / 2027</div>
         <div class="header-meta">
             Generated: <strong>{{ date('d M Y, h:i A') }}</strong>

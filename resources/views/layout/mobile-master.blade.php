@@ -3,12 +3,14 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Mobile Operations | Pirwani Hajj Group</title>
+    <title>Mobile Operations | Baba Hajj Group</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- Favicon & Styles matching master.blade.php -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/PIRWANI PNG FILE.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet"
@@ -125,7 +127,6 @@
             width: auto !important;
             max-width: 220px !important;
             object-fit: contain !important;
-            filter: drop-shadow(0 2px 6px rgba(201, 168, 76, 0.25)) !important;
             display: block !important;
             margin: 0 auto !important;
         }
@@ -133,6 +134,7 @@
         .app-sidebar-menu {
             padding-top: 100px !important;
             background: #FFFFFF !important;
+            border-right: 1px solid #E2E8F0 !important;
             transition: all 0.2s ease-out !important;
         }
 
@@ -191,8 +193,8 @@
                     <div class="logo-box">
                         <a href="{{ route('mobile-ops.dashboard') }}" class="logo">
                             <span class="logo-lg">
-                                <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" class="sidebar-logo-full"
-                                    alt="Pirwani Logo">
+                                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" class="sidebar-logo-full"
+                                    alt="Baba Hajj Group Logo">
                             </span>
                         </a>
                     </div>

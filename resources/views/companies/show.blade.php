@@ -366,7 +366,7 @@
                                 @endif
                             </div>
                             <div class="cs-profile-name">{{ $company->company_name ?? 'N/A' }}</div>
-                            <div class="cs-profile-meta">Company Code: {{ $company->company_code ?? '-' }}</div>
+                            <div class="cs-profile-meta">Referral Code: {{ $company->company_code ?? '-' }}</div>
                             <span
                                 class="cs-badge {{ $company->current_company_status === 'Active' ? 'active' : 'inactive' }}">
                                 {{ $company->current_company_status ?? 'N/A' }}
@@ -382,15 +382,15 @@
                         </div>
                     </div>
 
-                    {{-- Company Details (A-Z: name, code, currency, established, quota, website, statuses) --}}
+                    {{-- Referral Details (A-Z: name, code, currency, established, quota, website, statuses) --}}
                     <div class="cs-card">
                         <div class="cs-card-head"><span class="cs-title"><span class="cs-ico"><i
-                                        class="fa fa-building"></i></span> Company Details</span></div>
+                                        class="fa fa-building"></i></span> Referral Details</span></div>
                         <div class="cs-card-body">
-                            <div class="cs-row"><label>Company Name</label>
+                            <div class="cs-row"><label>Referral Name</label>
                                 <div class="val">{{ $company->company_name ?? '-' }}</div>
                             </div>
-                            <div class="cs-row"><label>Company Code</label>
+                            <div class="cs-row"><label>Referral Code</label>
                                 <div class="val">{{ $company->company_code ?? '-' }}</div>
                             </div>
                             <div class="cs-row"><label>Currency Type</label>
@@ -417,20 +417,20 @@
                             <div class="cs-row"><label>Status on Establishment</label>
                                 <div class="val">{{ $company->company_status_on_establishment ?? '-' }}</div>
                             </div>
-                            <div class="cs-row"><label>Current Company Status</label>
+                            <div class="cs-row"><label>Current Referral Status</label>
                                 <div class="val">{{ $company->current_company_status ?? '-' }}</div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Company Images (Logo, Stamp, Letter Head Header/Footer, Signature) --}}
+                    {{-- Referral Images (Logo, Stamp, Letter Head Header/Footer, Signature) --}}
                     <div class="cs-card">
                         <div class="cs-card-head"><span class="cs-title"><span class="cs-ico"><i
-                                        class="fa fa-images"></i></span> Company Images</span></div>
+                                        class="fa fa-images"></i></span> Referral Images</span></div>
                         <div class="cs-card-body">
                             <div class="cs-thumb-row">
                                 <div class="cs-thumb-box">
-                                    <label>Company Logo</label>
+                                    <label>Referral Logo</label>
                                     @if ($company->company_logo)
                                         <img src="{{ asset('storage/' . $company->company_logo) }}" class="cs-thumb">
                                     @else
@@ -438,7 +438,7 @@
                                     @endif
                                 </div>
                                 <div class="cs-thumb-box">
-                                    <label>Company Stamp</label>
+                                    <label>Referral Stamp</label>
                                     @if ($company->company_stamp)
                                         <img src="{{ asset('storage/' . $company->company_stamp) }}" class="cs-thumb">
                                     @else
@@ -446,7 +446,7 @@
                                     @endif
                                 </div>
                                 <div class="cs-thumb-box">
-                                    <label>Company Signature</label>
+                                    <label>Referral Signature</label>
                                     @if ($company->company_signature)
                                         <img src="{{ asset('storage/' . $company->company_signature) }}" class="cs-thumb">
                                     @else

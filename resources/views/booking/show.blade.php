@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking — {{ $booking->client->name ?? 'N/A' }} | Pirwani Hajj Group</title>
+    <title>Booking — {{ $booking->client->name ?? 'N/A' }} | Baba Hajj Group</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -799,9 +801,9 @@
     <!-- ══════════════ TOP ACTION BAR ══════════════ -->
     <header class="top-action-bar no-print">
         <div class="bar-brand">
-            <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" alt="Pirwani Hajj Group" class="bar-logo-img" onerror="this.src='{{ asset('assets/images/logo.png') }}'">
+            <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group" class="bar-logo-img" onerror="this.src='{{ asset('assets/images/logo.png') }}'">
             <div class="bar-brand-text">
-                <h2>Pirwani Hajj Group</h2>
+                <h2>Baba Hajj Group</h2>
                 <p>Booking Management & Manifest Portal</p>
             </div>
         </div>
@@ -1516,7 +1518,7 @@
 
             var element = document.getElementById('page-top').parentElement;
             var clientName = '{{ addslashes($booking->client->name ?? "Booking") }}';
-            var filename = 'Pirwani-Hajj-' + clientName.replace(/\s+/g, '-') + '.pdf';
+            var filename = 'Baba-Hajj-' + clientName.replace(/\s+/g, '-') + '.pdf';
 
             var opt = {
                 margin: [6, 6, 6, 6],

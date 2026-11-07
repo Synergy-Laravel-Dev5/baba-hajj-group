@@ -217,7 +217,7 @@ class CompanyController extends Controller
 
             return redirect()
                 ->route('company.index')
-                ->with('success', 'Company created successfully.');
+                ->with('success', 'Referral created successfully.');
         } catch (Exception $e) {
 
             DB::rollBack();
@@ -462,7 +462,7 @@ class CompanyController extends Controller
 
             return redirect()
                 ->route('company.index')
-                ->with('success', 'Company updated successfully.');
+                ->with('success', 'Referral updated successfully.');
         } catch (Exception $e) {
 
 
@@ -492,7 +492,7 @@ class CompanyController extends Controller
 
             return redirect()
                 ->back()
-                ->with('success', 'Company moved to trash successfully.');
+                ->with('success', 'Referral moved to trash successfully.');
         } catch (Exception $e) {
             return redirect()
                 ->back()
@@ -516,7 +516,7 @@ class CompanyController extends Controller
 
             return redirect()
                 ->route('company.index')
-                ->with('success', 'Company restored successfully.');
+                ->with('success', 'Referral restored successfully.');
         } catch (Exception $e) {
             return redirect()
                 ->back()

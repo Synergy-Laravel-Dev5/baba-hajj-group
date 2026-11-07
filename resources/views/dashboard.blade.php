@@ -1,465 +1,790 @@
 @extends('layout.master')
 
 @section('content')
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
 
         :root {
-            --gold: #C9A84C;
-            --gold-light: #F0D080;
-            --gold-subtle: #FBF5E6;
-            --emerald: #1A6B4A;
-            --emerald-light: #228B5E;
-            --emerald-subtle: #E8F5EE;
-            --navy: #0F2544;
-            --navy-light: #1B3A6B;
-            --cream: #FDFAF4;
-            --text-dark: #1C1C1E;
-            --text-muted: #6B7280;
-            --border: #EDE8DC;
-            --card-shadow: 0 2px 16px rgba(15, 37, 68, .08);
-            --card-shadow-hover: 0 8px 32px rgba(15, 37, 68, .14);
+            --react-bg: #F8FAFC;
+            --react-card: #FFFFFF;
+            --react-border: #E2E8F0;
+            --react-border-hover: #CBD5E1;
+            --react-text-main: #0F172A;
+            --react-text-muted: #64748B;
+            --react-text-sub: #94A3B8;
 
-            /* Dynamic accent based on package */
-            --accent: {{ $package === 'hajj' ? '#C9A84C' : '#1A6B4A' }};
-            --accent-light: {{ $package === 'hajj' ? '#F0D080' : '#4CAF82' }};
-            --accent-subtle: {{ $package === 'hajj' ? '#FBF5E6' : '#E8F5EE' }};
+            --gold-primary: #C5A059;
+            --gold-light: #F4E5BE;
+            --gold-subtle: #FEF9EE;
+            --gold-dark: #8F6F25;
+            --gold-gradient: linear-gradient(135deg, #C5A059 0%, #DFBE76 50%, #B88E28 100%);
+
+            --emerald-primary: #059669;
+            --emerald-subtle: #ECFDF5;
+            --emerald-dark: #047857;
+            --emerald-gradient: linear-gradient(135deg, #059669 0%, #10B981 50%, #047857 100%);
+
+            --indigo-primary: #4F46E5;
+            --indigo-subtle: #EEF2FF;
+            --cyan-primary: #0284C7;
+            --cyan-subtle: #F0F9FF;
+            --amber-primary: #D97706;
+            --amber-subtle: #FFFBEB;
+            --rose-primary: #E11D48;
+            --rose-subtle: #FFF1F2;
+
+            /* Package active dynamic accent */
+            --pkg-accent: {{ $package === 'hajj' ? '#C5A059' : '#059669' }};
+            --pkg-subtle: {{ $package === 'hajj' ? '#FEF9EE' : '#ECFDF5' }};
+            --pkg-border: {{ $package === 'hajj' ? 'rgba(197, 160, 89, 0.4)' : 'rgba(5, 150, 105, 0.4)' }};
+            --pkg-glow: {{ $package === 'hajj' ? 'rgba(197, 160, 89, 0.18)' : 'rgba(5, 150, 105, 0.18)' }};
         }
 
         body {
-            font-family: 'DM Sans', sans-serif;
-            background-color: var(--cream) !important;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            background-color: var(--react-bg) !important;
+            color: var(--react-text-main) !important;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .page-title-font {
-            font-family: 'Playfair Display', serif;
-            color: var(--navy);
+        .content-page {
+            background-color: var(--react-bg) !important;
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           KEYFRAME ANIMATIONS
+        ══════════════════════════════════════════════════════════════ */
+        @keyframes dashFadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulseRadar {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        @keyframes shimmerSlow {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes floatGentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .anim-stagger-1 { animation: dashFadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.05s; }
+        .anim-stagger-2 { animation: dashFadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.12s; }
+        .anim-stagger-3 { animation: dashFadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.18s; }
+        .anim-stagger-4 { animation: dashFadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.24s; }
+        .anim-stagger-5 { animation: dashFadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.30s; }
+
+        /* ══════════════════════════════════════════════════════════════
+           EXECUTIVE HERO WELCOME BANNER
+        ══════════════════════════════════════════════════════════════ */
+        .react-hero-banner {
+            background: #FFFFFF;
+            border: 1px solid var(--react-border);
+            border-radius: 20px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03), 0 12px 24px -6px rgba(15, 23, 42, 0.02);
+            transition: all 0.25s ease;
+        }
+
+        .react-hero-banner:hover {
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05), 0 16px 32px -8px var(--pkg-glow);
+            border-color: var(--pkg-border);
+        }
+
+        .react-hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3.5px;
+            background: {{ $package === 'hajj' ? 'var(--gold-gradient)' : 'var(--emerald-gradient)' }};
+        }
+
+        .hero-left-content {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .hero-emblem-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: var(--pkg-subtle);
+            border: 1.5px solid var(--pkg-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 4px 12px var(--pkg-glow);
+            animation: floatGentle 3s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        .hero-text h2 {
             font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
+            font-weight: 800;
+            color: var(--react-text-main);
+            letter-spacing: -0.4px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .page-subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 400;
+        .hero-text p {
+            font-size: 13.5px;
+            color: var(--react-text-muted);
+            margin: 0;
+            font-weight: 500;
         }
 
-        /* ── Package Toggle Tabs ── */
-        .pkg-tabs {
+        .hero-status-pill {
             display: inline-flex;
-            background: #F0EBE0;
-            border-radius: 12px;
+            align-items: center;
+            gap: 6px;
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            color: #15803D;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+        }
+
+        .hero-pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulseRadar 1.8s infinite;
+        }
+
+        /* Hero Actions Group */
+        .hero-actions-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* React Segmented Tab Toggle */
+        .react-segmented-nav {
+            display: inline-flex;
+            background: #F1F5F9;
+            border-radius: 14px;
             padding: 4px;
             gap: 4px;
+            border: 1px solid #E2E8F0;
+            position: relative;
+            z-index: 10;
         }
 
-        .pkg-tab {
-            padding: 6px 18px;
-            border-radius: 9px;
+        .react-segmented-nav a {
+            padding: 7px 18px;
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             text-decoration: none;
-            color: var(--text-muted);
-            transition: all .2s ease;
+            color: #64748B;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            cursor: pointer !important;
+            user-select: none;
+            position: relative;
+            z-index: 11;
         }
 
-        .pkg-tab.active-hajj {
-            background: linear-gradient(135deg, var(--gold), var(--gold-light));
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(201, 168, 76, .35);
+        .react-segmented-nav a:hover {
+            color: var(--react-text-main);
         }
 
-        .pkg-tab.active-umrah {
-            background: linear-gradient(135deg, var(--emerald), #4CAF82);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(26, 107, 74, .30);
+        .react-segmented-nav a.active-hajj {
+            background: #FFFFFF;
+            color: var(--gold-dark);
+            border: 1px solid rgba(197, 160, 89, 0.4);
+            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.2), 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-weight: 700;
+            transform: scale(1.02);
         }
 
-        /* ── Year Dropdown ── */
-        .year-select {
+        .react-segmented-nav a.active-umrah {
+            background: #FFFFFF;
+            color: var(--emerald-dark);
+            border: 1px solid rgba(5, 150, 105, 0.4);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2), 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-weight: 700;
+            transform: scale(1.02);
+        }
+
+        /* Year Picker */
+        .react-year-control {
+            display: inline-flex;
+            align-items: center;
+            background: #FFFFFF;
+            border: 1.5px solid var(--react-border);
+            border-radius: 12px;
+            padding: 2px 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .react-year-control:hover {
+            border-color: var(--pkg-accent);
+        }
+
+        .react-year-control select {
+            border: none;
+            background: transparent;
             font-size: 13px;
-            font-weight: 600;
-            color: var(--navy);
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 6px 14px;
+            font-weight: 700;
+            color: var(--react-text-main);
+            padding: 6px 4px;
             cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%236B7280' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 30px;
             outline: none;
         }
 
-        .year-select:focus {
-            border-color: var(--accent);
+        /* Action Create Button */
+        .btn-hero-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 12px;
+            text-decoration: none;
+            background: linear-gradient(135deg, #071527 0%, #0E233E 55%, #15325B 100%);
+            color: #F3DC9B;
+            border: 1px solid #C9A84C;
+            box-shadow: 0 4px 12px rgba(7, 21, 39, 0.2);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* ── Stat Cards ── */
-        .stat-card {
-            background: #fff;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: var(--card-shadow);
-            padding: 20px;
-            transition: transform .25s ease, box-shadow .25s ease;
+        .btn-hero-action:hover {
+            background: linear-gradient(135deg, #D4AF37 0%, #B88E28 100%);
+            color: #071527;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(201, 168, 76, 0.4);
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           BENTO KPI CARDS WITH HOVER LIFT & GLOW
+        ══════════════════════════════════════════════════════════════ */
+        .bento-card {
+            background: #FFFFFF;
+            border-radius: 18px;
+            border: 1px solid var(--react-border);
+            padding: 22px 22px 18px 22px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 4px 12px rgba(15, 23, 42, 0.02);
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .stat-card::before {
+        .bento-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.03);
+            border-color: rgba(201, 168, 76, 0.4);
+        }
+
+        /* Ambient top indicator bar */
+        .bento-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 3px;
-            border-radius: 16px 16px 0 0;
         }
 
-        .stat-card.gold::before {
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+        .card-accent-gold::before { background: var(--gold-gradient); }
+        .card-accent-emerald::before { background: var(--emerald-gradient); }
+        .card-accent-indigo::before { background: linear-gradient(90deg, #4F46E5, #818CF8); }
+        .card-accent-cyan::before { background: linear-gradient(90deg, #0284C7, #38BDF8); }
+        .card-accent-amber::before { background: linear-gradient(90deg, #D97706, #FBBF24); }
+        .card-accent-rose::before { background: linear-gradient(90deg, #E11D48, #FB7185); }
+        .card-accent-violet::before { background: linear-gradient(90deg, #7C3AED, #A78BFA); }
+
+        .bento-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
         }
 
-        .stat-card.emerald::before {
-            background: linear-gradient(90deg, var(--emerald), #4CAF82);
+        .bento-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--react-text-muted);
+            margin: 0;
         }
 
-        .stat-card.navy::before {
-            background: linear-gradient(90deg, var(--navy), var(--navy-light));
-        }
-
-        .stat-card.teal::before {
-            background: linear-gradient(90deg, #0D7A8A, #28C4D4);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--card-shadow-hover);
-        }
-
-        .stat-icon-wrap {
-            width: 46px;
-            height: 46px;
+        .bento-icon-wrapper {
+            width: 42px;
+            height: 42px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 19px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             flex-shrink: 0;
         }
 
-        .stat-icon-wrap.gold {
-            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+        .bento-card:hover .bento-icon-wrapper {
+            transform: scale(1.1) rotate(4deg);
         }
 
-        .stat-icon-wrap.emerald {
-            background: linear-gradient(135deg, var(--emerald), #4CAF82);
+        .icon-box-gold { background: #FEF8EC; color: #B4882F; border: 1px solid #F5E5BE; }
+        .icon-box-emerald { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+        .icon-box-indigo { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; }
+        .icon-box-cyan { background: #F0F9FF; color: #0284C7; border: 1px solid #BAE6FD; }
+        .icon-box-amber { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+        .icon-box-rose { background: #FFF1F2; color: #E11D48; border: 1px solid #FECDD3; }
+        .icon-box-violet { background: #F5F3FF; color: #7C3AED; border: 1px solid #DDD6FE; }
+
+        .bento-value-row {
+            margin-bottom: 10px;
         }
 
-        .stat-icon-wrap.navy {
-            background: linear-gradient(135deg, var(--navy), var(--navy-light));
-        }
-
-        .stat-icon-wrap.teal {
-            background: linear-gradient(135deg, #0D7A8A, #28C4D4);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            margin-bottom: 6px;
-        }
-
-        .stat-value {
-            font-family: 'Playfair Display', serif;
+        .bento-value {
             font-size: 26px;
+            font-weight: 800;
+            color: var(--react-text-main);
+            letter-spacing: -0.6px;
+            line-height: 1.1;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .bento-unit {
+            font-size: 13.5px;
             font-weight: 700;
-            color: var(--text-dark);
-            line-height: 1;
-            margin-bottom: 8px;
+            color: var(--react-text-muted);
+            letter-spacing: normal;
         }
 
-        .badge-trend {
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 20px;
-        }
-
-        .badge-trend.up {
-            background: #EDFBF4;
-            color: #1A6B4A;
-        }
-
-        .badge-trend.down {
-            background: #FEF0F0;
-            color: #D94040;
-        }
-
-        /* ── Panel Cards ── */
-        .panel-card {
-            background: #fff;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: var(--card-shadow);
-        }
-
-        .panel-card .panel-header {
+        .bento-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
+            gap: 8px;
+            font-size: 12px;
+            color: var(--react-text-sub);
+            padding-top: 10px;
+            border-top: 1px solid #F1F5F9;
         }
 
-        .panel-card .panel-header h5 {
-            font-family: 'Playfair Display', serif;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--navy);
-            margin: 0;
-        }
-
-        .panel-card .panel-body {
-            padding: 18px 20px;
-        }
-
-        .panel-card .panel-body.p-0 {
-            padding: 0;
-        }
-
-        /* ── Table ── */
-        .bookings-table th {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .6px;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border) !important;
-            padding: 10px 14px;
-            background: #FAFAF8;
-        }
-
-        .bookings-table td {
-            font-size: 13px;
-            color: var(--text-dark);
-            padding: 11px 14px;
-            vertical-align: middle;
-            border-bottom: 1px solid #F4F0E8 !important;
-        }
-
-        .bookings-table tr:last-child td {
-            border-bottom: none !important;
-        }
-
-        .bookings-table tr:hover td {
-            background: var(--gold-subtle);
-        }
-
-        .pkg-badge {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 9px;
-            border-radius: 20px;
-            letter-spacing: .3px;
-        }
-
-        .pkg-badge.hajj {
-            background: #FBF5E6;
-            color: #9A6F1A;
-            border: 1px solid #E8D4A0;
-        }
-
-        .pkg-badge.umrah {
-            background: #E8F5EE;
-            color: #1A6B4A;
-            border: 1px solid #A8D5BC;
-        }
-
-        .pkg-badge.other {
-            background: #EEF2FF;
-            color: #3D5CCC;
-            border: 1px solid #BCC8F5;
-        }
-
-        .status-dot {
+        .trend-pill {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 3px;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .trend-pill.up {
+            background: #ECFDF5;
+            color: #059669;
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+
+        .trend-pill.down {
+            background: #FEF2F2;
+            color: #DC2626;
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+        .trend-pill.neutral {
+            background: #F1F5F9;
+            color: #475569;
+            border: 1px solid #E2E8F0;
+        }
+
+        /* Collection Progress Bar */
+        .collection-progress-wrap {
+            margin-top: 8px;
+            background: #F1F5F9;
+            height: 7px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .collection-progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #0284C7, #38BDF8);
+            transition: width 1s ease-in-out;
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           REACT PANELS (CHART & OPERATIONS & TABLES)
+        ══════════════════════════════════════════════════════════════ */
+        .react-panel-box {
+            background: #FFFFFF;
+            border-radius: 18px;
+            border: 1px solid var(--react-border);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 4px 12px rgba(15, 23, 42, 0.02);
+            overflow: hidden;
+            transition: all 0.25s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .react-panel-box:hover {
+            box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.06);
+            border-color: var(--react-border-hover);
+        }
+
+        .panel-box-header {
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--react-border);
+            background: #FFFFFF;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .panel-box-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--react-text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-box-subtitle {
             font-size: 12px;
+            color: var(--react-text-muted);
+            margin-top: 2px;
             font-weight: 500;
         }
 
-        .status-dot::before {
-            content: '';
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .status-dot.confirmed::before {
-            background: #1A6B4A;
-        }
-
-        .status-dot.pending::before {
-            background: #C9A84C;
-        }
-
-        .status-dot.cancelled::before {
-            background: #D94040;
-        }
-
-        /* ── Booking-for tag (client / company) ── */
-        .for-tag {
-            display: inline-block;
-            font-size: 9.5px;
-            font-weight: 700;
-            letter-spacing: .3px;
-            padding: 1px 6px;
-            border-radius: 8px;
-            margin-left: 4px;
-            vertical-align: middle;
-        }
-
-        .for-tag.company {
-            background: #EEF2FF;
-            color: #3D5CCC;
-        }
-
-        .for-tag.client {
-            background: #FFF8E8;
-            color: #9A6F1A;
-        }
-
-        /* ── Distribution Bars ── */
-        .dest-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid #F4F0E8;
-        }
-
-        .dest-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .dest-item:first-child {
-            padding-top: 0;
-        }
-
-        .dest-flag {
-            font-size: 20px;
-            width: 32px;
-            text-align: center;
-        }
-
-        .dest-bar-bg {
-            flex: 1;
-            height: 5px;
-            background: #EDE8DC;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .dest-bar-fill {
-            height: 100%;
-            border-radius: 4px;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
-        }
-
-        /* ── Quick Stats ── */
-        .qs-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 11px 0;
-            border-bottom: 1px solid #F4F0E8;
-        }
-
-        .qs-row:first-child {
-            padding-top: 0;
-        }
-
-        .qs-row:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .qs-icon {
-            width: 36px;
-            height: 36px;
+        /* Chart Controls Toggle */
+        .chart-toggle-group {
+            display: inline-flex;
+            background: #F1F5F9;
             border-radius: 10px;
+            padding: 3px;
+            gap: 3px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .btn-chart-toggle {
+            border: none;
+            background: transparent;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #64748B;
+            padding: 4px 10px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-chart-toggle.active {
+            background: #FFFFFF;
+            color: var(--react-text-main);
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Chart Meta Stats Bar */
+        .chart-meta-chips {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px 0 24px;
+            flex-wrap: wrap;
+        }
+
+        .chart-chip {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--react-text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chart-chip strong {
+            color: var(--react-text-main);
+            font-weight: 800;
+        }
+
+        /* Quick Service Tiles */
+        .service-tile {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 14px;
+            border-radius: 12px;
+            background: #F8FAFC;
+            border: 1px solid #F1F5F9;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-bottom: 10px;
+        }
+
+        .service-tile:last-child {
+            margin-bottom: 0;
+        }
+
+        .service-tile:hover {
+            background: #FFFFFF;
+            border-color: rgba(197, 160, 89, 0.4);
+            transform: translateX(4px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+            color: inherit;
+        }
+
+        .service-tile-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 20px;
             flex-shrink: 0;
+            transition: transform 0.2s ease;
         }
 
-        .qs-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
+        .service-tile:hover .service-tile-icon {
+            transform: scale(1.08);
         }
 
-        .qs-value {
-            font-size: 14.5px;
+        .service-tile-title {
+            font-size: 13.5px;
             font-weight: 700;
-            color: var(--text-dark);
-            line-height: 1.1;
+            color: var(--react-text-main);
+            margin-bottom: 2px;
         }
 
-        /* ── Animations ── */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(14px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .service-tile-desc {
+            font-size: 12px;
+            color: var(--react-text-muted);
+            margin: 0;
         }
 
-        .anim {
-            animation: fadeUp .45s ease both;
+        .service-tile-arrow {
+            color: #94A3B8;
+            font-size: 16px;
+            transition: transform 0.2s ease;
+            margin-left: auto;
         }
 
-        .anim-1 {
-            animation-delay: .05s;
+        .service-tile:hover .service-tile-arrow {
+            color: var(--gold-primary);
+            transform: translateX(3px);
         }
 
-        .anim-2 {
-            animation-delay: .10s;
+        /* ══════════════════════════════════════════════════════════════
+           REACT DATAGRID (RECENT BOOKINGS TABLE)
+        ══════════════════════════════════════════════════════════════ */
+        .table-search-input {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 6px 14px 6px 32px;
+            font-size: 12.5px;
+            font-weight: 500;
+            outline: none;
+            width: 220px;
+            transition: all 0.2s ease;
         }
 
-        .anim-3 {
-            animation-delay: .15s;
+        .table-search-input:focus {
+            background: #FFFFFF;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
+            width: 260px;
         }
 
-        .anim-4 {
-            animation-delay: .20s;
+        .react-table {
+            width: 100%;
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
-        .anim-9 {
-            animation-delay: .45s;
+        .react-table th {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--react-text-muted);
+            background: #F8FAFC;
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--react-border);
+            white-space: nowrap;
+        }
+
+        .react-table td {
+            padding: 13px 18px;
+            font-size: 13.5px;
+            color: var(--react-text-main);
+            vertical-align: middle;
+            border-bottom: 1px solid #F1F5F9;
+            transition: background 0.15s ease;
+        }
+
+        .react-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .react-table tr:hover td {
+            background: #F8FAFC;
+        }
+
+        .avatar-initial-react {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 12px;
+            color: #FFFFFF;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        .badge-entity-tag {
+            font-size: 9.5px;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin-left: 5px;
+        }
+
+        .badge-entity-co { background: #EEF2FF; color: #4F46E5; }
+        .badge-entity-cl { background: #FEF8EC; color: #B4882F; }
+
+        .react-pkg-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: capitalize;
+            display: inline-block;
+        }
+
+        .react-pkg-badge.hajj {
+            background: #FEF8EC;
+            color: #927329;
+            border: 1px solid #F5E5BE;
+        }
+
+        .react-pkg-badge.umrah {
+            background: #ECFDF5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+
+        .status-pill-paid {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #ECFDF5;
+            color: #047857;
+            border: 1px solid #A7F3D0;
+        }
+
+        .status-pill-balance {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #FEF2F2;
+            color: #B91C1C;
+            border: 1px solid #FECACA;
+        }
+
+        .action-icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #F1F5F9;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.18s ease;
+            font-size: 15px;
+        }
+
+        .action-icon-btn:hover {
+            background: #0E233E;
+            color: #F3DC9B;
+            transform: translateY(-1px);
         }
     </style>
 
@@ -467,532 +792,793 @@
         <div class="content">
             <div class="container-fluid">
 
-                {{-- ════ Page Header ════ --}}
-                <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column gap-3 mb-2 flex-wrap">
+                {{-- ══════════════════════════════════════════════════════════════
+                   1. EXECUTIVE HERO WELCOME BANNER (Animated)
+                ══════════════════════════════════════════════════════════════ --}}
+                <div class="react-hero-banner anim-stagger-1 mt-3">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="hero-left-content">
+                            <div class="hero-emblem-badge">
+                                {{ $package === 'hajj' ? '🕋' : '🌙' }}
+                            </div>
+                            <div class="hero-text">
+                                <h2>
+                                    <span>Assalam-o-Alaikum, {{ Auth::user()->name ?? 'Administrator' }}!</span>
+                                    <span class="hero-status-pill">
+                                        <span class="hero-pulse-dot"></span>
+                                        <span>LIVE CONNECTED • BABA HAJJ CLOUD</span>
+                                    </span>
+                                </h2>
+                                <p>
+                                    Real-time pilgrim manifests, logistics velocity & financial intelligence &bull;
+                                    <strong>{{ ucfirst($package) }} Cycle {{ $year }}</strong>
+                                </p>
+                            </div>
+                        </div>
 
-                    {{-- Title --}}
-                    <div class="flex-grow-1">
-                        <h4 class="page-title-font mb-1">
-                            🕋 Hajj Dashboard
-                        </h4>
-                        <p class="page-subtitle mb-0">Pirwani Hajj Group &mdash; {{ $year }}</p>
+                        <div class="hero-actions-bar">
+                            {{-- React Segmented Switcher (Hajj vs Umrah) --}}
+                            <div class="react-segmented-nav">
+                                <a href="{{ route('dashboard', ['package' => 'hajj', 'year' => $year]) }}"
+                                   class="{{ $package === 'hajj' ? 'active-hajj' : '' }}">
+                                    <span>🕋</span>
+                                    <span>Hajj</span>
+                                </a>
+                                <a href="{{ route('dashboard', ['package' => 'umrah', 'year' => $year]) }}"
+                                   class="{{ $package === 'umrah' ? 'active-umrah' : '' }}">
+                                    <span>🌙</span>
+                                    <span>Umrah</span>
+                                </a>
+                            </div>
+
+                            {{-- Year Picker --}}
+                            <form method="GET" action="{{ route('dashboard') }}" id="yearForm" class="m-0">
+                                <input type="hidden" name="package" value="{{ $package }}">
+                                <div class="react-year-control">
+                                    <i class="ri-calendar-event-line text-muted me-1"></i>
+                                    <select name="year" onchange="document.getElementById('yearForm').submit()">
+                                        @foreach ($availableYears as $yr)
+                                            <option value="{{ $yr }}" {{ $yr == $year ? 'selected' : '' }}>
+                                                Year {{ $yr }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </form>
+
+                            {{-- Quick Action: New Booking --}}
+                            @can('booking_create')
+                                <a href="{{ route('booking.create') }}" class="btn-hero-action">
+                                    <i class="ri-add-circle-line fs-16"></i>
+                                    <span>New Booking</span>
+                                </a>
+                            @endcan
+                        </div>
                     </div>
-
-                    {{-- Year Dropdown --}}
-                    <form method="GET" action="{{ route('dashboard') }}" id="yearForm">
-                        <input type="hidden" name="package" value="hajj">
-                        <select name="year" class="year-select" onchange="document.getElementById('yearForm').submit()">
-                            @foreach ($availableYears as $yr)
-                                <option value="{{ $yr }}" {{ $yr == $year ? 'selected' : '' }}>
-                                    {{ $yr }}</option>
-                            @endforeach
-                        </select>
-                    </form>
-
-                    {{-- Date Badge --}}
-                    <span class="badge rounded-pill px-3 py-2"
-                        style="background:var(--gold-subtle);color:var(--gold);border:1px solid #E0C97A;font-size:12px;font-weight:600;">
-                        <i class="mdi mdi-calendar-month me-1"></i> {{ now()->format('d M Y') }}
-                    </span>
                 </div>
 
-                {{-- ════ ROW 1 — STAT CARDS ════ --}}
-                <div class="row g-3 mb-3">
+                {{-- ══════════════════════════════════════════════════════════════
+                   2. CORE FINANCIAL & OPERATIONAL KPIS (Row 1 - Bento Cards)
+                ══════════════════════════════════════════════════════════════ --}}
+                <div class="row g-3 mb-3 anim-stagger-2">
 
-                    {{-- Total Users --}}
-                    <div class="col-6 col-md-4 anim anim-1">
-                        <div class="stat-card gold">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="stat-icon-wrap gold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                        viewBox="0 0 24 24">
-                                        <path fill="#fff"
-                                            d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4" />
-                                    </svg>
+                    {{-- Card 1: Bookings & Pax --}}
+                    <div class="col-6 col-md-3">
+                        <div class="bento-card card-accent-indigo">
+                            <div>
+                                <div class="bento-header">
+                                    <span class="bento-title">{{ ucfirst($package) }} Bookings</span>
+                                    <div class="bento-icon-wrapper icon-box-indigo">
+                                        <i class="ri-calendar-check-line"></i>
+                                    </div>
                                 </div>
-                                <p class="stat-label mb-0">Total Users</p>
+                                <div class="bento-value-row">
+                                    <div class="bento-value">
+                                        <span class="counter-number" data-target="{{ $totalBookings }}">0</span>
+                                        <span class="badge bg-dark text-white fw-bold px-2 py-1 ms-1" style="font-size: 11.5px; border-radius: 8px;">
+                                            {{ number_format($totalPax ?? 0) }} Pax
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="stat-value">{{ number_format($totalUsers) }}</div>
-                            <span class="badge-trend {{ $usersTrend >= 0 ? 'up' : 'down' }}">
-                                <i class="mdi mdi-trending-{{ $usersTrend >= 0 ? 'up' : 'down' }}"></i>
-                                {{ abs($usersTrend) }}%
-                            </span>
-                            <span class="ms-2" style="font-size:11.5px;color:var(--text-muted);">Last 7 days</span>
+                            <div class="bento-footer">
+                                <span class="trend-pill {{ $bookingsTrend >= 0 ? 'up' : 'down' }}">
+                                    <i class="ri-arrow-{{ $bookingsTrend >= 0 ? 'up' : 'down' }}-line"></i>
+                                    {{ abs($bookingsTrend) }}%
+                                </span>
+                                <span>Confirmed files</span>
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Expenses PKR --}}
-                    <div class="col-6 col-md-4 anim anim-2">
-                        <div class="stat-card emerald">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="stat-icon-wrap emerald">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                        viewBox="0 0 24 24">
-                                        <path fill="#fff"
-                                            d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m7 3a1 1 0 0 0-1 1v.27A3 3 0 0 0 9 10a3 3 0 0 0 3 3a1 1 0 0 1 0 2a1 1 0 0 1-1-1H9a3 3 0 0 0 2 2.72V17a1 1 0 0 0 2 0v-.27A3 3 0 0 0 15 14a3 3 0 0 0-3-3a1 1 0 0 1 0-2a1 1 0 0 1 1 1h2a3 3 0 0 0-2-2.72V6a1 1 0 0 0-1-1z" />
-                                    </svg>
+                    {{-- Card 2: Gross Invoiced Revenue --}}
+                    <div class="col-6 col-md-3">
+                        <div class="bento-card card-accent-emerald">
+                            <div>
+                                <div class="bento-header">
+                                    <span class="bento-title">Gross Revenue</span>
+                                    <div class="bento-icon-wrapper icon-box-emerald">
+                                        <i class="ri-line-chart-line"></i>
+                                    </div>
                                 </div>
-                                <p class="stat-label mb-0">Expenses (PKR)</p>
+                                <div class="bento-value-row">
+                                    <div class="bento-value">
+                                        <span class="bento-unit">PKR</span>
+                                        <span class="counter-number" data-target="{{ $totalRevenue }}">0</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="stat-value">{{ number_format($totalExpensesPkr) }}</div>
-                            <span class="badge-trend {{ $expensesTrend >= 0 ? 'up' : 'down' }}">
-                                <i class="mdi mdi-trending-{{ $expensesTrend >= 0 ? 'up' : 'down' }}"></i>
-                                {{ abs($expensesTrend) }}%
-                            </span>
-                            <span class="ms-2" style="font-size:11.5px;color:var(--text-muted);">Last 7 days</span>
+                            <div class="bento-footer">
+                                <span class="trend-pill {{ $revenueTrend >= 0 ? 'up' : 'down' }}">
+                                    <i class="ri-arrow-{{ $revenueTrend >= 0 ? 'up' : 'down' }}-line"></i>
+                                    {{ abs($revenueTrend) }}%
+                                </span>
+                                <span>Total packages billed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Card 3: Total Collections Received --}}
+                    <div class="col-6 col-md-3">
+                        <div class="bento-card card-accent-cyan">
+                            <div>
+                                <div class="bento-header">
+                                    <span class="bento-title">Total Collected</span>
+                                    <div class="bento-icon-wrapper icon-box-cyan">
+                                        <i class="ri-wallet-3-line"></i>
+                                    </div>
+                                </div>
+                                <div class="bento-value-row">
+                                    <div class="bento-value">
+                                        <span class="bento-unit">PKR</span>
+                                        <span class="counter-number" data-target="{{ $totalReceived }}">0</span>
+                                    </div>
+                                    @php
+                                        $collectionRate = $totalRevenue > 0 ? min(100, round(($totalReceived / $totalRevenue) * 100, 1)) : 0;
+                                    @endphp
+                                    <div class="collection-progress-wrap" title="Collection Rate: {{ $collectionRate }}%">
+                                        <div class="collection-progress-bar" style="width: {{ $collectionRate }}%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bento-footer">
+                                <span class="trend-pill {{ $receivedTrend >= 0 ? 'up' : 'down' }}">
+                                    <i class="ri-arrow-{{ $receivedTrend >= 0 ? 'up' : 'down' }}-line"></i>
+                                    {{ abs($receivedTrend) }}%
+                                </span>
+                                <span><strong>{{ $collectionRate }}%</strong> collected</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Card 4: Operating Profit / Loss --}}
+                    <div class="col-6 col-md-3">
+                        <div class="bento-card {{ $isProfit ? 'card-accent-gold' : 'card-accent-rose' }}">
+                            <div>
+                                <div class="bento-header">
+                                    <span class="bento-title">{{ $isProfit ? 'Net Operating Profit' : 'Operating Deficit' }}</span>
+                                    <div class="bento-icon-wrapper {{ $isProfit ? 'icon-box-gold' : 'icon-box-rose' }}">
+                                        <i class="ri-{{ $isProfit ? 'funds-line' : 'error-warning-line' }}"></i>
+                                    </div>
+                                </div>
+                                <div class="bento-value-row">
+                                    <div class="bento-value" style="color: {{ $isProfit ? '#059669' : '#DC2626' }};">
+                                        <span class="bento-unit" style="color: {{ $isProfit ? '#059669' : '#DC2626' }};">{{ $isProfit ? 'PKR' : '- PKR' }}</span>
+                                        <span class="counter-number" data-target="{{ abs($profit) }}">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bento-footer">
+                                <span class="trend-pill {{ $isProfit ? 'up' : 'down' }}">
+                                    {{ $isProfit ? 'Profitable Cycle' : 'Review Expenses' }}
+                                </span>
+                                <span>Revenue minus costs</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {{-- ══════════════════════════════════════════════════════════════
+                   3. SECONDARY OPERATIONAL KPIS (Row 2 - Expenses & Team)
+                ══════════════════════════════════════════════════════════════ --}}
+                <div class="row g-3 mb-4 anim-stagger-3">
+
+                    {{-- Expenses PKR --}}
+                    <div class="col-6 col-md-4">
+                        <div class="bento-card card-accent-amber">
+                            <div>
+                                <div class="bento-header">
+                                    <span class="bento-title">Pakistan Expenses</span>
+                                    <div class="bento-icon-wrapper icon-box-amber">
+                                        <i class="ri-bank-card-line"></i>
+                                    </div>
+                                </div>
+                                <div class="bento-value-row">
+                                    <div class="bento-value">
+                                        <span class="bento-unit">PKR</span>
+                                        <span class="counter-number" data-target="{{ $totalExpensesPkr }}">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bento-footer">
+                                <span class="trend-pill {{ $expensesTrend >= 0 ? 'down' : 'up' }}">
+                                    <i class="ri-arrow-{{ $expensesTrend >= 0 ? 'up' : 'down' }}-line"></i>
+                                    {{ abs($expensesTrend) }}% 7-day
+                                </span>
+                                <span>Local operations</span>
+                            </div>
                         </div>
                     </div>
 
                     {{-- Expenses SAR --}}
-                    <div class="col-6 col-md-4 anim anim-3">
-                        <div class="stat-card" style="border-color:var(--border);">
-                            <div
-                                style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;background:linear-gradient(90deg,#B45309,#F59E0B);">
-                            </div>
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="stat-icon-wrap" style="background:linear-gradient(135deg,#B45309,#F59E0B);">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                        viewBox="0 0 24 24">
-                                        <path fill="#fff"
-                                            d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m7 3a1 1 0 0 0-1 1v.27A3 3 0 0 0 9 10a3 3 0 0 0 3 3a1 1 0 0 1 0 2a1 1 0 0 1-1-1H9a3 3 0 0 0 2 2.72V17a1 1 0 0 0 2 0v-.27A3 3 0 0 0 15 14a3 3 0 0 0-3-3a1 1 0 0 1 0-2a1 1 0 0 1 1 1h2a3 3 0 0 0-2-2.72V6a1 1 0 0 0-1-1z" />
-                                    </svg>
+                    <div class="col-6 col-md-4">
+                        <div class="bento-card card-accent-violet">
+                            <div>
+                                <div class="bento-header">
+                                    <span class="bento-title">Saudi Operations (SAR)</span>
+                                    <div class="bento-icon-wrapper icon-box-violet">
+                                        <i class="ri-exchange-dollar-line"></i>
+                                    </div>
                                 </div>
-                                <p class="stat-label mb-0">Expenses (SAR)</p>
+                                <div class="bento-value-row">
+                                    <div class="bento-value">
+                                        <span class="counter-number" data-target="{{ $totalExpensesSar }}">0</span>
+                                        <span class="bento-unit" style="color: #7C3AED;">SAR</span>
+                                    </div>
+                                    <div class="mt-1">
+                                        <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 11.5px;">
+                                            ≈ PKR <span class="counter-number" data-target="{{ $totalExpensesSarInPkr }}">0</span>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            {{-- SAR amount bada --}}
-                            <div class="stat-value">
-                                <span style="font-size:18px;font-weight:600;">{{ number_format($totalExpensesSar) }} SAR ≈
-                                    {{ number_format($totalExpensesSarInPkr) }} PKR</span>
+                            <div class="bento-footer">
+                                <span class="trend-pill neutral">Saudi Maktab & Hotels</span>
+                                <span>Converted to PKR</span>
                             </div>
-                            {{-- PKR equivalent chota --}}
-                            {{-- <div style="font-size:12.5px;font-weight:600;color:#B45309;margin-bottom:6px;">
-                            </div> --}}
-                            <span class="badge-trend {{ $expensesTrend >= 0 ? 'up' : 'down' }}">
-                                <i class="mdi mdi-trending-{{ $expensesTrend >= 0 ? 'up' : 'down' }}"></i>
-                                {{ abs($expensesTrend) }}%
-                            </span>
-                            <span class="ms-2" style="font-size:11.5px;color:var(--text-muted);">Last 7 days</span>
                         </div>
                     </div>
 
-                </div>
-                {{-- End Row 1 --}}
-
-                {{-- ════ ROW 2 — BOOKINGS + REVENUE + RECEIVED + PROFIT ════ --}}
-                <div class="row g-3 mb-3">
-
-                    {{-- Total Bookings --}}
-                    <div class="col-6 col-md-3 anim anim-1">
-                        <div class="stat-card navy">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="stat-icon-wrap navy">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                        viewBox="0 0 24 24">
-                                        <path fill="#fff"
-                                            d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m0 16H5V10h14zm0-12H5V6h14z" />
-                                    </svg>
+                    {{-- System Users & Staff --}}
+                    <div class="col-12 col-md-4">
+                        <div class="bento-card card-accent-gold">
+                            <div>
+                                <div class="bento-header">
+                                    <span class="bento-title">Active Team & Agents</span>
+                                    <div class="bento-icon-wrapper icon-box-gold">
+                                        <i class="ri-user-settings-line"></i>
+                                    </div>
                                 </div>
-                                <p class="stat-label mb-0">{{ ucfirst($package) }} Bookings</p>
+                                <div class="bento-value-row">
+                                    <div class="bento-value">
+                                        <span class="counter-number" data-target="{{ $totalUsers }}">0</span>
+                                        <span class="bento-unit">Operators</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="stat-value d-flex align-items-baseline gap-2">
-                                <span>{{ number_format($totalBookings) }}</span>
-                                <span class="badge bg-dark text-white fw-bold px-2 py-1" style="font-size:12px; letter-spacing:0.5px;" title="Total Pilgrims (Pax)">
-                                    <i class="mdi mdi-account-group me-1"></i>{{ number_format($totalPax ?? 0) }} Pax
+                            <div class="bento-footer">
+                                <span class="trend-pill {{ $usersTrend >= 0 ? 'up' : 'down' }}">
+                                    <i class="ri-arrow-{{ $usersTrend >= 0 ? 'up' : 'down' }}-line"></i>
+                                    {{ abs($usersTrend) }}%
                                 </span>
+                                <span>Portal users active</span>
                             </div>
-                            <span class="badge-trend {{ $bookingsTrend >= 0 ? 'up' : 'down' }}">
-                                <i class="mdi mdi-trending-{{ $bookingsTrend >= 0 ? 'up' : 'down' }}"></i>
-                                {{ abs($bookingsTrend) }}%
-                            </span>
-                            <span class="ms-2" style="font-size:11.5px;color:var(--text-muted);">Last 7 days</span>
-                        </div>
-                    </div>
-
-                    {{-- Total Revenue --}}
-                    <div class="col-6 col-md-3 anim anim-2">
-                        <div class="stat-card teal">
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="stat-icon-wrap teal">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                        viewBox="0 0 24 24">
-                                        <path fill="#fff"
-                                            d="M7 15h2c0 1.08 1.37 2 3 2s3-.92 3-2c0-1.1-1.04-1.5-3.24-2.03C9.64 12.44 7 11.78 7 9c0-1.79 1.47-3.31 3.5-3.82V3h3v2.18C15.53 5.69 17 7.21 17 9h-2c0-1.08-1.37-2-3-2s-3 .92-3 2c0 1.1 1.04 1.5 3.24 2.03C14.36 11.56 17 12.22 17 15c0 1.79-1.47 3.31-3.5 3.82V21h-3v-2.18C8.47 18.31 7 16.79 7 15" />
-                                    </svg>
-                                </div>
-                                <p class="stat-label mb-0">{{ ucfirst($package) }} Revenue</p>
-                            </div>
-                            <div class="stat-value">{{ number_format($totalRevenue) }}</div>
-                            <span class="badge-trend {{ $revenueTrend >= 0 ? 'up' : 'down' }}">
-                                <i class="mdi mdi-trending-{{ $revenueTrend >= 0 ? 'up' : 'down' }}"></i>
-                                {{ abs($revenueTrend) }}%
-                            </span>
-                            <span class="ms-2" style="font-size:11.5px;color:var(--text-muted);">Last 7 days</span>
-                        </div>
-                    </div>
-
-                    {{-- Total Received (Payments) --}}
-                    <div class="col-6 col-md-3 anim anim-3">
-                        <div class="stat-card" style="border-color:var(--border);">
-                            <div
-                                style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;background:linear-gradient(90deg,#7C3AED,#A78BFA);">
-                            </div>
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="stat-icon-wrap" style="background:linear-gradient(135deg,#7C3AED,#A78BFA);">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                        viewBox="0 0 24 24">
-                                        <path fill="#fff"
-                                            d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2m0 14H4v-6h16zm0-10H4V6h16z" />
-                                    </svg>
-                                </div>
-                                <p class="stat-label mb-0">Total Received</p>
-                            </div>
-                            <div class="stat-value">{{ number_format($totalReceived) }}</div>
-                            <span class="badge-trend {{ $receivedTrend >= 0 ? 'up' : 'down' }}">
-                                <i class="mdi mdi-trending-{{ $receivedTrend >= 0 ? 'up' : 'down' }}"></i>
-                                {{ abs($receivedTrend) }}%
-                            </span>
-                            <span class="ms-2" style="font-size:11.5px;color:var(--text-muted);">Last 7 days</span>
-                        </div>
-                    </div>
-
-                    {{-- Profit / Loss --}}
-                    <div class="col-6 col-md-3 anim anim-4">
-                        <div class="stat-card" style="border-color:var(--border);">
-                            <div
-                                style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;background:{{ $isProfit ? 'linear-gradient(90deg,#1A6B4A,#4CAF82)' : 'linear-gradient(90deg,#D94040,#F87171)' }};">
-                            </div>
-                            <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="stat-icon-wrap"
-                                    style="background:{{ $isProfit ? 'linear-gradient(135deg,#1A6B4A,#4CAF82)' : 'linear-gradient(135deg,#D94040,#F87171)' }};">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                                        viewBox="0 0 24 24">
-                                        <path fill="#fff"
-                                            d="{{ $isProfit ? 'M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z' : 'M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z' }}" />
-                                    </svg>
-                                </div>
-                                <p class="stat-label mb-0">{{ $isProfit ? 'Net Profit' : 'Net Loss' }}</p>
-                            </div>
-                            <div class="stat-value" style="color:{{ $isProfit ? '#1A6B4A' : '#D94040' }};">
-                                {{ $isProfit ? '' : '-' }}{{ number_format(abs($profit)) }}
-                            </div>
-                            <span class="badge-trend {{ $isProfit ? 'up' : 'down' }}">
-                                <i class="mdi mdi-{{ $isProfit ? 'check-circle' : 'alert-circle' }}"></i>
-                                {{ $isProfit ? 'Profit' : 'Loss' }}
-                            </span>
-                            <span class="ms-2" style="font-size:11.5px;color:var(--text-muted);">Revenue −
-                                Expenses</span>
                         </div>
                     </div>
 
                 </div>
-                {{-- End Row 2 --}}
 
-                {{-- ════ ROW 3 — CHART ════ --}}
-                <div class="row g-3 mb-3">
+                {{-- ══════════════════════════════════════════════════════════════
+                   4. MONTHLY BOOKING VELOCITY & LOGISTICS SERVICES (Row 3)
+                ══════════════════════════════════════════════════════════════ --}}
+                <div class="row g-3 mb-4 anim-stagger-4">
 
-                    {{-- Monthly Bar Chart --}}
-                    <div class="col-12 anim anim-9">
-                        <div class="panel-card">
-                            <div class="panel-header">
-                                <h5>{{ ucfirst($package) }} Bookings — {{ $year }}</h5>
-                                <span style="font-size:12px;color:var(--text-muted);">Monthly breakdown</span>
+                    {{-- Left 8 Cols: ApexCharts Booking Velocity --}}
+                    <div class="col-12 col-xl-8">
+                        <div class="react-panel-box">
+                            <div class="panel-box-header">
+                                <div>
+                                    <h5 class="panel-box-title">
+                                        <i class="ri-bar-chart-grouped-line text-warning"></i>
+                                        <span>{{ ucfirst($package) }} Booking Velocity — {{ $year }}</span>
+                                    </h5>
+                                    <div class="panel-box-subtitle">12-Month cyclical pilgrim intake and seasonal booking trends</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="chart-toggle-group">
+                                        <button type="button" class="btn-chart-toggle active" id="btnChartBar" onclick="setChartType('bar')">
+                                            <i class="ri-bar-chart-fill"></i> Column
+                                        </button>
+                                        <button type="button" class="btn-chart-toggle" id="btnChartArea" onclick="setChartType('area')">
+                                            <i class="ri-line-chart-fill"></i> Spline
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="panel-body">
-                                <div id="bookings-chart" style="min-height:280px;"></div>
+
+                            {{-- Chart Summary Chips --}}
+                            @php
+                                $totalAnnualBookings = array_sum($monthlyData);
+                                $peakMonthlyValue = !empty($monthlyData) ? max($monthlyData) : 0;
+                                $peakMonthIndex = !empty($monthlyData) ? array_search($peakMonthlyValue, $monthlyData) : 0;
+                                $monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                $peakMonthName = $monthsList[$peakMonthIndex] ?? 'N/A';
+                            @endphp
+                            <div class="chart-meta-chips">
+                                <div class="chart-chip">
+                                    <span>Annual Volume:</span>
+                                    <strong>{{ number_format($totalAnnualBookings) }} Files</strong>
+                                </div>
+                                <div class="chart-chip">
+                                    <span>Peak Month:</span>
+                                    <strong>{{ $peakMonthName }} ({{ number_format($peakMonthlyValue) }})</strong>
+                                </div>
+                                <div class="chart-chip">
+                                    <span>Monthly Avg:</span>
+                                    <strong>{{ round($totalAnnualBookings / 12, 1) }} / mo</strong>
+                                </div>
+                            </div>
+
+                            <div class="p-3">
+                                <div id="bookings-chart" style="min-height: 290px;"></div>
                             </div>
                         </div>
                     </div>
 
-                </div>{{-- End Row 3 --}}
+                    {{-- Right 4 Cols: Logistics Pipeline Services --}}
+                    <div class="col-12 col-xl-4">
+                        <div class="react-panel-box">
+                            <div class="panel-box-header">
+                                <div>
+                                    <h5 class="panel-box-title">
+                                        <i class="ri-pulse-line text-success"></i>
+                                        <span>Logistics Operations</span>
+                                    </h5>
+                                    <div class="panel-box-subtitle">Live service allocations & pipelines</div>
+                                </div>
+                            </div>
 
-                {{-- ════ ROW 4 — TABLE + SIDE PANELS ════ --}}
-                <div class="row g-3 mb-4">
+                            <div class="p-3">
+                                {{-- Flight Itineraries --}}
+                                @can('flight_view')
+                                    <a href="{{ route('flight.index') }}" class="service-tile">
+                                        <div class="service-tile-icon" style="background:#FEF8EC; color:#B4882F; border:1px solid #F5E5BE;">
+                                            ✈️
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="service-tile-title">Flight Itineraries</div>
+                                            <div class="service-tile-desc">{{ number_format($flightsThisMonth) }} active this month</div>
+                                        </div>
+                                        <i class="ri-arrow-right-s-line service-tile-arrow"></i>
+                                    </a>
+                                @else
+                                    <div class="service-tile">
+                                        <div class="service-tile-icon" style="background:#FEF8EC; color:#B4882F; border:1px solid #F5E5BE;">
+                                            ✈️
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="service-tile-title">Flight Itineraries</div>
+                                            <div class="service-tile-desc">{{ number_format($flightsThisMonth) }} active this month</div>
+                                        </div>
+                                    </div>
+                                @endcan
 
-                    {{-- Recent Bookings Table --}}
-                    <div class="col-md-12 col-xl-8">
-                        <div class="panel-card">
-                            <div class="panel-header">
-                                <h5>Recent {{ ucfirst($package) }} Bookings</h5>
-                                <a href="{{ route('booking.index') }}"
-                                    style="font-size:12.5px;font-weight:600;color:var(--gold);text-decoration:none;">
-                                    View All <i class="mdi mdi-arrow-right"></i>
+                                {{-- Hotel Allocations --}}
+                                @can('hotel_view')
+                                    <a href="{{ route('hotel.index') }}" class="service-tile">
+                                        <div class="service-tile-icon" style="background:#ECFDF5; color:#059669; border:1px solid #A7F3D0;">
+                                            🏨
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="service-tile-title">Hotels & Maktabs</div>
+                                            <div class="service-tile-desc">{{ number_format($hotelsThisMonth) }} allocations logged</div>
+                                        </div>
+                                        <i class="ri-arrow-right-s-line service-tile-arrow"></i>
+                                    </a>
+                                @else
+                                    <div class="service-tile">
+                                        <div class="service-tile-icon" style="background:#ECFDF5; color:#059669; border:1px solid #A7F3D0;">
+                                            🏨
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="service-tile-title">Hotels & Maktabs</div>
+                                            <div class="service-tile-desc">{{ number_format($hotelsThisMonth) }} allocations logged</div>
+                                        </div>
+                                    </div>
+                                @endcan
+
+                                {{-- Visa Approvals --}}
+                                @canany(['visa_country_view', 'visa_inquiry_view'])
+                                    <a href="{{ Route::has('mobile-ops.visa-countries.index') ? route('mobile-ops.visa-countries.index') : route('mobile-ops.dashboard') }}" class="service-tile">
+                                        <div class="service-tile-icon" style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE;">
+                                            📄
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="service-tile-title">Visa E-Passes</div>
+                                            <div class="service-tile-desc">{{ number_format($visasApproved) }} approvals issued</div>
+                                        </div>
+                                        <i class="ri-arrow-right-s-line service-tile-arrow"></i>
+                                    </a>
+                                @else
+                                    <div class="service-tile">
+                                        <div class="service-tile-icon" style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE;">
+                                            📄
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="service-tile-title">Visa E-Passes</div>
+                                            <div class="service-tile-desc">{{ number_format($visasApproved) }} approvals issued</div>
+                                        </div>
+                                    </div>
+                                @endcan
+
+                                {{-- Pilgrim Groups --}}
+                                <a href="{{ route('booking.index') }}" class="service-tile">
+                                    <div class="service-tile-icon" style="background:#FEF8EC; color:#B4882F; border:1px solid #F5E5BE;">
+                                        👥
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="service-tile-title">{{ ucfirst($package) }} Group Manifests</div>
+                                        <div class="service-tile-desc">{{ number_format($totalBookings) }} Files &bull; {{ number_format($totalPax ?? 0) }} Pax</div>
+                                    </div>
+                                    <i class="ri-arrow-right-s-line service-tile-arrow"></i>
                                 </a>
                             </div>
-                            <div class="panel-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table bookings-table mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>Customer</th>
-                                                <th>Package</th>
-                                                <th>Pax</th>
-                                                <th>Amount</th>
-                                                <th>Balance</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse($recentBookings as $booking)
-                                                @php
-                                                    // ── FIX: booking_for ke hisab se client ya company
-                                                    // ka naam/email dikhao, warna company bookings
-                                                    // mein "N/A" show hota tha ──
-                                                    $isCompanyBooking = $booking->booking_for === 'company';
+                        </div>
+                    </div>
 
-                                                    $clientName = $isCompanyBooking
-                                                        ? optional($booking->company)->name ?? 'N/A'
-                                                        : optional($booking->client)->name ?? 'N/A';
+                </div>
 
-                                                    $clientEmail = $isCompanyBooking
-                                                        ? optional($booking->company)->email ?? ''
-                                                        : optional($booking->client)->email ?? '';
+                {{-- ══════════════════════════════════════════════════════════════
+                   5. RECENT BOOKINGS DATAGRID (Row 4 - With Client Filter)
+                ══════════════════════════════════════════════════════════════ --}}
+                <div class="row g-3 mb-4 anim-stagger-5">
+                    <div class="col-12">
+                        <div class="react-panel-box">
+                            <div class="panel-box-header">
+                                <div>
+                                    <h5 class="panel-box-title">
+                                        <i class="ri-file-list-3-line text-primary"></i>
+                                        <span>Recent Confirmed Bookings</span>
+                                    </h5>
+                                    <div class="panel-box-subtitle">Latest pilgrim applications and company allocations</div>
+                                </div>
 
-                                                    $words = explode(' ', trim($clientName));
-                                                    $initials = strtoupper(
-                                                        substr($words[0] ?? '', 0, 1) . substr($words[1] ?? '', 0, 1),
-                                                    );
-                                                    $gradMap = [
-                                                        'hajj' => 'var(--gold), var(--gold-light)',
-                                                        'umrah' => 'var(--emerald), #4CAF82',
-                                                        'other' => '#3D5CCC, #6B7FF0',
-                                                    ];
-                                                    $grad =
-                                                        $gradMap[$booking->package_type] ??
-                                                        'var(--navy), var(--navy-light)';
-                                                @endphp
-                                                <tr>
-                                                    <td>
-                                                        <div class="d-flex align-items-center gap-2">
-                                                            <div
-                                                                style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,{{ $grad }});display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:11px;flex-shrink:0;">
-                                                                {{ $initials }}
+                                <div class="d-flex align-items-center gap-2">
+                                    {{-- Instant Filter Input --}}
+                                    <div class="position-relative">
+                                        <i class="ri-search-line position-absolute top-50 translate-middle-y ms-2 text-muted" style="font-size: 13px;"></i>
+                                        <input type="text" id="bookingSearchInput" class="table-search-input" placeholder="Search client name...">
+                                    </div>
+
+                                    <a href="{{ route('booking.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius: 10px; font-weight: 600; font-size: 12.5px;">
+                                        <span>View All</span>
+                                        <i class="ri-arrow-right-line ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="react-table" id="recentBookingsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Client / Entity</th>
+                                            <th>Package Type</th>
+                                            <th>Pax</th>
+                                            <th>Total (PKR)</th>
+                                            <th>Payment Status</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($recentBookings as $booking)
+                                            @php
+                                                $isCompanyBooking = $booking->booking_for === 'company';
+                                                $clientName = $isCompanyBooking
+                                                    ? optional($booking->company)->name ?? 'N/A'
+                                                    : optional($booking->client)->name ?? 'N/A';
+
+                                                $clientEmail = $isCompanyBooking
+                                                    ? optional($booking->company)->email ?? ''
+                                                    : optional($booking->client)->email ?? '';
+
+                                                $words = explode(' ', trim($clientName));
+                                                $initials = strtoupper(
+                                                    substr($words[0] ?? '', 0, 1) . substr($words[1] ?? '', 0, 1),
+                                                );
+
+                                                $gradMap = [
+                                                    'hajj' => 'linear-gradient(135deg, #C5A059, #DFBE76)',
+                                                    'umrah' => 'linear-gradient(135deg, #059669, #34D399)',
+                                                    'other' => 'linear-gradient(135deg, #4F46E5, #818CF8)',
+                                                ];
+                                                $grad = $gradMap[$booking->package_type] ?? 'linear-gradient(135deg, #0F172A, #334155)';
+                                            @endphp
+                                            <tr class="booking-row" data-client="{{ strtolower($clientName) }}">
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="avatar-initial-react" style="background: {{ $grad }};">
+                                                            {{ $initials ?: 'BH' }}
+                                                        </div>
+                                                        <div>
+                                                            <div style="font-weight: 700; font-size: 13.5px; color: var(--react-text-main);">
+                                                                {{ $clientName }}
+                                                                @if ($isCompanyBooking)
+                                                                    <span class="badge-entity-tag badge-entity-co">CO</span>
+                                                                @else
+                                                                    <span class="badge-entity-tag badge-entity-cl">CL</span>
+                                                                @endif
                                                             </div>
-                                                            <div>
-                                                                <div style="font-weight:600;font-size:13px;">
-                                                                    {{ $clientName }}
-                                                                    @if ($isCompanyBooking)
-                                                                        <span class="for-tag company">CO</span>
-                                                                    @else
-                                                                        <span class="for-tag client">CL</span>
-                                                                    @endif
-                                                                </div>
-                                                                <div style="font-size:11.5px;color:var(--text-muted);">
-                                                                    {{ $clientEmail }}</div>
+                                                            <div style="font-size: 11.5px; color: var(--react-text-muted);">
+                                                                {{ $clientEmail ?: 'Ref #' . $booking->id }}
                                                             </div>
                                                         </div>
-                                                    </td>
-                                                    <td>
-                                                        <span class="pkg-badge {{ $booking->package_type }}">
-                                                            {{ ucfirst($booking->package_type) }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="react-pkg-badge {{ $booking->package_type }}">
+                                                        {{ ucfirst($booking->package_type) }}
+                                                    </span>
+                                                </td>
+                                                <td style="font-weight: 700;">
+                                                    <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 12px; border-radius: 6px;">
+                                                        {{ $booking->no_of_pax ?? '1' }}
+                                                    </span>
+                                                </td>
+                                                <td style="font-weight: 800; color: var(--react-text-main);">
+                                                    {{ number_format($booking->total_amount) }}
+                                                </td>
+                                                <td>
+                                                    @if (($booking->balance ?? 0) <= 0)
+                                                        <span class="status-pill-paid">
+                                                            <i class="ri-checkbox-circle-fill"></i> Paid in Full
                                                         </span>
-                                                    </td>
-                                                    <td style="font-size:13px;">{{ $booking->no_of_pax ?? '—' }}</td>
-                                                    <td style="font-weight:600;">
-                                                        {{ number_format($booking->total_amount) }}</td>
-                                                    <td>
-                                                        @if (($booking->balance ?? 0) <= 0)
-                                                            <span class="status-dot confirmed">Paid</span>
-                                                        @else
-                                                            <span style="font-size:12px;color:#D94040;font-weight:600;">
-                                                                {{ number_format($booking->balance) }}
-                                                            </span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="5" class="text-center py-4"
-                                                        style="color:var(--text-muted);font-size:13px;">
-                                                        No {{ $package }} bookings found.
-                                                    </td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Side: Quick Stats --}}
-                    <div class="col-md-12 col-xl-4">
-                        <div class="panel-card">
-                            <div class="panel-header">
-                                <h5>Quick Stats — {{ ucfirst($package) }}</h5>
-                            </div>
-                            <div class="panel-body">
-                                <div class="qs-row">
-                                    <div class="qs-icon" style="background:#FBF5E6;">✈️</div>
-                                    <div>
-                                        <div class="qs-label">With Flight Charges</div>
-                                        <div class="qs-value">{{ number_format($flightsThisMonth) }} this month</div>
-                                    </div>
-                                </div>
-                                <div class="qs-row">
-                                    <div class="qs-icon" style="background:#E8F5EE;">🏨</div>
-                                    <div>
-                                        <div class="qs-label">With Hotel Charges</div>
-                                        <div class="qs-value">{{ number_format($hotelsThisMonth) }} this month</div>
-                                    </div>
-                                </div>
-                                <div class="qs-row">
-                                    <div class="qs-icon" style="background:#EEF2FF;">📄</div>
-                                    <div>
-                                        <div class="qs-label">With Visa Charges</div>
-                                        <div class="qs-value">{{ number_format($visasApproved) }} total</div>
-                                    </div>
-                                </div>
-                                <div class="qs-row">
-                                    <div class="qs-icon" style="background:#FFF8E8;">👥</div>
-                                    <div>
-                                        <div class="qs-label">Total {{ ucfirst($package) }} Bookings</div>
-                                        <div class="qs-value">{{ number_format($totalBookings) }} total ({{ number_format($totalPax ?? 0) }} Pax)</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12 col-xl-12">
-                        <div class="panel-card">
-                            <div class="panel-header">
-                                <h5>Agent wise Sales Report</h5>
-                                <a href="{{ route('booking.index') }}"
-                                    style="font-size:12.5px;font-weight:600;color:var(--gold);text-decoration:none;">
-                                    View All <i class="mdi mdi-arrow-right"></i>
-                                </a>
-                            </div>
-                            <div class="panel-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table bookings-table mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>Agent</th>
-                                                <th>Hajj</th>
-                                                <th>Umrah</th>
-                                                <th>Other</th>
-                                                <th>Total Bookings</th>
-                                                <th>Total Sales</th>
+                                                    @else
+                                                        <span class="status-pill-balance">
+                                                            <i class="ri-time-line"></i> Due: {{ number_format($booking->balance) }}
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="d-inline-flex align-items-center gap-1">
+                                                        @can('booking_view')
+                                                            <a href="{{ route('booking.show', $booking->id) }}" class="action-icon-btn" title="View Booking File">
+                                                                <i class="ri-eye-line"></i>
+                                                            </a>
+                                                        @endcan
+                                                        <a href="{{ route('booking.voucher', $booking->id) }}" class="action-icon-btn" title="View Voucher" target="_blank">
+                                                            <i class="ri-file-text-line"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            {{-- <tr>
-                                                <td style="font-weight:600;font-size:13px;">Ahmed Raza</td>
-                                                <td>5</td>
-                                                <td>8</td>
-                                                <td>2</td>
-                                                <td style="font-weight:600;">15</td>
-                                                <td style="font-weight:600;">1,250,000</td>
-                                            </tr> --}}
-                                            {{-- <tr>
-                                                <td style="font-weight:600;font-size:13px;">Bilal Khan</td>
-                                                <td>3</td>
-                                                <td>12</td>
-                                                <td>1</td>
-                                                <td style="font-weight:600;">16</td>
-                                                <td style="font-weight:600;">980,500</td>
-                                            </tr>
+                                        @empty
                                             <tr>
-                                                <td style="font-weight:600;font-size:13px;">Sara Malik</td>
-                                                <td>7</td>
-                                                <td>4</td>
-                                                <td>3</td>
-                                                <td style="font-weight:600;">14</td>
-                                                <td style="font-weight:600;">1,540,750</td>
-                                            </tr> --}}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                <td colspan="6" class="text-center py-4 text-muted">
+                                                    No {{ $package }} bookings found for this period.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                </div>{{-- End Row 4 --}}
-
-            </div>{{-- container-fluid --}}
-        </div>{{-- content --}}
+            </div>
+        </div>
     </div>
-    {{-- content-page --}}
 
-    {{-- ApexCharts --}}
+    {{-- ══════════════════════════════════════════════════════════════
+       ANIMATED COUNTERS & APEXCHARTS INTERACTIVE JAVASCRIPT
+    ══════════════════════════════════════════════════════════════ --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const isHajj = '{{ $package }}' === 'hajj';
-            const barColor = isHajj ? '#C9A84C' : '#1A6B4A';
-            const barLight = isHajj ? '#F0D080' : '#4CAF82';
+        let bookingsChartInstance = null;
 
-            new ApexCharts(document.querySelector("#bookings-chart"), {
+        document.addEventListener('DOMContentLoaded', function() {
+            // ── 1. NUMBER COUNT-UP ANIMATION ──
+            const counters = document.querySelectorAll('.counter-number');
+            const duration = 1200; // ms
+
+            counters.forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target')) || 0;
+                if (target === 0) {
+                    counter.innerText = '0';
+                    return;
+                }
+
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    // Ease out expo
+                    const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                    const currentVal = Math.floor(easeProgress * target);
+                    counter.innerText = currentVal.toLocaleString('en-US');
+
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        counter.innerText = Math.round(target).toLocaleString('en-US');
+                    }
+                };
+
+                window.requestAnimationFrame(step);
+            });
+
+            // ── 2. INSTANT SEARCH FILTER FOR RECENT BOOKINGS ──
+            const searchInput = document.getElementById('bookingSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const query = this.value.toLowerCase().trim();
+                    const rows = document.querySelectorAll('#recentBookingsTable .booking-row');
+                    rows.forEach(row => {
+                        const client = row.getAttribute('data-client') || '';
+                        row.style.display = client.includes(query) ? '' : 'none';
+                    });
+                });
+            }
+
+            // ── 3. APEXCHARTS WITH DYNAMIC ANIMATIONS ──
+            const isHajj = '{{ $package }}' === 'hajj';
+            const primaryColor = isHajj ? '#C5A059' : '#059669';
+            const secondaryColor = isHajj ? '#ECC870' : '#34D399';
+            const monthlyData = {!! json_encode($monthlyData) !!};
+
+            const chartOptions = {
                 series: [{
                     name: '{{ ucfirst($package) }} Bookings',
-                    data: {!! json_encode($monthlyData) !!}
+                    data: monthlyData
                 }],
                 chart: {
                     type: 'bar',
-                    height: 280,
-                    toolbar: {
-                        show: false
-                    },
-                    fontFamily: 'DM Sans, sans-serif'
+                    height: 290,
+                    toolbar: { show: false },
+                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 800,
+                        animateGradually: {
+                            enabled: true,
+                            delay: 120
+                        },
+                        dynamicAnimation: {
+                            enabled: true,
+                            speed: 350
+                        }
+                    }
                 },
                 plotOptions: {
                     bar: {
-                        borderRadius: 6,
-                        columnWidth: '48%'
+                        borderRadius: 8,
+                        columnWidth: '42%',
+                        dataLabels: { position: 'top' }
                     }
                 },
-                colors: [barColor],
+                colors: [primaryColor],
                 fill: {
                     type: 'gradient',
                     gradient: {
                         shade: 'light',
                         type: 'vertical',
-                        gradientToColors: [barLight],
+                        gradientToColors: [secondaryColor],
                         stops: [0, 100]
                     }
                 },
                 dataLabels: {
                     enabled: false
                 },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
                 xaxis: {
-                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
-                        'Nov', 'Dec'
-                    ],
-                    axisBorder: {
-                        show: false
-                    },
-                    axisTicks: {
-                        show: false
-                    },
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    axisBorder: { show: false },
+                    axisTicks: { show: false },
                     labels: {
                         style: {
-                            colors: '#9CA3AF',
-                            fontSize: '11px'
+                            colors: '#64748B',
+                            fontSize: '12px',
+                            fontWeight: 600
                         }
                     }
                 },
                 yaxis: {
                     labels: {
                         style: {
-                            colors: '#9CA3AF',
-                            fontSize: '11px'
+                            colors: '#64748B',
+                            fontSize: '12px',
+                            fontWeight: 500
                         }
                     }
                 },
                 grid: {
-                    borderColor: '#F4F0E8',
+                    borderColor: '#E2E8F0',
                     strokeDashArray: 4,
-                    xaxis: {
-                        lines: {
-                            show: false
-                        }
-                    }
+                    xaxis: { lines: { show: false } }
                 },
                 tooltip: {
                     theme: 'light',
-                    style: {
-                        fontFamily: 'DM Sans, sans-serif'
+                    style: { fontFamily: 'Plus Jakarta Sans, sans-serif' },
+                    y: {
+                        formatter: function(val) {
+                            return val + " Bookings";
+                        }
                     }
                 }
-            }).render();
+            };
+
+            const chartElement = document.querySelector("#bookings-chart");
+            if (chartElement) {
+                bookingsChartInstance = new ApexCharts(chartElement, chartOptions);
+                bookingsChartInstance.render();
+            }
         });
+
+        // ── 4. CHART TOGGLE (BAR VS SPLINE AREA) ──
+        function setChartType(type) {
+            if (!bookingsChartInstance) return;
+
+            const isHajj = '{{ $package }}' === 'hajj';
+            const primaryColor = isHajj ? '#C5A059' : '#059669';
+            const secondaryColor = isHajj ? '#ECC870' : '#34D399';
+
+            document.querySelectorAll('.btn-chart-toggle').forEach(btn => btn.classList.remove('active'));
+
+            if (type === 'bar') {
+                document.getElementById('btnChartBar').classList.add('active');
+                bookingsChartInstance.updateOptions({
+                    chart: { type: 'bar' },
+                    plotOptions: {
+                        bar: {
+                            borderRadius: 8,
+                            columnWidth: '42%'
+                        }
+                    },
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shade: 'light',
+                            type: 'vertical',
+                            gradientToColors: [secondaryColor],
+                            stops: [0, 100]
+                        }
+                    }
+                });
+            } else if (type === 'area') {
+                document.getElementById('btnChartArea').classList.add('active');
+                bookingsChartInstance.updateOptions({
+                    chart: { type: 'area' },
+                    stroke: {
+                        show: true,
+                        curve: 'smooth',
+                        width: 3,
+                        colors: [primaryColor]
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shade: 'light',
+                            type: 'vertical',
+                            shadeIntensity: 0.5,
+                            gradientToColors: [secondaryColor],
+                            inverseColors: false,
+                            opacityFrom: 0.45,
+                            opacityTo: 0.05,
+                            stops: [0, 100]
+                        }
+                    }
+                });
+            }
+        }
     </script>
 @endsection

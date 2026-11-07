@@ -26,9 +26,9 @@
                                         value="{{ old('email') }}">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Company</label>
+                                    <label class="form-label">Referral</label>
                                     <select name="company_id" class="form-select">
-                                        <option value="">Select Company</option>
+                                        <option value="">Select Referral</option>
                                         @foreach ($companies as $company)
                                             <option value="{{ $company->id }}"
                                                 {{ old('company_id') == $company->id ? 'selected' : '' }}>

@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice - {{ str_pad($transaction->id, 4, '0', STR_PAD_LEFT) }}</title>
+    <title>Invoice - {{ str_pad($transaction->id, 4, '0', STR_PAD_LEFT) }} | Baba Hajj Group</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
 
     {{-- Bootstrap CSS + Icons (since this page no longer extends the master layout) --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
@@ -218,7 +219,7 @@
 
             {{-- Header --}}
             <div class="invoice-header text-center">
-                <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" height="100">
+                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" height="100">
                 <p class="company-address-ar mb-0">شركــة إعـمـار الضیافــة الفندقیــة</p>
             </div>
 
@@ -239,7 +240,7 @@
 
             <div class="thin-line"></div>
 
-            <p class="intro-text">Thank you for showing your interest in PIRWANI HAJJ GROUP (PVT) LTD </p>
+            <p class="intro-text">Thank you for showing your interest in BABA HAJJ GROUP (PVT) LTD </p>
 
             <p class="mb-1"><strong>Bill. No:</strong> {{ str_pad($transaction->id, 4, '0', STR_PAD_LEFT) }}</p>
             <p class="mb-1"><strong>Guest name:</strong>
@@ -396,7 +397,7 @@
             <table class="bank-table">
                 <tr>
                     <td class="bank-label">Account name:</td>
-                    <td>PIRWANI HAJJ GROUP (PVT) LTD</td>
+                    <td>BABA HAJJ GROUP (PVT) LTD</td>
                 </tr>
                 <tr>
                     <td class="bank-label">Bank name:</td>

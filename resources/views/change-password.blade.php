@@ -3,10 +3,12 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Change Password | Pirwani Hajj Group</title>
+    <title>Change Password | Baba Hajj Group</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="shortcut icon" href="{{ asset('assets/images/PIRWANI PNG FILE.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
     <!-- CSS -->
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
@@ -122,13 +124,13 @@
 
                                         <!-- LOGO -->
                                         <div class="mb-4 text-center">
-                                            <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" height="90" style="object-fit:contain; border-radius: 8px;">
+                                            <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" height="95" style="object-fit:contain; border-radius: 8px;">
                                         </div>
 
                                         <!-- TITLE -->
                                         <div class="text-center mb-3">
                                             <h3>Change Password</h3>
-                                            <p>Pirwani Hajj Group <br> Manage Hajj Operations</p>
+                                            <p>Baba Hajj Group <br> Manage Hajj Operations</p>
                                         </div>
 
                                         <!-- SUCCESS MESSAGE -->
@@ -232,7 +234,7 @@
                 <div class="col-xl-8">
                     <div class="account-page-bg">
                         <div class="overlay-content">
-                            <h2>Welcome to Pirwani Hajj Group</h2>
+                            <h2>Welcome to Baba Hajj Group</h2>
                             <p>Manage Hajj Operations</p>
                         </div>
                     </div>

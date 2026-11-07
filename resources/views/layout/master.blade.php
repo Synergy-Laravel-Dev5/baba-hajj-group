@@ -9,14 +9,16 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Dashboard | Pirwani Hajj Group</title>
+    <title>Dashboard | Baba Hajj Group</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Pirwani Hajj Group Management System" />
-    <meta name="author" content="Pirwani Hajj Group" />
+    <meta name="description" content="Baba Hajj Group Management System" />
+    <meta name="author" content="Baba Hajj Group" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/PIRWANI PNG FILE.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
     <!-- App css -->
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
@@ -40,16 +42,28 @@
     <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
 
-    <!-- Custom Styles for Sidebar & Branding -->
+    <!-- Custom Styles for Sidebar & Branding (Modern Executive React SaaS Light Theme) -->
     <style>
-        /* Sidebar Logo Box */
+        /* ══════════════════════════════════════════════════════════════
+           MODERN EXECUTIVE REACT SAAS THEME (Clean White Sidebar & Crystal HD Logo)
+        ══════════════════════════════════════════════════════════════ */
+        /* 1. Sidebar Container (Clean White Modern React SaaS) */
+        .app-sidebar-menu {
+            padding-top: 76px !important;
+            background: #FFFFFF !important;
+            border-right: 1px solid #E2E8F0 !important;
+            box-shadow: 1px 0 3px rgba(15, 23, 42, 0.03), 2px 0 12px rgba(15, 23, 42, 0.02) !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        /* 2. Sidebar Logo Box (Clean White Seamless Card) */
         .logo-box {
-            height: 100px !important;
+            height: 76px !important;
             width: 260px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 8px 15px !important;
+            padding: 5px 14px !important;
             background: #FFFFFF !important;
             border-bottom: 1px solid #E2E8F0 !important;
             border-right: 1px solid #E2E8F0 !important;
@@ -57,7 +71,8 @@
             top: 0 !important;
             left: 0 !important;
             z-index: 1001 !important;
-            transition: all 0.2s ease-out !important;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02) !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         .logo-box .logo {
             line-height: normal !important;
@@ -66,6 +81,7 @@
             justify-content: center !important;
             width: 100% !important;
             height: 100% !important;
+            text-decoration: none !important;
         }
         .logo-box .logo span.logo-lg {
             display: flex !important;
@@ -74,28 +90,59 @@
             width: 100% !important;
             height: 100% !important;
         }
-        .logo-box .logo span.logo-lg img,
+        .sidebar-brand-pill {
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            transition: transform 0.2s ease !important;
+        }
+        .sidebar-brand-pill:hover {
+            transform: scale(1.02) !important;
+        }
+        .sidebar-brand-pill-sm {
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            width: 38px !important;
+            height: 38px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* 3. Ultra-Crisp High-DPI Logo Rendering (Zero Blur) */
         .sidebar-logo-full {
-            height: 84px !important;
-            max-height: 84px !important;
+            height: 66px !important;
+            max-height: 66px !important;
             width: auto !important;
             max-width: 220px !important;
             object-fit: contain !important;
-            filter: drop-shadow(0 2px 6px rgba(201, 168, 76, 0.25)) !important;
             display: block !important;
             margin: 0 auto !important;
+            image-rendering: -webkit-optimize-contrast !important;
+            image-rendering: crisp-edges !important;
+            transform: translateZ(0) !important;
+            backface-visibility: hidden !important;
+            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.04)) !important;
+            transition: transform 0.2s ease !important;
         }
-        .logo-box .logo span.logo-sm img,
+        .sidebar-logo-full:hover {
+            transform: scale(1.02) !important;
+        }
         .sidebar-logo-small {
             height: 40px !important;
             max-height: 40px !important;
             width: 40px !important;
             object-fit: contain !important;
-        }
-        .app-sidebar-menu {
-            padding-top: 100px !important;
-            background: #FFFFFF !important;
-            transition: all 0.2s ease-out !important;
+            image-rendering: -webkit-optimize-contrast !important;
+            image-rendering: crisp-edges !important;
         }
 
         /* ── CRITICAL: Hide logo-box and collapse cleanly when sidebar is closed/hidden ── */
@@ -123,24 +170,163 @@
             margin-left: 0 !important;
         }
 
-        /* ── Header Topbar: Deep Midnight Navy & Luxury Gold (Logo Themed) ── */
+        /* ── Modern Navigation on Clean White Sidebar ── */
+        #sidebar-menu {
+            padding: 12px 0 32px 0 !important;
+        }
+        #sidebar-menu .menu-title {
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.8px !important;
+            text-transform: uppercase !important;
+            color: #94A3B8 !important;
+            padding: 16px 20px 6px 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+        }
+        #sidebar-menu .menu-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #F1F5F9;
+            margin-left: 8px;
+        }
+
+        /* Menu Items */
+        #sidebar-menu > ul > li {
+            margin: 3px 12px !important;
+        }
+        #sidebar-menu > ul > li > a {
+            display: flex !important;
+            align-items: center !important;
+            padding: 9.5px 14px !important;
+            color: #475569 !important;
+            font-size: 13.5px !important;
+            font-weight: 500 !important;
+            border-radius: 9px !important;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            text-decoration: none !important;
+        }
+        #sidebar-menu > ul > li > a i,
+        #sidebar-menu > ul > li > a svg {
+            width: 17px !important;
+            height: 17px !important;
+            margin-right: 12px !important;
+            color: #64748B !important;
+            stroke-width: 2 !important;
+            transition: all 0.18s ease !important;
+            flex-shrink: 0 !important;
+        }
+        #sidebar-menu > ul > li > a:hover {
+            background: #F8FAFC !important;
+            color: #0F172A !important;
+            transform: translateX(2px) !important;
+        }
+        #sidebar-menu > ul > li > a:hover i,
+        #sidebar-menu > ul > li > a:hover svg {
+            color: #B4882F !important;
+            stroke-width: 2.2 !important;
+        }
+
+        /* Active / Selected Menu Item with Modern React Gold Pill */
+        #sidebar-menu > ul > li.menuitem-active > a,
+        #sidebar-menu > ul > li > a.active {
+            background: linear-gradient(90deg, #FEF8EC 0%, #FFFDF7 100%) !important;
+            color: #8C6D1F !important;
+            font-weight: 700 !important;
+            border-left: 3.5px solid #C5A059 !important;
+            box-shadow: 0 1px 3px rgba(197, 160, 89, 0.15) !important;
+        }
+        #sidebar-menu > ul > li.menuitem-active > a i,
+        #sidebar-menu > ul > li > a.active i,
+        #sidebar-menu > ul > li.menuitem-active > a svg,
+        #sidebar-menu > ul > li > a.active svg {
+            color: #C5A059 !important;
+            stroke-width: 2.2 !important;
+        }
+
+        /* Arrow / Chevron for collapse */
+        #sidebar-menu .menu-arrow {
+            margin-left: auto !important;
+            color: #94A3B8 !important;
+            font-size: 11px !important;
+            transition: transform 0.2s ease !important;
+        }
+
+        /* Submenus */
+        .nav-second-level {
+            padding-left: 0 !important;
+            margin: 3px 0 6px 24px !important;
+            border-left: 1.5px solid #E2E8F0 !important;
+        }
+        .nav-second-level li {
+            margin: 1px 0 !important;
+        }
+        .nav-second-level li a {
+            padding: 6.5px 14px !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: #64748B !important;
+            border-radius: 6px !important;
+            display: block !important;
+            transition: all 0.15s ease !important;
+            text-decoration: none !important;
+        }
+        .nav-second-level li a:hover {
+            color: #0F172A !important;
+            background: #F1F5F9 !important;
+            transform: translateX(2px) !important;
+        }
+        .nav-second-level li a.active,
+        .nav-second-level li.active > a {
+            color: #8C6D1F !important;
+            font-weight: 700 !important;
+            background: #FEF8EC !important;
+            border-left: 2px solid #C5A059 !important;
+        }
+
+        /* Modern subtle scrollbar on white sidebar */
+        .app-sidebar-menu [data-simplebar] .simplebar-scrollbar:before {
+            background: #CBD5E1 !important;
+            border-radius: 4px !important;
+        }
+
+        /* ── Header Topbar: Royal Midnight Navy & Gold Theme ── */
         .topbar-custom {
-            background: linear-gradient(135deg, #071527 0%, #0E233E 55%, #08162A 100%) !important;
+            background: linear-gradient(90deg, #071527 0%, #0E233E 55%, #0B1D36 100%) !important;
             border-bottom: 2px solid #C9A84C !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 1px 0 rgba(201, 168, 76, 0.2) !important;
-            height: 70px !important;
+            box-shadow: 0 4px 20px rgba(7, 21, 39, 0.28) !important;
+            height: 76px !important;
             padding: 0 20px !important;
             transition: all 0.2s ease-out !important;
         }
 
+        /* Live Pulsing Dot for Mobile Ops */
+        .live-pulse-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            background: #10B981;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulseGreen 1.8s infinite;
+            margin-right: 4px;
+        }
+        @keyframes pulseGreen {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
         /* Hamburger Sidebar Toggle Button */
         .topbar-custom .button-toggle-menu {
-            background: rgba(201, 168, 76, 0.12) !important;
-            border: 1px solid rgba(201, 168, 76, 0.35) !important;
-            border-radius: 8px !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-radius: 9px !important;
             color: #F3DC9B !important;
-            width: 40px !important;
-            height: 40px !important;
+            width: 38px !important;
+            height: 38px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -151,54 +337,29 @@
             cursor: pointer !important;
         }
         .topbar-custom .button-toggle-menu:hover {
-            background: linear-gradient(135deg, #D4AF37, #B88E28) !important;
-            border-color: #D4AF37 !important;
-            color: #071527 !important;
-            transform: none !important;
+            background: rgba(201, 168, 76, 0.2) !important;
+            border-color: #C9A84C !important;
+            color: #FFFFFF !important;
         }
         .topbar-custom .button-toggle-menu i,
         .topbar-custom .button-toggle-menu svg {
-            width: 22px !important;
-            height: 22px !important;
-            stroke-width: 2.2 !important;
-        }
-
-        /* Topbar Search */
-        .topbar-custom .topbar-search input {
-            background: rgba(255, 255, 255, 0.08) !important;
-            border: 1px solid rgba(201, 168, 76, 0.35) !important;
-            color: #FFFFFF !important;
-            border-radius: 24px !important;
-            padding: 7px 16px 7px 38px !important;
-            font-size: 13px !important;
-            height: 38px !important;
-            transition: all 0.2s ease !important;
-        }
-        .topbar-custom .topbar-search input::placeholder {
-            color: rgba(243, 220, 155, 0.6) !important;
-        }
-        .topbar-custom .topbar-search input:focus {
-            background: rgba(255, 255, 255, 0.14) !important;
-            border-color: #D4AF37 !important;
-            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.25) !important;
-            color: #FFFFFF !important;
-        }
-        .topbar-custom .topbar-search i {
-            color: #E5C368 !important;
+            width: 20px !important;
+            height: 20px !important;
+            stroke-width: 2 !important;
         }
 
         /* Topbar User Profile Pill */
         .topbar-custom .nav-user {
-            background: rgba(201, 168, 76, 0.12) !important;
-            border: 1px solid rgba(201, 168, 76, 0.35) !important;
-            padding: 4px 12px 4px 6px !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(201, 168, 76, 0.4) !important;
+            padding: 4px 12px 4px 5px !important;
             border-radius: 30px !important;
             display: inline-flex !important;
             align-items: center !important;
             transition: all 0.2s ease !important;
         }
         .topbar-custom .nav-user:hover {
-            background: rgba(201, 168, 76, 0.22) !important;
+            background: rgba(201, 168, 76, 0.2) !important;
             border-color: #D4AF37 !important;
         }
         .topbar-custom .nav-user .user-avatar-top,
@@ -207,11 +368,11 @@
             height: 32px !important;
             object-fit: cover !important;
             border: 1.5px solid #C9A84C !important;
-            box-shadow: 0 0 8px rgba(201, 168, 76, 0.3) !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
         }
         .topbar-custom .nav-user .pro-user-name {
             color: #FFFFFF !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
             font-size: 13.5px !important;
         }
         .topbar-custom .nav-user i {
@@ -222,36 +383,37 @@
 
         /* Profile Dropdown & Logout Menu Item */
         .profile-dropdown {
-            background: #0B1E36 !important;
+            background: #0B192E !important;
             border-radius: 12px !important;
-            border: 1px solid #C9A84C !important;
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45) !important;
+            border: 1px solid rgba(201, 168, 76, 0.35) !important;
+            box-shadow: 0 12px 32px rgba(7, 21, 39, 0.5) !important;
             padding: 8px !important;
             min-width: 210px !important;
         }
         .profile-dropdown .noti-title {
-            background: rgba(201, 168, 76, 0.1) !important;
+            background: rgba(255, 255, 255, 0.04) !important;
             border-radius: 8px !important;
+            padding: 8px 12px !important;
         }
         .profile-dropdown .noti-title small {
-            color: #C9A84C !important;
+            color: #94A3B8 !important;
         }
         .profile-dropdown .noti-title h6 {
             color: #FFFFFF !important;
         }
         .profile-dropdown .dropdown-divider {
-            border-color: rgba(201, 168, 76, 0.2) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
         }
         .profile-dropdown .dropdown-item {
             border-radius: 8px !important;
             font-size: 13.5px !important;
             font-weight: 500 !important;
-            color: #E2E8F0 !important;
+            color: #CBD5E1 !important;
             padding: 8px 12px !important;
             transition: all 0.18s ease !important;
         }
         .profile-dropdown .dropdown-item:hover {
-            background: rgba(201, 168, 76, 0.2) !important;
+            background: rgba(201, 168, 76, 0.18) !important;
             color: #F3DC9B !important;
         }
         .profile-dropdown .dropdown-item i.mdi-lock-reset {
@@ -260,7 +422,7 @@
         .profile-dropdown .logout-menu-btn {
             color: #FF6B6B !important;
             font-weight: 600 !important;
-            background: rgba(255, 107, 107, 0.08) !important;
+            background: rgba(239, 68, 68, 0.1) !important;
             border: none !important;
             width: 100% !important;
             text-align: left !important;
@@ -269,7 +431,7 @@
             transition: all 0.18s ease !important;
         }
         .profile-dropdown .logout-menu-btn:hover {
-            background: #E11D48 !important;
+            background: #DC2626 !important;
             color: #FFFFFF !important;
         }
         .profile-dropdown .logout-menu-btn:hover i {

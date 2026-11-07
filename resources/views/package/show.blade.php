@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $package->package_title ?? ($package->name ?? 'Hajj Package') }} - Pirwani Hajj Group</title>
+    <title>{{ $package->package_title ?? ($package->name ?? 'Hajj Package') }} - Baba Hajj Group</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Montserrat:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css">
@@ -784,11 +786,11 @@
                 <div class="header-center-col">
                     <div class="brand-top-row">
                         <div class="brand-crest-box">
-                            <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" alt="Pirwani Crest" class="brand-crest-img">
+                            <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Crest" class="brand-crest-img">
                             <div class="brand-gl-number">{{ $package->company->gl_no ?? 'G.L. # 2990' }}</div>
                         </div>
                         <div class="brand-name-box">
-                            <div class="brand-name-pirwani">Pirwani</div>
+                            <div class="brand-name-pirwani">Baba</div>
                             <div class="brand-name-sub">HAJJ GROUP (Pvt.) Ltd.</div>
                         </div>
                     </div>
@@ -1116,8 +1118,8 @@
                 $company = $package->company;
                 $compAddress = $company && $company->addresses && $company->addresses->count() ? $company->addresses->first()->address : ($company->address ?? 'Office no. 106, Balad Trade Centre, B.M.C.H.S Bahadurabad, Karachi. Pakistan');
                 $compPhones = $company && $company->contactNumbers && $company->contactNumbers->count() ? $company->contactNumbers->pluck('contact_number')->join(' | ') : ($company->phone ?? '021-34133006 | 021-34133007 | 0336-2374638');
-                $compEmail = $company && $company->emails && $company->emails->count() ? $company->emails->first()->email : ($company->email ?? 'pirwanitravel@gmail.com');
-                $compWeb = $company && $company->website ? $company->website : 'pirwanitravels.com';
+                $compEmail = $company && $company->emails && $company->emails->count() ? $company->emails->first()->email : ($company->email ?? 'info@babahajjgroup.com');
+                $compWeb = $company && $company->website ? $company->website : 'babahajjgroup.com';
             @endphp
             <div class="brochure-footer">
                 <div class="footer-address">
@@ -1127,10 +1129,10 @@
                     {{ $compPhones }}
                 </div>
                 <div class="footer-social-row">
-                    <span><i class="mdi mdi-facebook"></i> PIRWANIHAJJGROUP</span>
+                    <span><i class="mdi mdi-facebook"></i> BABAHAJJGROUP</span>
                     <span><i class="mdi mdi-web"></i> {{ $compWeb }}</span>
                     <span><i class="mdi mdi-email"></i> {{ $compEmail }}</span>
-                    <span><i class="mdi mdi-instagram"></i> Pirwanitourism</span>
+                    <span><i class="mdi mdi-instagram"></i> Babahajjgroup</span>
                 </div>
             </div>
 
@@ -1172,13 +1174,13 @@
                 });
 
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
-                const fileName = 'Pirwani-Hajj-Package-{{ $package->id ?? "brochure" }}-{{ $package->gregorian_year ?? "2027" }}.pdf';
+                const fileName = 'Baba-Hajj-Package-{{ $package->id ?? "brochure" }}-{{ $package->gregorian_year ?? "2027" }}.pdf';
                 pdf.save(fileName);
             } catch (err) {
                 console.error('Direct PDF error, fallback to html2pdf:', err);
                 const opt = {
                     margin: 0,
-                    filename: 'Pirwani-Hajj-Package-{{ $package->id ?? "brochure" }}.pdf',
+                    filename: 'Baba-Hajj-Package-{{ $package->id ?? "brochure" }}.pdf',
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2.5, useCORS: true, scrollY: 0 },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }

@@ -130,7 +130,7 @@
                                             <input class="form-check-input" type="radio" name="booking_for"
                                                 id="for_company" value="company"
                                                 {{ old('booking_for', $booking->booking_for) == 'company' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="for_company">Company</label>
+                                            <label class="form-check-label" for="for_company">Referral</label>
                                         </div>
                                     </div>
                                 </div>
@@ -151,11 +151,11 @@
                                     </select>
                                 </div>
 
-                                {{-- COMPANY BLOCK --}}
+                                {{-- COMPANY / REFERRAL BLOCK --}}
                                 <div class="col-md-6 d-none" id="companyBlock">
-                                    <label class="form-label">Company <span class="text-danger">*</span></label>
-                                    <select name="company_id" id="companySelect" class="form-select" data-placeholder="-- Search & Select Company --">
-                                        <option value="">-- Search & Select Company --</option>
+                                    <label class="form-label">Referral <span class="text-danger">*</span></label>
+                                    <select name="company_id" id="companySelect" class="form-select" data-placeholder="-- Search & Select Referral --">
+                                        <option value="">-- Search & Select Referral --</option>
                                         @foreach ($companies as $co)
                                             <option value="{{ $co->id }}"
                                                 {{ $booking->company_id == $co->id ? 'selected' : '' }}>

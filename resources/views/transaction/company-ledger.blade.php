@@ -1,6 +1,6 @@
 @extends('layout.master')
 
-@section('title', 'Company Ledger - ' . $company->name)
+@section('title', 'Referral Ledger - ' . $company->name)
 
 @section('content')
 
@@ -12,7 +12,7 @@
                 <div class="py-3 d-flex justify-content-between align-items-center">
                     <h4 class="fs-18 fw-semibold m-0">
                         <i class="fas fa-building text-primary me-2"></i>
-                        Company Ledger — {{ $company->name }}
+                        Referral Ledger — {{ $company->name }}
                     </h4>
                     <div class="d-flex gap-2">
                         <button id="exportPDF" class="btn btn-danger btn-sm shadow-sm">

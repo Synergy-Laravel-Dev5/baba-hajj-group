@@ -71,12 +71,12 @@
                                     @enderror
                                 </div>
 
-                                <!-- Company -->
+                                <!-- Referral -->
                                 <div class="col-md-6 mb-3 d-none" id="company_wrapper">
-                                    <label class="form-label fw-medium">Company <span class="text-danger">*</span></label>
+                                    <label class="form-label fw-medium">Referral <span class="text-danger">*</span></label>
                                     <select name="company_id" id="company_id"
                                         class="form-select @error('company_id') is-invalid @enderror">
-                                        <option value="">-- Select Company --</option>
+                                        <option value="">-- Select Referral --</option>
                                         @foreach ($companies as $company)
                                             <option value="{{ $company->id }}"
                                                 {{ old('company_id') == $company->id ? 'selected' : '' }}>

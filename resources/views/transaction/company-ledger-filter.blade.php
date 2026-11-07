@@ -1,7 +1,7 @@
 @extends('layout.master')
 
-@section('title', 'Company Ledger')
-@section('header-title', 'Company Ledger')
+@section('title', 'Referral Ledger')
+@section('header-title', 'Referral Ledger')
 
 @section('content')
 
@@ -11,7 +11,7 @@
 
                 <!-- TOP BAR -->
                 <div class="py-3 d-flex justify-content-between align-items-center">
-                    <h4 class="fs-18 fw-semibold m-0">Company Ledger</h4>
+                    <h4 class="fs-18 fw-semibold m-0">Referral Ledger</h4>
                     <a href="{{ route('transaction.index') }}" class="btn btn-secondary btn-sm">
                         Back
                     </a>
@@ -23,7 +23,7 @@
 
                             <!-- HEADER -->
                             <div class="card-header">
-                                <h5 class="mb-0">Search Company Ledger</h5>
+                                <h5 class="mb-0">Search Referral Ledger</h5>
                             </div>
 
                             <div class="card-body">
@@ -47,12 +47,12 @@
                                         <div class="col-lg-6">
                                             <div class="mb-3">
                                                 <label class="form-label">
-                                                    Select Company <span class="text-danger">*</span>
+                                                    Select Referral <span class="text-danger">*</span>
                                                 </label>
 
                                                 <select name="company_id"
                                                     class="form-select @error('company_id') is-invalid @enderror" required>
-                                                    <option value="">-- Select Company --</option>
+                                                    <option value="">-- Select Referral --</option>
 
                                                     @foreach ($companies as $company)
                                                         <option value="{{ $company->id }}"

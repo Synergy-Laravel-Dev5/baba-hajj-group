@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Service Voucher - {{ $booking->voucher_number ?: ('UB' . str_pad($booking->id, 6, '0', STR_PAD_LEFT)) }}</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -458,7 +460,7 @@
 
         @php
             $company = $booking->company ?? \App\Models\Company::first();
-            $companyName = $company->company_name ?? 'PIRWANI HAJJ GROUP (PVT) LTD.';
+            $companyName = $company->company_name ?? 'BABA HAJJ GROUP (PVT) LTD.';
             $licenceNo = $company->company_code ?? '2990';
             
             $companyAddress = 'Office # 106, First Floor, Balad Trade Center, Near Bahar-e-Shariat Masjid Bahadurabad, Karachi.';
@@ -541,7 +543,7 @@
             {{-- 1. HEADER --}}
             <div class="voucher-header">
                 <div class="voucher-logo-box">
-                    <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" alt="Pirwani Hajj Group">
+                    <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group">
                 </div>
                 <div class="voucher-company-info text-start">
                     <div class="company-title">{{ $companyName }}</div>
@@ -889,7 +891,7 @@
             </div>
 
             <div class="dev-watermark">
-                Issued electronically by Pirwani Hajj Group Management System • Valid without physical seal when verified online.
+                Issued electronically by Baba Hajj Group Management System • Valid without physical seal when verified online.
             </div>
 
         </div>

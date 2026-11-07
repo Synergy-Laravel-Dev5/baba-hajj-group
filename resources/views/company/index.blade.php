@@ -1,6 +1,6 @@
 @extends('layout.master')
 
-@section('title', 'Companies')
+@section('title', 'Referrals')
 
 @section('content')
     <div class="content-page">
@@ -8,11 +8,11 @@
             <div class="container-fluid">
 
                 <div class="py-3 d-flex align-items-center justify-content-between">
-                    <h4 class="fs-18 fw-semibold m-0">Companies</h4>
+                    <h4 class="fs-18 fw-semibold m-0">Referrals</h4>
                     <div class="d-flex gap-2">
                         @can('company_create')
                             <a href="{{ route('company.create') }}" class="btn btn-primary btn-sm">
-                                + Add Company
+                                + Add Referral
                             </a>
                         @endcan
                         @can('company_trash_view')
@@ -37,7 +37,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>#</th>
-                                        <th>Company Name</th>
+                                        <th>Referral Name</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -78,7 +78,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="4" class="text-center text-muted py-4">
-                                                No companies found.
+                                                No referrals found.
                                             </td>
                                         </tr>
                                     @endforelse

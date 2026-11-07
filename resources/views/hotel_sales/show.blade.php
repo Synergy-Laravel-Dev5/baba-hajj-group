@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $sale->reservation_title }} - {{ $sale->invoice_number }}</title>
+    <title>{{ $sale->reservation_title }} - {{ $sale->invoice_number }} | Baba Hajj Group</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -268,10 +269,10 @@
         <!-- Header Branding -->
         <div class="header-brand">
             <div class="brand-logo">
-                <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" alt="Pirwani Hajj Group">
+                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group">
             </div>
             <div class="text-end">
-                <div class="brand-title">PIRWANI HAJJ GROUP (PVT) LTD.</div>
+                <div class="brand-title">BABA HAJJ GROUP (PVT) LTD.</div>
                 <div class="brand-meta">
                     Govt. Licence No. 2990 | Munazzam # 2990<br>
                     Office # 106, 1st Floor, Balad Trade Center, Bahadurabad, Karachi.<br>

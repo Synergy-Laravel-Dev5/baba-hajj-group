@@ -306,9 +306,9 @@
             <div class="print-only mb-3" style="display: none;">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-2">
                     <div class="d-flex align-items-center gap-3">
-                        <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" alt="Logo" style="height: 60px; object-fit: contain;">
+                        <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Logo" style="height: 60px; object-fit: contain;">
                         <div>
-                            <h3 class="m-0 fw-bold" style="color:#000; letter-spacing:0.5px;">PIRWANI HAJJ GROUP</h3>
+                            <h3 class="m-0 fw-bold" style="color:#000; letter-spacing:0.5px;">BABA HAJJ GROUP</h3>
                             <p class="m-0 small text-muted">OFFICIAL BOOKING PERSON & PILGRIM MANIFEST</p>
                         </div>
                     </div>

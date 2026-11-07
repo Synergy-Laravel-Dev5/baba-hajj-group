@@ -97,9 +97,9 @@
                             <h5 class="section-subhead">📋 Package Basic Info & Duration</h5>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold">Company</label>
+                                    <label class="form-label fw-bold">Referral</label>
                                     <select name="company_id" class="form-select">
-                                        <option value="">-- Select Company --</option>
+                                        <option value="">-- Select Referral --</option>
                                         @foreach ($companies as $company)
                                             <option value="{{ $company->id }}" {{ old('company_id', $package->company_id) == $company->id ? 'selected' : '' }}>
                                                 {{ $company->company_name }}

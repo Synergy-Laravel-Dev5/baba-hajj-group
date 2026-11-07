@@ -1,12 +1,12 @@
 @extends('layout.master')
 
-@section('title', 'Edit Company')
+@section('title', 'Edit Referral')
 
 @section('content')
     <div class="content-page">
         <div class="content">
             <div class="container-fluid">
-                <h4 class="fs-18 fw-semibold py-3">Edit Company</h4>
+                <h4 class="fs-18 fw-semibold py-3">Edit Referral</h4>
 
                 <div class="card">
                     <div class="card-body">
@@ -14,7 +14,7 @@
                             @csrf
                             @method('PUT')
                             <div class="mb-3">
-                                <label class="form-label">Company Name</label>
+                                <label class="form-label">Referral Name</label>
                                 <input type="text" name="name" value="{{ old('name', $company->name) }}"
                                     class="form-control @error('name') is-invalid @enderror">
                                 @error('name')

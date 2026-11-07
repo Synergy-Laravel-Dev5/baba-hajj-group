@@ -12,7 +12,7 @@
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge"
                                 style="background: rgba(201, 168, 76, 0.18); color: #F3DC9B; border: 1px solid rgba(201, 168, 76, 0.45); font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 20px; letter-spacing: 0.5px;">
-                                🕋 PIRWANI HAJJ GROUP
+                                🕋 BABA HAJJ GROUP
                             </span>
                             <h5 class="mb-0 text-white fw-bold" style="font-size: 15px; letter-spacing: 0.3px;">
                                 {{ Auth::user()->name ?? 'Admin User' }}
@@ -27,20 +27,13 @@
                         <div class="position-relative">
                             <a href="{{ route('mobile-ops.dashboard') }}"
                                 class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 me-3"
-                                style="border-radius: 20px; font-weight: 600; padding: 5px 12px;">
-                                <span>📱</span>
+                                style="border-radius: 20px; font-weight: 600; padding: 5px 14px; border-color: rgba(16, 185, 129, 0.4);">
+                                <span class="live-pulse-dot"></span>
                                 <span>Mobile App Portal</span>
                             </a>
                         </div>
                     </li>
                     @endcanany
-                    <li class="d-none d-lg-block">
-                        <div class="position-relative topbar-search">
-                            <input type="text" class="form-control" placeholder="Search here...">
-                            <i
-                                class="mdi mdi-magnify fs-16 position-absolute text-muted top-50 translate-middle-y ms-2"></i>
-                        </div>
-                    </li>
 
                     <li class="dropdown notification-list topbar-dropdown">
                         <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#"
@@ -90,14 +83,16 @@
                 <div class="logo-box text-center">
                     <a class="logo logo-dark" href="{{ route('dashboard') }}">
                         <span class="logo-lg">
-                            <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}?v={{ time() }}"
-                                alt="Pirwani Hajj Group" class="sidebar-logo-full"
-                                style="height: 84px; width: auto; max-width: 220px; object-fit: contain;">
+                            <span class="sidebar-brand-pill">
+                                <img src="{{ asset('assets/images/baba_hajj_logo_ultra.png') }}?v={{ time() }}"
+                                    alt="Baba Hajj Group" class="sidebar-logo-full">
+                            </span>
                         </span>
                         <span class="logo-sm">
-                            <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}?v={{ time() }}"
-                                alt="Pirwani Hajj Group" class="sidebar-logo-small"
-                                style="height: 40px; width: auto; object-fit: contain;">
+                            <span class="sidebar-brand-pill-sm">
+                                <img src="{{ asset('assets/images/favicon-emblem.png') }}?v={{ time() }}"
+                                    alt="Baba Hajj Group" class="sidebar-logo-small">
+                            </span>
                         </span>
                     </a>
                 </div>
@@ -188,7 +183,7 @@
                     <li>
                         <a href="{{ route('company.index') }}">
                             <i data-feather="briefcase"></i>
-                            <span>Companies</span>
+                            <span>Referrals</span>
                         </a>
                     </li>
                     @endcan
@@ -435,7 +430,7 @@
                     <li>
                         <a href="{{ route('transaction.company-ledger.filter') }}">
                             <i data-feather="filter"></i>
-                            <span>Company Filter</span>
+                            <span>Referral Filter</span>
                         </a>
                     </li>
                     @endcan

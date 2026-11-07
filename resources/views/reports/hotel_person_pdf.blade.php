@@ -115,7 +115,7 @@
 
     {{-- Official Report Header --}}
     <div class="header-box">
-        <div class="header-title">PIRWANI HAJJ GROUP</div>
+        <div class="header-title">BABA HAJJ GROUP</div>
         <div class="header-subtitle">Official Hotel & Location Person Occupancy Report</div>
         <div class="header-meta">
             <strong>Generated:</strong> {{ now()->format('d M Y, h:i A') }}

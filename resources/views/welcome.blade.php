@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIRWANI HAJJ GROUP</title>
+    <title>BABA HAJJ GROUP</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@400;500;600&display=swap"
         rel="stylesheet">
@@ -496,9 +499,9 @@
         {{-- Topbar --}}
         <header class="topbar">
             <div class="logo">
-                <div class="logo-mark">🌙</div>
+                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group" style="height: 38px; width: auto; object-fit: contain;">
                 <div>
-                    <div class="logo-name">Pirwani Hajj Group</div>
+                    <div class="logo-name">Baba Hajj Group</div>
                     <div class="logo-sub">Management Portal</div>
                 </div>
             </div>
@@ -523,7 +526,7 @@
             {{-- Headline --}}
             <div class="headline">
                 <div class="eyebrow">✦ Management Dashboard ✦</div>
-                <h1 class="h1">Welcome to <em>Pirwani Hajj Group</em></h1>
+                <h1 class="h1">Welcome to <em>Baba Hajj Group</em></h1>
                 <p class="tagline">Select a package to view bookings, revenue & monthly reports.</p>
             </div>
 

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Official Hajj E-Pass | {{ $person->full_name ?? ($booking->client->name ?? 'Pilgrim') }} | Pirwani Hajj Group</title>
+    <title>Official Hajj E-Pass | {{ $person->full_name ?? ($booking->client->name ?? 'Pilgrim') }} | Baba Hajj Group</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +14,7 @@
     
     @php
         $pkgType = strtolower($booking->package_type ?? 'hajj');
-        $appName = 'PIRWANI HAJJ GROUP';
+        $appName = 'BABA HAJJ GROUP';
         $agencyPhone = $booking->emergency_phone ?? ($booking->phone ?? '+92 300 0000000');
         $pilgrimName = $person->full_name ?? ($booking->client->name ?? 'Hajj Pilgrim');
         $hajjId = \App\Models\BookingPerson::formatHajjId($person->hajj_id) ?? ('PW27' . str_pad($person->id ?? 1, 3, '0', STR_PAD_LEFT));

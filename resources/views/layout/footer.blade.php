@@ -5,8 +5,8 @@
                  &copy;
                  <script>
                      document.write(new Date().getFullYear())
-                 </script> - Design and Developed by <a href="#!"
-                     class="text-reset">Synergyintegratedsolutions</a>
+                 </script> <strong>Baba Hajj Group</strong> &bull; All Rights Reserved. &bull; Designed and Developed by <a href="#!"
+                     class="text-reset fw-semibold">Synergy Integrated Solutions</a>
              </div>
          </div>
      </div>

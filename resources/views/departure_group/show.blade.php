@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIP Departure Group — {{ $group->group_name }} | Pirwani Hajj Group</title>
+    <title>VIP Departure Group — {{ $group->group_name }} | Baba Hajj Group</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.2.96/css/materialdesignicons.min.css">
     <style>
@@ -57,7 +58,7 @@
                 <h1>{{ $group->group_name }}</h1>
             </div>
             <div class="sheet-logo">
-                <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" alt="Logo" onerror="this.style.display='none'">
+                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Logo" onerror="this.style.display='none'">
             </div>
         </div>
 
@@ -145,7 +146,7 @@
 
             <div style="margin-top: 40px; display: flex; justify-content: space-between; border-top: 1px dashed #cbd5e1; padding-top: 20px; font-size: 12px; color: #64748b;">
                 <div><strong>Printed Date:</strong> {{ date('d M Y, h:i A') }}</div>
-                <div><strong>Pirwani Hajj Group Management System</strong></div>
+                <div><strong>Baba Hajj Group Management System</strong></div>
             </div>
 
         </div>

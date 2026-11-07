@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hajji ID Badge — {{ $person->full_name }} ({{ $person->hajj_id ?? 'Badge' }}) | Pirwani Hajj Group</title>
+    <title>Hajji ID Badge — {{ $person->full_name }} ({{ $person->hajj_id ?? 'Badge' }}) | Baba Hajj Group</title>
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +14,7 @@
 
     @php
         $pkgType = strtolower($booking->package_type ?? 'hajj');
-        $appName = 'PIRWANI HAJJ GROUP';
+        $appName = 'BABA HAJJ GROUP';
         $agencyPhone = $booking->emergency_phone ?? ($booking->phone ?? '+92 300 0000000');
         $saudiHelpline = '911 / 1966';
         $packageYear = $booking->package_year ?? date('Y');
@@ -586,7 +587,7 @@
         <!-- Header -->
         <div class="badge-header-wrapper">
             <div class="badge-brand-plate">
-                <img src="{{ asset('assets/images/PIRWANI PNG FILE.png') }}" alt="Pirwani Hajj Group" class="badge-logo-img" onerror="this.src='{{ asset('assets/images/logo.png') }}'">
+                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group" class="badge-logo-img" onerror="this.src='{{ asset('assets/images/logo.png') }}'">
                 <div class="badge-brand-text">
                     <div class="badge-brand-title">{{ $appName }}</div>
                     <div class="badge-brand-sub">VIP HAJJ MANIFEST PORTAL</div>
