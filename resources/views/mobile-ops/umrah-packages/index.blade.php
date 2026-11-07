@@ -187,6 +187,11 @@
                                         </form>
                                     @else
                                         <div class="d-flex justify-content-end gap-1">
+                                            <!-- Official Flyer View / Print -->
+                                            <a href="{{ route('package.show', $pkg->id) }}" target="_blank"
+                                                class="btn btn-outline-success btn-sm" title="View & Print Official Flyer">
+                                                <i class="mdi mdi-file-document-outline"></i> Flyer
+                                            </a>
                                             <!-- Details Action Icon -->
                                             <button type="button" class="btn btn-outline-info btn-sm"
                                                 data-bs-toggle="modal"
@@ -517,12 +522,18 @@
                         @endif
                     </div>
 
-                    <div class="modal-footer bg-light py-2">
-                        <a href="{{ route('mobile-ops.umrah-packages.edit', $pkg->id) }}"
-                            class="btn btn-primary btn-sm px-3">
-                            <i class="mdi mdi-pencil me-1"></i> Edit Package
+                    <div class="modal-footer bg-light py-2 justify-content-between">
+                        <a href="{{ route('package.show', $pkg->id) }}" target="_blank"
+                            class="btn btn-success btn-sm px-3" style="background-color: #087784; border-color: #087784;">
+                            <i class="mdi mdi-printer me-1"></i> View / Print Official Flyer
                         </a>
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('mobile-ops.umrah-packages.edit', $pkg->id) }}"
+                                class="btn btn-primary btn-sm px-3">
+                                <i class="mdi mdi-pencil me-1"></i> Edit Package
+                            </a>
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>

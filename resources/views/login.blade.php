@@ -19,8 +19,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
 
     <!-- CSS & Icons -->
-    <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/app.min.css') }}?v={{ filemtime(public_path('assets/css/app.min.css')) }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/icons.min.css') }}?v={{ filemtime(public_path('assets/css/icons.min.css')) }}" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.2.96/css/materialdesignicons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
@@ -53,13 +53,40 @@
             position: relative;
         }
 
-        /* ════ BACKGROUND HERO ATMOSPHERE ════ */
-        .portal-bg {
+        /* ════ BACKGROUND HERO ATMOSPHERE (VIDEO & POSTER) ════ */
+        .portal-bg-container {
             position: fixed;
             inset: 0;
-            background: url('/assets/images/logo/omer-f-arslan-W0FhhtnMd8k-unsplash.jpg') center center no-repeat;
-            background-size: cover;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
             z-index: 1;
+            background-color: var(--navy-midnight);
+        }
+
+        .portal-video-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+            object-position: center 25%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            filter: brightness(0.95) contrast(1.08) saturate(1.15);
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .portal-bg-fallback {
+            position: absolute;
+            inset: 0;
+            background: url('/assets/images/logo/omer-f-arslan-W0FhhtnMd8k-unsplash.jpg') center 25% no-repeat;
+            background-size: cover;
+            z-index: 0;
             animation: slowZoom 24s ease-in-out infinite alternate;
         }
 
@@ -68,12 +95,18 @@
             100% { transform: scale(1.06); }
         }
 
-        /* Vignette Dark Gradient Overlay */
+        @media (prefers-reduced-motion: reduce) {
+            .portal-video-bg {
+                display: none;
+            }
+        }
+
+        /* Vignette Dark Gradient Overlay - Soft & Luminous so Kaaba video is clearly visible */
         .portal-overlay {
             position: fixed;
             inset: 0;
             z-index: 2;
-            background: radial-gradient(circle at 50% 20%, rgba(6, 12, 23, 0.72) 0%, rgba(6, 12, 23, 0.92) 70%, rgba(3, 7, 14, 0.97) 100%);
+            background: radial-gradient(circle at 50% 35%, rgba(6, 12, 23, 0.20) 0%, rgba(6, 12, 23, 0.45) 55%, rgba(3, 7, 14, 0.72) 100%);
         }
 
         /* Subtle Ambient Gold Light Ray */
@@ -147,27 +180,27 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 24px 20px 20px 20px;
+            padding: 12px 16px;
         }
 
         /* ════ TOP TALBIYAH / BISMILLAH RIBBON ════ */
         .top-spiritual-ribbon {
             text-align: center;
-            padding: 8px 0;
+            padding: 4px 0;
             animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .talbiyah-pill {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.07);
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(212, 175, 55, 0.35);
             border-radius: 40px;
-            padding: 9px 26px;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(212, 175, 55, 0.12);
+            padding: 5px 18px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 16px rgba(212, 175, 55, 0.12);
             transition: all 0.3s ease;
         }
 
@@ -179,33 +212,33 @@
 
         .talbiyah-pill span.arabic {
             font-family: 'Amiri', serif;
-            font-size: 21px;
+            font-size: 17px;
             color: var(--gold-light);
-            letter-spacing: 1.2px;
+            letter-spacing: 1px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
         }
 
         .talbiyah-pill span.divider {
             color: rgba(212, 175, 55, 0.5);
-            font-size: 15px;
+            font-size: 13px;
         }
 
         .talbiyah-pill span.sub {
-            font-size: 11.5px;
+            font-size: 10.5px;
             font-weight: 700;
-            letter-spacing: 1.2px;
+            letter-spacing: 1px;
             text-transform: uppercase;
             color: #E2E8F0;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
 
         /* ════ CENTRAL AUTH CARD (COMPACT LUXURY HEIGHT) ════ */
         .auth-card-wrap {
             width: 100%;
-            max-width: 490px;
-            margin: 10px auto;
+            max-width: 390px;
+            margin: 0 auto;
             animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -221,15 +254,15 @@
         }
 
         .auth-card {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border-radius: 22px;
-            border: 1.5px solid rgba(212, 175, 55, 0.45);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border-radius: 18px;
+            border: 1.5px solid rgba(212, 175, 55, 0.48);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45),
                         0 0 0 1px rgba(255, 255, 255, 0.9),
-                        0 0 35px rgba(212, 175, 55, 0.18);
-            padding: 26px 36px 22px 36px; /* Compact height padding */
+                        0 0 30px rgba(212, 175, 55, 0.16);
+            padding: 16px 24px 14px 24px; /* Ultra-compact height padding */
             position: relative;
             overflow: hidden;
             color: var(--text-dark);
@@ -256,56 +289,56 @@
         /* ════ LOGO MEDALLION (COMPACT) ════ */
         .logo-medallion {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
         }
 
         .logo-frame {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 20px;
+            padding: 3px 14px;
             background: #FFFFFF;
-            border-radius: 16px;
+            border-radius: 12px;
             border: 1.5px solid rgba(212, 175, 55, 0.38);
-            box-shadow: 0 6px 20px rgba(11, 20, 36, 0.06), 0 0 0 4px rgba(212, 175, 55, 0.06);
+            box-shadow: 0 4px 14px rgba(11, 20, 36, 0.05), 0 0 0 3px rgba(212, 175, 55, 0.05);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .logo-frame:hover {
             transform: translateY(-2px) scale(1.02);
             border-color: var(--gold-bright);
-            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.22);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.22);
         }
 
         .portal-logo-img {
-            height: 82px; /* Sleek, crisp & perfectly proportioned */
+            height: 48px; /* Compact, razor-sharp & clean */
             width: auto;
-            max-width: 220px;
+            max-width: 170px;
             object-fit: contain;
             display: block;
             transition: transform 0.3s ease;
         }
 
-        /* ════ BRAND HEADER ════ */
+        /* ════ BRAND HEADER (COMPACT) ════ */
         .brand-header-text {
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
         }
 
         .brand-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             background: rgba(197, 160, 89, 0.12);
             color: #8F6F25;
             border: 1px solid rgba(197, 160, 89, 0.38);
-            padding: 3px 12px;
+            padding: 2px 9px;
             border-radius: 20px;
-            font-size: 10.5px;
+            font-size: 9.5px;
             font-weight: 700;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.6px;
             text-transform: uppercase;
-            margin-bottom: 6px;
+            margin-bottom: 3px;
             transition: all 0.3s ease;
         }
 
@@ -316,7 +349,7 @@
 
         .brand-title-main {
             font-family: 'Playfair Display', serif;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 800;
             color: #08111E;
             letter-spacing: 0.2px;
@@ -324,22 +357,22 @@
         }
 
         .brand-subtitle-main {
-            font-size: 12.5px;
+            font-size: 11px;
             color: var(--text-muted);
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         /* ════ FORM CONTROLS WITH ANIMATION (COMPACT) ════ */
         .form-floating-custom {
-            margin-bottom: 13px;
+            margin-bottom: 8px;
             position: relative;
         }
 
         .form-label-portal {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
             color: #1E293B;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -354,23 +387,23 @@
 
         .input-icon-portal {
             position: absolute;
-            left: 14px;
+            left: 11px;
             color: #94A3B8;
-            font-size: 18px;
+            font-size: 16px;
             pointer-events: none;
             transition: all 0.25s ease;
         }
 
         .input-control-portal {
             width: 100%;
-            height: 44px; /* Sleek, comfortable height */
-            padding: 8px 14px 8px 42px;
-            font-size: 14px;
+            height: 38px; /* Compact sleek height */
+            padding: 6px 12px 6px 36px;
+            font-size: 13.5px;
             font-weight: 500;
             color: #08111E;
             background: #F8FAFC;
             border: 1.5px solid #E2E8F0;
-            border-radius: 11px;
+            border-radius: 9px;
             transition: all 0.25s ease;
             outline: none;
         }
@@ -378,7 +411,7 @@
         .input-control-portal:focus {
             background: #FFFFFF;
             border-color: var(--gold-primary);
-            box-shadow: 0 0 0 3.5px rgba(212, 175, 55, 0.22);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.22);
             transform: translateY(-1px);
         }
 
@@ -390,13 +423,13 @@
 
         .btn-toggle-eye {
             position: absolute;
-            right: 12px;
+            right: 10px;
             background: none;
             border: none;
             color: #94A3B8;
             cursor: pointer;
-            font-size: 18px;
-            padding: 4px;
+            font-size: 16px;
+            padding: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -412,14 +445,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         .remember-label {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            font-size: 12.5px;
+            gap: 6px;
+            font-size: 11.5px;
             font-weight: 500;
             color: #475569;
             cursor: pointer;
@@ -432,9 +465,9 @@
         }
 
         .remember-input {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
             accent-color: var(--gold-primary);
             cursor: pointer;
         }
@@ -442,20 +475,20 @@
         /* ════ METALLIC LUXURY SUBMIT BUTTON ════ */
         .btn-portal-submit {
             width: 100%;
-            height: 46px; /* Compact luxury height */
+            height: 39px; /* Compact luxury height */
             background: linear-gradient(135deg, #08111E 0%, #112038 50%, #1A3052 100%);
             color: #FFFFFF;
             border: 1.5px solid rgba(212, 175, 55, 0.55);
-            border-radius: 11px;
-            font-size: 14.5px;
+            border-radius: 9px;
+            font-size: 13.5px;
             font-weight: 700;
             letter-spacing: 0.4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 7px;
             cursor: pointer;
-            box-shadow: 0 8px 22px rgba(8, 17, 30, 0.35);
+            box-shadow: 0 6px 18px rgba(8, 17, 30, 0.3);
             position: relative;
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -483,7 +516,7 @@
             background: linear-gradient(135deg, #D4AF37 0%, #ECC870 50%, #B88E28 100%);
             color: #070D18;
             border-color: #D4AF37;
-            box-shadow: 0 14px 34px rgba(212, 175, 55, 0.48);
+            box-shadow: 0 12px 28px rgba(212, 175, 55, 0.45);
         }
 
         .btn-portal-submit:hover .btn-icon-arrow {
@@ -503,9 +536,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 18px;
-            margin-top: 14px;
-            font-size: 12px;
+            gap: 14px;
+            margin-top: 8px;
+            font-size: 11px;
             color: rgba(255, 255, 255, 0.75);
             animation: fadeInUp 0.9s ease-out;
         }
@@ -513,21 +546,21 @@
         .security-item {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             font-weight: 500;
         }
 
         .security-item i {
             color: var(--gold-bright);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         /* ════ FOOTER ════ */
         .portal-footer {
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: rgba(255, 255, 255, 0.7);
-            padding: 8px 0;
+            padding: 4px 0;
             animation: fadeInUp 1s ease-out;
         }
 
@@ -613,8 +646,14 @@
 
 <body>
 
-    <!-- Atmospheric Panorama Background with Slow Zoom Animation -->
-    <div class="portal-bg"></div>
+    <!-- Atmospheric Panorama Video & Image Background -->
+    <div class="portal-bg-container">
+        <video id="loginBgVideo" class="portal-video-bg" autoplay muted loop playsinline poster="{{ asset('assets/images/logo/omer-f-arslan-W0FhhtnMd8k-unsplash.jpg') }}">
+            <source src="{{ asset('assets/videos/kaaba-bg.webm') }}" type="video/webm">
+            <source src="{{ asset('assets/videos/kabah-calligraphy.mp4') }}" type="video/mp4">
+        </video>
+        <div class="portal-bg-fallback"></div>
+    </div>
     <div class="portal-overlay"></div>
 
     <!-- Floating Noor Particles -->
@@ -783,6 +822,20 @@
                 icon.className = 'ri-eye-line';
             }
         }
+
+        // Smooth autoplay handling for Kaaba background video
+        document.addEventListener('DOMContentLoaded', function () {
+            const bgVideo = document.getElementById('loginBgVideo');
+            if (bgVideo) {
+                bgVideo.playbackRate = 0.85; // Serene, majestic pace
+                const playPromise = bgVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(function () {
+                        // Autoplay policy fallback (poster image remains displayed)
+                    });
+                }
+            }
+        });
     </script>
 
 </body>

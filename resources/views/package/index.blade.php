@@ -65,9 +65,9 @@
                                                         </a>
                                                     @endcan
                                                     @can('package_show')
-                                                        <a href="{{ route('package.show', $package->id) }}"
-                                                            class="btn btn-sm btn-outline-primary" title="View">
-                                                            <i class="mdi mdi-eye"></i>
+                                                        <a href="{{ route('package.show', $package->id) }}" target="_blank"
+                                                            class="btn btn-sm btn-outline-primary" title="View & Print Official Flyer">
+                                                            <i class="mdi mdi-printer me-1"></i> Flyer
                                                         </a>
                                                     @endcan
                                                     @can('package_trash')

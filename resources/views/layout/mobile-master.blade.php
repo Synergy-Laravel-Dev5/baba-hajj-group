@@ -11,8 +11,8 @@
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
-    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/app.min.css') }}?v={{ filemtime(public_path('assets/css/app.min.css')) }}" rel="stylesheet" type="text/css" id="app-style" />
+    <link href="{{ asset('assets/css/icons.min.css') }}?v={{ filemtime(public_path('assets/css/icons.min.css')) }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet"
         type="text/css" />
     <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
