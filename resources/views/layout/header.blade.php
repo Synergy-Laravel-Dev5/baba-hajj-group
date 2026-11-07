@@ -179,6 +179,41 @@
                             </a>
                         </li>
                     @endcan
+
+                    {{-- Invoices --}}
+                    @canany(['invoice_view', 'invoice_create'])
+                    @php
+                        $isInvoiceActive = request()->routeIs('invoice.*');
+                    @endphp
+                    <li class="{{ $isInvoiceActive ? 'menuitem-active' : '' }}">
+                        <a href="#sidebarInvoices" data-bs-toggle="collapse" class="{{ $isInvoiceActive ? 'active' : '' }}"
+                            aria-expanded="{{ $isInvoiceActive ? 'true' : 'false' }}">
+                            <i data-feather="file-text"></i>
+                            <span>Invoices</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse {{ $isInvoiceActive ? 'show' : '' }}" id="sidebarInvoices">
+                            <ul class="nav-second-level">
+                                @can('invoice_view')
+                                <li class="{{ request()->routeIs('invoice.index') ? 'menuitem-active' : '' }}">
+                                    <a class="tp-link {{ request()->routeIs('invoice.index') ? 'active' : '' }}"
+                                        href="{{ route('invoice.index') }}">
+                                        <span>All Invoices</span>
+                                    </a>
+                                </li>
+                                @endcan
+                                @can('invoice_create')
+                                <li class="{{ request()->routeIs('invoice.create') ? 'menuitem-active' : '' }}">
+                                    <a class="tp-link {{ request()->routeIs('invoice.create') ? 'active' : '' }}"
+                                        href="{{ route('invoice.create') }}">
+                                        <span>+ Create Invoice</span>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
+                        </div>
+                    </li>
+                    @endcanany
                     @can('company_view')
                     <li>
                         <a href="{{ route('company.index') }}">
@@ -434,6 +469,41 @@
                         </a>
                     </li>
                     @endcan
+
+                    {{-- Banks & Reports --}}
+                    @canany(['bank_view', 'bank_create', 'bank_report_view'])
+                    @php
+                        $isBankActive = request()->routeIs('bank.*') || request()->routeIs('bank-report.*');
+                    @endphp
+                    <li class="{{ $isBankActive ? 'menuitem-active' : '' }}">
+                        <a href="#sidebarBanks" data-bs-toggle="collapse" class="{{ $isBankActive ? 'active' : '' }}"
+                            aria-expanded="{{ $isBankActive ? 'true' : 'false' }}">
+                            <i data-feather="dollar-sign"></i>
+                            <span>Bank Accounts</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse {{ $isBankActive ? 'show' : '' }}" id="sidebarBanks">
+                            <ul class="nav-second-level">
+                                @can('bank_view')
+                                <li class="{{ request()->routeIs('bank.index') ? 'menuitem-active' : '' }}">
+                                    <a class="tp-link {{ request()->routeIs('bank.index') ? 'active' : '' }}"
+                                        href="{{ route('bank.index') }}">
+                                        <span>Banks Management</span>
+                                    </a>
+                                </li>
+                                @endcan
+                                @can('bank_report_view')
+                                <li class="{{ request()->routeIs('bank-report.*') ? 'menuitem-active' : '' }}">
+                                    <a class="tp-link {{ request()->routeIs('bank-report.*') ? 'active' : '' }}"
+                                        href="{{ route('bank-report.filter') }}">
+                                        <span>Bank Invoices Report</span>
+                                    </a>
+                                </li>
+                                @endcan
+                            </ul>
+                        </div>
+                    </li>
+                    @endcanany
                 </ul>
             </div>
             <div class="clearfix"></div>

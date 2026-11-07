@@ -7,6 +7,9 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\BankController;
+use App\Http\Controllers\BankReportController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpenseTransactionController;
 use App\Http\Controllers\TransactionController;
@@ -240,8 +243,45 @@ Route::middleware('auth')->group(function () {
                 Route::put('update/{id}', 'update')->name('expense.transaction.update');
                 Route::delete('delete/{id}', 'destroy')->name('expense.transaction.delete');
                 Route::get('report/filter', 'reportFilter')->name('expense.transaction.report.filter');
-                Route::post('report', 'report')->name('expense.transaction.report');
+                Route::match(['get', 'post'], 'report', 'report')->name('expense.transaction.report');
             });
+
+        Route::controller(InvoiceController::class)
+            ->prefix('invoice')
+            ->group(function () {
+                Route::get('/',             'index')->name('invoice.index');
+                Route::get('create',        'create')->name('invoice.create');
+                Route::post('store',        'store')->name('invoice.store');
+                Route::get('show/{id}',     'show')->name('invoice.show');
+                Route::get('pdf/{id}',      'pdf')->name('invoice.pdf');
+                Route::get('edit/{id}',     'edit')->name('invoice.edit');
+                Route::put('update/{id}',   'update')->name('invoice.update');
+                Route::post('payment/{id}', 'recordPayment')->name('invoice.payment');
+                Route::delete('delete/{id}','destroy')->name('invoice.delete');
+            });
+
+        Route::controller(BankController::class)
+            ->prefix('bank')
+            ->group(function () {
+                Route::get('/', 'index')->name('bank.index');
+                Route::get('create', 'create')->name('bank.create');
+                Route::post('store', 'store')->name('bank.store');
+                Route::get('edit/{bank}', 'edit')->name('bank.edit');
+                Route::put('update/{bank}', 'update')->name('bank.update');
+                Route::patch('toggle-status/{bank}', 'toggleStatus')->name('bank.toggle-status');
+                Route::delete('delete/{bank}', 'destroy')->name('bank.destroy');
+                Route::get('ledger/{bank}', 'ledger')->name('bank.ledger');
+            });
+
+        Route::controller(BankReportController::class)
+            ->prefix('bank-report')
+            ->group(function () {
+                Route::get('/', 'reportFilter')->name('bank-report.index');
+                Route::get('filter', 'reportFilter')->name('bank-report.filter');
+                Route::match(['get', 'post'], 'view', 'report')->name('bank-report.report');
+                Route::get('pdf', 'reportPdf')->name('bank-report.pdf');
+            });
+
 
         Route::controller(TransactionController::class)
             ->prefix('transaction')

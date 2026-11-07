@@ -26,6 +26,7 @@
                                                     class="text-danger">*</span></label>
                                             <select name="hajj_umrah" class="form-select" required>
                                                 <option value="">-- Select Package --</option>
+                                                <option value="all" {{ old('hajj_umrah') == 'all' ? 'selected' : '' }}>All Packages</option>
                                                 <option value="hajj" {{ old('hajj_umrah') == 'hajj' ? 'selected' : '' }}>
                                                     Hajj</option>
                                                 <option value="umrah" {{ old('hajj_umrah') == 'umrah' ? 'selected' : '' }}>
@@ -59,6 +60,38 @@
                                                         {{ $expense->name }}
                                                     </option>
                                                 @endforeach
+                                            </select>
+                                        </div>
+
+                                        {{-- Bank Account --}}
+                                        <div class="col-md-3 mb-3">
+                                            <label class="form-label fw-medium">Bank Account</label>
+                                            <select name="bank_id" class="form-select">
+                                                <option value="">-- All Banks --</option>
+                                                @if(isset($banks))
+                                                    @foreach ($banks as $bank)
+                                                        <option value="{{ $bank->id }}"
+                                                            {{ old('bank_id') == $bank->id ? 'selected' : '' }}>
+                                                            {{ $bank->name }} ({{ $bank->account_number }})
+                                                        </option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+
+                                        {{-- Client --}}
+                                        <div class="col-md-3 mb-3">
+                                            <label class="form-label fw-medium">Client</label>
+                                            <select name="client_id" class="form-select">
+                                                <option value="">-- All Clients --</option>
+                                                @if(isset($clients))
+                                                    @foreach ($clients as $c)
+                                                        <option value="{{ $c->id }}"
+                                                            {{ old('client_id') == $c->id ? 'selected' : '' }}>
+                                                            {{ $c->name }} {{ $c->phone ? '('.$c->phone.')' : '' }}
+                                                        </option>
+                                                    @endforeach
+                                                @endif
                                             </select>
                                         </div>
 

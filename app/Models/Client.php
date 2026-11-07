@@ -15,6 +15,7 @@ class Client extends Model
         'passport_number',
         'cnic',
         'phone',
+        'email',
         'type',
         'status',
         'package_id'
@@ -28,5 +29,15 @@ class Client extends Model
     public function package()
     {
         return $this->belongsTo(Package::class);
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

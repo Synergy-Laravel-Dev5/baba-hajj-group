@@ -355,6 +355,122 @@
 
                 </div>
 
+                <!-- INVOICES SUMMARY & LIST -->
+                <div class="card section-card mt-3">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <h5 class="mb-0">
+                            <i class="mdi mdi-receipt me-2 text-primary"></i>Invoices Issued
+                        </h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary rounded-pill px-3 py-1" style="font-size:12px;">
+                                {{ isset($invoices) ? $invoices->count() : 0 }} {{ Str::plural('Invoice', isset($invoices) ? $invoices->count() : 0) }}
+                            </span>
+                            @if(isset($client->id) && $client->id !== 'all')
+                                <a href="{{ route('invoice.create', ['client_id' => $client->id]) }}" class="btn btn-sm btn-primary">
+                                    <i class="mdi mdi-plus me-1"></i> New Invoice
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    {{-- Invoice Mini Stat Bar --}}
+                    <div class="card-body p-3 border-bottom bg-light">
+                        <div class="row g-2 text-center">
+                            <div class="col-md-4">
+                                <div class="p-2 rounded bg-white border">
+                                    <div class="info-label mb-1">Total Invoiced</div>
+                                    <div class="fw-bold text-dark fs-16">PKR {{ number_format($totalInvoiced ?? 0, 0) }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-2 rounded bg-white border">
+                                    <div class="info-label mb-1">Invoices Paid</div>
+                                    <div class="fw-bold text-success fs-16">PKR {{ number_format($totalInvoicedPaid ?? 0, 0) }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-2 rounded bg-white border">
+                                    <div class="info-label mb-1">Invoices Balance Due</div>
+                                    <div class="fw-bold {{ ($totalInvoicedBalance ?? 0) > 0 ? 'text-danger' : 'text-success' }} fs-16">
+                                        PKR {{ number_format($totalInvoicedBalance ?? 0, 0) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table txn-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">#</th>
+                                        <th>Invoice No</th>
+                                        <th>Invoice Date</th>
+                                        <th>Due Date</th>
+                                        <th class="text-end">Total Amount</th>
+                                        <th class="text-end">Paid Amount</th>
+                                        <th class="text-end">Balance Due</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center pe-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if(isset($invoices) && $invoices->count() > 0)
+                                        @foreach($invoices as $inv)
+                                            <tr>
+                                                <td class="ps-4 fw-medium text-muted">{{ $loop->iteration }}</td>
+                                                <td>
+                                                    <a href="{{ route('invoice.show', $inv->id) }}" class="fw-bold text-primary text-decoration-none">
+                                                        <i class="mdi mdi-file-document-outline me-1"></i>{{ $inv->invoice_no }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ $inv->invoice_date ? $inv->invoice_date->format('d M, Y') : '—' }}</td>
+                                                <td>{{ $inv->due_date ? $inv->due_date->format('d M, Y') : '—' }}</td>
+                                                <td class="text-end fw-bold text-dark">
+                                                    {{ $inv->currency }} {{ number_format($inv->total_amount, 2) }}
+                                                </td>
+                                                <td class="text-end fw-bold text-success">
+                                                    {{ $inv->currency }} {{ number_format($inv->payment_made, 2) }}
+                                                </td>
+                                                <td class="text-end fw-bold {{ $inv->balance_due > 0 ? 'text-danger' : 'text-success' }}">
+                                                    {{ $inv->currency }} {{ number_format($inv->balance_due, 2) }}
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($inv->status === 'paid')
+                                                        <span class="badge bg-success px-2 py-1">Paid</span>
+                                                    @elseif($inv->status === 'partial')
+                                                        <span class="badge bg-warning text-dark px-2 py-1">Partial</span>
+                                                    @else
+                                                        <span class="badge bg-danger px-2 py-1">Unpaid</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center pe-4">
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a href="{{ route('invoice.show', $inv->id) }}" class="btn btn-outline-primary" title="View Invoice">
+                                                            <i class="mdi mdi-eye"></i>
+                                                        </a>
+                                                        <a href="{{ route('invoice.pdf', $inv->id) }}" class="btn btn-outline-danger" title="Download PDF" target="_blank">
+                                                            <i class="mdi mdi-file-pdf-box"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="9" class="text-center py-4 text-muted">
+                                                <i class="mdi mdi-receipt text-muted opacity-50" style="font-size: 32px;"></i>
+                                                <p class="mb-0 mt-1">No invoices found for this client.</p>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- TRANSACTION HISTORY -->
                 <div class="card section-card mt-3">
                     <div class="card-header d-flex justify-content-between align-items-center">

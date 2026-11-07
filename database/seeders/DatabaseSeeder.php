@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
                 AirlineSeeder::class,
                 TrainSeeder::class,
                 VisaCountrySeeder::class,
+                BankSeeder::class,
             ]);
 
             $adminRole = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);

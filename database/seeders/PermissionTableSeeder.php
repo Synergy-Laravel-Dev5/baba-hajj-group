@@ -334,6 +334,20 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'international_package_trash', 'guard_name' => 'web', 'group_name' => 'International Package'],
             ['name' => 'international_package_trash_view', 'guard_name' => 'web', 'group_name' => 'International Package'],
             ['name' => 'international_package_restore', 'guard_name' => 'web', 'group_name' => 'International Package'],
+
+            // ── 41. BANKS MANAGEMENT ───────────────────────────
+            ['name' => 'bank_view', 'guard_name' => 'web', 'group_name' => 'Bank'],
+            ['name' => 'bank_create', 'guard_name' => 'web', 'group_name' => 'Bank'],
+            ['name' => 'bank_edit', 'guard_name' => 'web', 'group_name' => 'Bank'],
+            ['name' => 'bank_trash', 'guard_name' => 'web', 'group_name' => 'Bank'],
+            ['name' => 'bank_report_view', 'guard_name' => 'web', 'group_name' => 'Bank'],
+
+            // ── 42. INVOICE MANAGEMENT ─────────────────────────
+            ['name' => 'invoice_view', 'guard_name' => 'web', 'group_name' => 'Invoice'],
+            ['name' => 'invoice_create', 'guard_name' => 'web', 'group_name' => 'Invoice'],
+            ['name' => 'invoice_edit', 'guard_name' => 'web', 'group_name' => 'Invoice'],
+            ['name' => 'invoice_trash', 'guard_name' => 'web', 'group_name' => 'Invoice'],
+            ['name' => 'invoice_payment', 'guard_name' => 'web', 'group_name' => 'Invoice'],
         ];
 
         foreach ($permissions as $permission) {

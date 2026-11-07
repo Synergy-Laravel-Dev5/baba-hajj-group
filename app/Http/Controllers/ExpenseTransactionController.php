@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Expense;
+use App\Models\Bank;
+use App\Models\Client;
 use Carbon\Carbon;
 use App\Models\ExpenseTransaction;
 use Illuminate\Http\Request;
@@ -166,25 +168,43 @@ class ExpenseTransactionController extends Controller
     {
         $this->authorize('expense_filter_view');
         $expenses = Expense::all();
-        return view('expense_transaction.report_filter', compact('expenses'));
+        $banks    = Bank::where('status', 'active')->orderBy('name')->get();
+        $clients  = Client::orderBy('name')->get();
+        return view('expense_transaction.report_filter', compact('expenses', 'banks', 'clients'));
     }
 
     public function report(Request $request)
     {
         $this->authorize('expense_filter_view');
         $request->validate([
-            'hajj_umrah'   => 'required|in:hajj,umrah',
-            'year'         => 'required|integer|digits:4|min:2000|max:2100',
+            'hajj_umrah'   => 'nullable|in:hajj,umrah,all',
+            'year'         => 'nullable|integer|digits:4|min:2000|max:2100',
             'expense_id'   => 'nullable|exists:expenses,id',
-            'payment_type' => 'nullable|in:cash,bank,online,ewallet',
-            'currency'     => 'nullable|in:PKR,SAR',
+            'bank_id'      => 'nullable|exists:banks,id',
+            'client_id'    => 'nullable|exists:clients,id',
+            'payment_type' => 'nullable|string',
+            'currency'     => 'nullable|string',
             'from_date'    => 'nullable|date',
             'to_date'      => 'nullable|date|after_or_equal:from_date',
         ]);
 
-        $query = ExpenseTransaction::with('expense')
-            ->where('hajj_umrah', $request->hajj_umrah)
-            ->where('year', $request->year);
+        $query = ExpenseTransaction::with(['expense', 'bank', 'client', 'company']);
+
+        if ($request->filled('hajj_umrah') && $request->hajj_umrah !== 'all') {
+            $query->where('hajj_umrah', $request->hajj_umrah);
+        }
+
+        if ($request->filled('year') && $request->year !== 'all') {
+            $query->where('year', $request->year);
+        }
+
+        if ($request->filled('bank_id')) {
+            $query->where('bank_id', $request->bank_id);
+        }
+
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
 
         if ($request->filled('expense_id')) {
             $query->where('expense_id', $request->expense_id);
@@ -208,9 +228,11 @@ class ExpenseTransactionController extends Controller
 
         $transactions = $query->orderBy('date', 'asc')->get();
 
-        $filters  = $request->only(['hajj_umrah', 'year', 'expense_id', 'payment_type', 'currency', 'from_date', 'to_date']);
+        $filters  = $request->only(['hajj_umrah', 'year', 'expense_id', 'bank_id', 'client_id', 'payment_type', 'currency', 'from_date', 'to_date']);
         $expenses = Expense::all();
+        $banks    = Bank::where('status', 'active')->orderBy('name')->get();
+        $clients  = Client::orderBy('name')->get();
 
-        return view('expense_transaction.report', compact('transactions', 'filters', 'expenses'));
+        return view('expense_transaction.report', compact('transactions', 'filters', 'expenses', 'banks', 'clients'));
     }
 }

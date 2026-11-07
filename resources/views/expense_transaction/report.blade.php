@@ -357,6 +357,12 @@
                         @if (!empty($filters['currency']))
                             &bull; Currency: {{ $filters['currency'] }}
                         @endif
+                        @if (!empty($filters['bank_id']) && ($selectedBank = $banks->firstWhere('id', $filters['bank_id'])))
+                            &bull; Bank: {{ $selectedBank->name }}
+                        @endif
+                        @if (!empty($filters['client_id']) && ($selectedClient = $clients->firstWhere('id', $filters['client_id'])))
+                            &bull; Client: {{ $selectedClient->name }}
+                        @endif
                         @if (!empty($filters['from_date']))
                             &bull; From: {{ \Carbon\Carbon::parse($filters['from_date'])->format('d M Y') }}
                         @endif
@@ -380,6 +386,12 @@
                             @if (!empty($filters['currency']))
                                 &nbsp;<span
                                     class="et-badge {{ $filters['currency'] === 'SAR' ? 'et-badge-sar' : 'et-badge-pkr' }}">{{ $filters['currency'] }}</span>
+                            @endif
+                            @if (!empty($filters['bank_id']) && ($selectedBank = $banks->firstWhere('id', $filters['bank_id'])))
+                                &nbsp;&bull;&nbsp;<span class="badge bg-light text-dark border"><i class="ri-bank-line me-1"></i>Bank: {{ $selectedBank->name }}</span>
+                            @endif
+                            @if (!empty($filters['client_id']) && ($selectedClient = $clients->firstWhere('id', $filters['client_id'])))
+                                &nbsp;&bull;&nbsp;<span class="badge bg-light text-dark border"><i class="ri-user-line me-1"></i>Client: {{ $selectedClient->name }}</span>
                             @endif
                             @if (!empty($filters['from_date']) || !empty($filters['to_date']))
                                 &nbsp;&bull;&nbsp;
@@ -526,13 +538,27 @@
                                             <tr>
                                                 <td class="text-muted fw-medium">{{ $i + 1 }}</td>
                                                 <td>{{ \Carbon\Carbon::parse($txn->date)->format('d M Y') }}</td>
-                                                <td class="fw-medium">{{ $txn->expense->name ?? '—' }}</td>
+                                                <td class="fw-medium">
+                                                    @if($txn->expense)
+                                                        {{ $txn->expense->name }}
+                                                    @elseif($txn->client)
+                                                        <span class="text-primary fw-semibold"><i class="ri-user-line me-1"></i>Client: {{ $txn->client->name }}</span>
+                                                    @elseif($txn->bank)
+                                                        <span class="text-info fw-semibold"><i class="ri-bank-line me-1"></i>Bank: {{ $txn->bank->name }}</span>
+                                                    @else
+                                                        —
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <span
                                                         class="et-badge {{ $txn->hajj_umrah === 'hajj' ? 'et-badge-hajj' : 'et-badge-umrah' }}">{{ ucfirst($txn->hajj_umrah) }}</span>
                                                 </td>
                                                 <td>{{ $txn->year }}</td>
-                                                <td><span class="et-badge {{ $pmBadge }}">{{ $pmLabel }}</span>
+                                                <td>
+                                                    <span class="et-badge {{ $pmBadge }}">{{ $pmLabel }}</span>
+                                                    @if($txn->bank)
+                                                        <br><small class="text-muted fw-semibold" style="font-size:10px;"><i class="ri-bank-line me-1"></i>{{ $txn->bank->name }}</small>
+                                                    @endif
                                                 </td>
                                                 <td class="text-muted">{{ $txn->reference_no ?: '—' }}</td>
                                                 <td class="text-muted">{{ $txn->description ?: '—' }}</td>
@@ -648,7 +674,7 @@
                     @endphp {
                         no: {{ $i + 1 }},
                         date: '{{ \Carbon\Carbon::parse($txn->date)->format('d M Y') }}',
-                        category: '{{ addslashes($txn->expense->name ?? '—') }}',
+                        category: '{{ addslashes($txn->expense->name ?? ($txn->client ? "Client: ".$txn->client->name : ($txn->bank ? "Bank: ".$txn->bank->name : "—"))) }}',
                         package: '{{ ucfirst($txn->hajj_umrah) }}',
                         year: {{ $txn->year }},
                         payment: '{{ match ($txn->payment_type) {'cash' => 'Cash','bank' => 'Bank','online' => 'Online','ewallet' => 'E-Wallet',default => ucfirst($txn->payment_type)} }}',
