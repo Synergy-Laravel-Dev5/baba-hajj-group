@@ -49,6 +49,7 @@
                 <form action="{{ route('package.update', $package->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="package[package_type]" value="{{ $package->package_type ?: 'hajj' }}">
 
                     <ul class="nav nav-pills mb-3" id="packageTab" role="tablist">
                         <li class="nav-item">
@@ -353,87 +354,109 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h5 class="section-subhead m-0">🏨 Stay Schedule (Makkah, Azizia, Hajj Days, Madinah)</h5>
-                                    <small class="text-muted">Select place/city to automatically filter hotels from Hotel CRUD</small>
+                                    <small class="text-muted">Hotels load dynamically from Hotel CRUD; Meal Plans load dynamically from Meal Plan CRUD.</small>
                                 </div>
                                 <button type="button" class="btn btn-primary btn-sm" id="add-accommodation-btn">
                                     <i class="mdi mdi-plus me-1"></i> Add Stay Row
                                 </button>
                             </div>
 
-                            <div id="accommodations-container">
-                                @php
-                                    $accs = $package->accommodations;
-                                    if(!$accs || $accs->count() == 0) {
-                                        $accs = collect([
-                                            (object)['place' => 'MAKKAH - ANJUM MAKKAH HOTEL', 'hotel' => 'Anjum Makkah Hotel', 'package_a_hotel' => 'Anjum Makkah Hotel', 'check_in' => '2027-04-28', 'check_out' => '2027-05-06', 'note' => '21 - 22 Zil Qadh 1448', 'sharing' => '29 Zil Qadh 01 Zil Hajj 1448', 'food_package' => 'FULL BOARD', 'sharing_type' => 'Breakfast, Lunch, Dinner Asian Meal'],
-                                            (object)['place' => 'AZIZIA - BUILDING', 'hotel' => 'Azizia Building', 'package_a_hotel' => 'Azizia Building', 'check_in' => '2027-05-06', 'check_out' => '2027-05-13', 'note' => '29 Zil Qadh - 01 Zil Hajj 1448', 'sharing' => '07 Zil Hajj 1448', 'food_package' => 'FULL BOARD', 'sharing_type' => 'Breakfast, Lunch, Dinner Asian Meal'],
-                                            (object)['place' => 'HAJJ - DAYS (MINA / ARAFAT)', 'hotel' => 'Maktab Camp', 'package_a_hotel' => 'Maktab Camp', 'check_in' => '2027-05-14', 'check_out' => '2027-05-18', 'note' => '08 Zil Hajj 1448', 'sharing' => '12 Zil Hajj 1448', 'food_package' => 'FULL BOARD', 'sharing_type' => 'Provided by Maktab'],
-                                            (object)['place' => 'AZIZIA - BUILDING', 'hotel' => 'Azizia Building', 'package_a_hotel' => 'Azizia Building', 'check_in' => '2027-05-18', 'check_out' => '2027-05-23', 'note' => '12 Zil Hajj 1448', 'sharing' => '17 Zil Hajj 1448', 'food_package' => 'FULL BOARD', 'sharing_type' => 'Breakfast, Lunch, Dinner Asian Meal'],
-                                            (object)['place' => 'MADINAH - NUSK AL HIJRA', 'hotel' => 'Nusk Al Hijra', 'package_a_hotel' => 'Nusk Al Hijra', 'check_in' => '2027-05-23', 'check_out' => '2027-05-28', 'note' => '17 Zil Hajj 1448', 'sharing' => '22 Zil Hajj 1448', 'food_package' => 'FULL BOARD', 'sharing_type' => 'Breakfast, Lunch, Dinner Asian Meal'],
-                                        ]);
-                                    }
-                                @endphp
+                            @php
+                                $accs = old('accommodations');
+                                if ($accs === null) {
+                                    $accs = $package->accommodations ?? collect();
+                                }
+                                $hasAccs = is_countable($accs) ? (count($accs) > 0) : false;
+                            @endphp
 
-                                @foreach ($accs as $idx => $acc)
-                                    @php
-                                        $curPlace = old('accommodations.'.$idx.'.place', $acc->place ?? '');
-                                        $curHotel = old('accommodations.'.$idx.'.package_a.hotel', $acc->package_a_hotel ?? ($acc->hotel ?? ''));
-                                    @endphp
-                                    <div class="accommodation-row border rounded p-3 mb-3 bg-light" data-row-index="{{ $idx }}">
-                                        <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
-                                            <span class="badge bg-dark stay-segment-badge">Stay Segment #{{ $idx + 1 }}</span>
-                                            <button type="button" class="btn btn-outline-danger btn-sm remove-acc-btn py-0 px-2" style="font-size:12px;">
-                                                <i class="mdi mdi-delete-outline"></i> Remove
-                                            </button>
-                                        </div>
-                                        <div class="row g-3">
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-bold small">Segment / Place</label>
-                                                <div class="input-group input-group-sm">
-                                                    <select class="form-select acc-place-select" style="max-width:110px;">
-                                                        <option value="">Place...</option>
-                                                        <option value="MAKKAH" {{ str_contains(strtoupper($curPlace), 'MAKKAH') ? 'selected' : '' }}>Makkah</option>
-                                                        <option value="AZIZIA" {{ str_contains(strtoupper($curPlace), 'AZIZIA') ? 'selected' : '' }}>Azizia</option>
-                                                        <option value="HAJJ - DAYS (MINA / ARAFAT)" {{ str_contains(strtoupper($curPlace), 'MINA') || str_contains(strtoupper($curPlace), 'ARAFAT') ? 'selected' : '' }}>Mina/Arafat</option>
-                                                        <option value="MADINAH" {{ str_contains(strtoupper($curPlace), 'MADINAH') ? 'selected' : '' }}>Madinah</option>
-                                                        <option value="OTHER">Other</option>
+                            <div id="no-acc-placeholder" class="text-center py-4 border rounded bg-white text-muted mb-3 {{ $hasAccs ? 'd-none' : '' }}">
+                                <i class="mdi mdi-hotel fs-36 text-primary d-block mb-2"></i>
+                                <p class="mb-1 fw-semibold text-dark">No Stay Segments Added Yet</p>
+                                <p class="small text-muted mb-3">Click "+ Add Stay Row" above to add Makkah, Madinah, Azizia, or Hajj Days stay segments.</p>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('add-accommodation-btn').click()">
+                                    <i class="mdi mdi-plus me-1"></i> Add First Stay Row
+                                </button>
+                            </div>
+
+                            <div id="accommodations-container">
+                                @if ($hasAccs)
+                                    @foreach ($accs as $idx => $acc)
+                                        @php
+                                            $isObj = is_object($acc);
+                                            $curPlace = old('accommodations.'.$idx.'.place', $isObj ? ($acc->place ?? '') : ($acc['place'] ?? ''));
+                                            $curHotel = old('accommodations.'.$idx.'.package_a.hotel', $isObj ? ($acc->package_a_hotel ?? ($acc->hotel ?? '')) : ($acc['package_a']['hotel'] ?? ($acc['hotel'] ?? '')));
+                                            $curMeal  = old('accommodations.'.$idx.'.food_package', $isObj ? ($acc->food_package ?? ($acc->package_a_food_package ?? '')) : ($acc['food_package'] ?? ''));
+                                            $curNote  = old('accommodations.'.$idx.'.note', $isObj ? ($acc->note ?? '') : ($acc['note'] ?? ''));
+                                            $curSharing = old('accommodations.'.$idx.'.sharing', $isObj ? ($acc->sharing ?? '') : ($acc['sharing'] ?? ''));
+                                            $curSharingType = old('accommodations.'.$idx.'.sharing_type', $isObj ? ($acc->sharing_type ?? '') : ($acc['sharing_type'] ?? ''));
+                                            $rawCheckIn = $isObj ? ($acc->check_in ? \Carbon\Carbon::parse($acc->check_in)->format('Y-m-d') : '') : ($acc['check_in'] ?? '');
+                                            $rawCheckOut = $isObj ? ($acc->check_out ? \Carbon\Carbon::parse($acc->check_out)->format('Y-m-d') : '') : ($acc['check_out'] ?? '');
+                                        @endphp
+                                        <div class="accommodation-row border rounded p-3 mb-3 bg-light" data-row-index="{{ $idx }}">
+                                            <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                                                <span class="badge bg-dark stay-segment-badge">Stay Segment #{{ $loop->iteration }}</span>
+                                                <button type="button" class="btn btn-outline-danger btn-sm remove-acc-btn py-0 px-2" style="font-size:12px;">
+                                                    <i class="mdi mdi-delete-outline"></i> Remove
+                                                </button>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold small">Segment / Place</label>
+                                                    <div class="input-group input-group-sm">
+                                                        <select class="form-select acc-place-select" style="max-width:110px;">
+                                                            <option value="">Place...</option>
+                                                            <option value="MAKKAH" {{ str_contains(strtoupper($curPlace), 'MAKKAH') ? 'selected' : '' }}>Makkah</option>
+                                                            <option value="AZIZIA" {{ str_contains(strtoupper($curPlace), 'AZIZIA') ? 'selected' : '' }}>Azizia</option>
+                                                            <option value="HAJJ - DAYS (MINA / ARAFAT)" {{ str_contains(strtoupper($curPlace), 'MINA') || str_contains(strtoupper($curPlace), 'ARAFAT') ? 'selected' : '' }}>Mina/Arafat</option>
+                                                            <option value="MADINAH" {{ str_contains(strtoupper($curPlace), 'MADINAH') ? 'selected' : '' }}>Madinah</option>
+                                                            <option value="OTHER">Other</option>
+                                                        </select>
+                                                        <input type="text" name="accommodations[{{ $idx }}][place]" class="form-control acc-place-input" placeholder="e.g. MAKKAH - HOTEL NAME" value="{{ $curPlace }}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold small">Hotel / Building</label>
+                                                    <select class="form-select form-select-sm acc-hotel-select mb-1">
+                                                        <option value="">-- Select from Hotel CRUD --</option>
+                                                        @foreach ($hotels as $h)
+                                                            <option value="{{ $h->name }}" data-place="{{ strtolower($h->place ?? '') }}" {{ $curHotel == $h->name ? 'selected' : '' }}>
+                                                                {{ $h->name }} ({{ $h->place ?? 'Hotel' }})
+                                                            </option>
+                                                        @endforeach
                                                     </select>
-                                                    <input type="text" name="accommodations[{{ $idx }}][place]" class="form-control acc-place-input" placeholder="e.g. MAKKAH - HOTEL NAME" value="{{ $curPlace }}">
+                                                    <input type="text" name="accommodations[{{ $idx }}][package_a][hotel]" class="form-control form-control-sm acc-hotel-input" placeholder="Hotel / Building Name" value="{{ $curHotel }}">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold small">Arrival Date & Hijri</label>
+                                                    <input type="date" name="accommodations[{{ $idx }}][check_in]" class="form-control form-control-sm mb-1" value="{{ old('accommodations.'.$idx.'.check_in', $rawCheckIn) }}">
+                                                    <input type="text" name="accommodations[{{ $idx }}][note]" class="form-control form-control-sm" placeholder="Hijri e.g. 21-22 Zil Qadh 1448" value="{{ $curNote }}">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label fw-bold small">Departure Date & Hijri</label>
+                                                    <input type="date" name="accommodations[{{ $idx }}][check_out]" class="form-control form-control-sm mb-1" value="{{ old('accommodations.'.$idx.'.check_out', $rawCheckOut) }}">
+                                                    <input type="text" name="accommodations[{{ $idx }}][sharing]" class="form-control form-control-sm" placeholder="Hijri e.g. 29 Zil Qadh 1448" value="{{ $curSharing }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold small">Meal Plan (Meal Plan CRUD)</label>
+                                                    <select name="accommodations[{{ $idx }}][food_package]" class="form-select form-select-sm">
+                                                        <option value="">-- Select Meal Plan --</option>
+                                                        @if(isset($mealPlans) && $mealPlans->count())
+                                                            @foreach ($mealPlans as $mp)
+                                                                <option value="{{ $mp->name }}" {{ $curMeal == $mp->name ? 'selected' : '' }}>
+                                                                    {{ $mp->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold small">Meal Detail Note (Optional)</label>
+                                                    <input type="text" name="accommodations[{{ $idx }}][sharing_type]" class="form-control form-control-sm" placeholder="e.g. Special Pakistani Menu, 3 Times Buffet" value="{{ $curSharingType }}">
                                                 </div>
                                             </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-bold small">Hotel / Building</label>
-                                                <select class="form-select form-select-sm acc-hotel-select mb-1">
-                                                    <option value="">-- Select from Hotel CRUD --</option>
-                                                    @foreach ($hotels as $h)
-                                                        <option value="{{ $h->name }}" data-place="{{ strtolower($h->place ?? '') }}" {{ $curHotel == $h->name ? 'selected' : '' }}>
-                                                            {{ $h->name }} ({{ $h->place ?? 'Hotel' }})
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                <input type="text" name="accommodations[{{ $idx }}][package_a][hotel]" class="form-control form-control-sm acc-hotel-input" placeholder="Hotel / Building Name" value="{{ $curHotel }}">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-bold small">Arrival Date & Hijri</label>
-                                                <input type="date" name="accommodations[{{ $idx }}][check_in]" class="form-control form-control-sm mb-1" value="{{ old('accommodations.'.$idx.'.check_in', $acc->check_in ? \Carbon\Carbon::parse($acc->check_in)->format('Y-m-d') : '') }}">
-                                                <input type="text" name="accommodations[{{ $idx }}][note]" class="form-control form-control-sm" placeholder="Hijri e.g. 21-22 Zil Qadh 1448" value="{{ old('accommodations.'.$idx.'.note', $acc->note ?? '') }}">
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label class="form-label fw-bold small">Departure Date & Hijri</label>
-                                                <input type="date" name="accommodations[{{ $idx }}][check_out]" class="form-control form-control-sm mb-1" value="{{ old('accommodations.'.$idx.'.check_out', $acc->check_out ? \Carbon\Carbon::parse($acc->check_out)->format('Y-m-d') : '') }}">
-                                                <input type="text" name="accommodations[{{ $idx }}][sharing]" class="form-control form-control-sm" placeholder="Hijri e.g. 29 Zil Qadh 1448" value="{{ old('accommodations.'.$idx.'.sharing', $acc->sharing ?? '') }}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold small">Meal Plan</label>
-                                                <input type="text" name="accommodations[{{ $idx }}][food_package]" class="form-control form-control-sm" placeholder="e.g. FULL BOARD" value="{{ old('accommodations.'.$idx.'.food_package', $acc->food_package ?? ($acc->package_a_food_package ?? 'FULL BOARD')) }}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-bold small">Meal Detail Note</label>
-                                                <input type="text" name="accommodations[{{ $idx }}][sharing_type]" class="form-control form-control-sm" placeholder="Breakfast, Lunch, Dinner Asian Meal" value="{{ old('accommodations.'.$idx.'.sharing_type', $acc->sharing_type ?? 'Breakfast, Lunch, Dinner Asian Meal') }}">
-                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
+                                    @endforeach
+                                @endif
                             </div>
 
                             <div class="d-flex justify-content-between mt-4">
@@ -493,23 +516,89 @@
                              TAB 6: TRANSPORT & FLIGHTS
                         ═════════════════════════════════════════ --}}
                         <div class="tab-pane fade card-body" id="tab-transport">
-                            <h5 class="section-subhead">🚌 Transport & Flight Routes</h5>
-                            @php
-                                $firstTr = $package->transports->first();
-                            @endphp
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Transport Sector</label>
-                                    <input type="text" name="transports[0][route]" class="form-control" placeholder="Karachi -> Jeddah -> Makkah -> Madinah" value="{{ old('transports.0.route', $firstTr->route ?? 'Karachi -> Jeddah -> Makkah -> Madinah -> Karachi') }}">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h5 class="section-subhead m-0">🚌 Transport & Flight Routes</h5>
+                                    <small class="text-muted">Routes load dynamically from Route CRUD; Vehicles load dynamically from Vehicle CRUD.</small>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Vehicle Type</label>
-                                    <input type="text" name="transports[0][vehicle]" class="form-control" placeholder="Air Conditioned Private Buses" value="{{ old('transports.0.vehicle', $firstTr->vehicle ?? 'Air Conditioned Private Buses') }}">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold">Transport Service</label>
-                                    <input type="text" name="transports[0][type]" class="form-control" placeholder="Full Complete Hajj Transport" value="{{ old('transports.0.type', $firstTr->type ?? 'Full Complete Hajj Transport') }}">
-                                </div>
+                                <button type="button" class="btn btn-primary btn-sm" id="add-package-transport-btn">
+                                    <i class="mdi mdi-plus me-1"></i> Add Route Segment
+                                </button>
+                            </div>
+
+                            <div id="package-transports-container">
+                                @php
+                                    $transData = old('transports');
+                                    if ($transData === null) {
+                                        $transData = $package->transports && $package->transports->count() > 0 ? $package->transports : collect([ (object)['route' => '', 'vehicle' => '', 'type' => 'Full Complete Hajj Transport'] ]);
+                                    }
+                                @endphp
+                                @foreach ($transData as $tIdx => $tRow)
+                                    @php
+                                        $tIsObj = is_object($tRow);
+                                        $tRoute = old('transports.'.$tIdx.'.route', $tIsObj ? ($tRow->route ?? '') : ($tRow['route'] ?? ''));
+                                        $tVeh   = old('transports.'.$tIdx.'.vehicle', $tIsObj ? ($tRow->vehicle ?? '') : ($tRow['vehicle'] ?? ''));
+                                        $tType  = old('transports.'.$tIdx.'.type', $tIsObj ? ($tRow->type ?? '') : ($tRow['type'] ?? ''));
+                                    @endphp
+                                    <div class="transport-row border rounded p-3 mb-3 bg-light" data-row-index="{{ $tIdx }}">
+                                        <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                                            <span class="badge bg-secondary transport-segment-badge">Transport Segment #{{ $loop->iteration }}</span>
+                                            @if ($tIdx > 0)
+                                                <button type="button" class="btn btn-outline-danger btn-sm remove-trans-btn py-0 px-2" style="font-size:12px;">
+                                                    <i class="mdi mdi-delete-outline"></i> Remove
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-md-5">
+                                                <label class="form-label fw-bold small">Transport Sector / Route (Route CRUD) <span class="text-danger">*</span></label>
+                                                <select name="transports[{{ $tIdx }}][route]" class="form-select form-select-sm pkg-route-select">
+                                                    <option value="">-- Select Route from CRUD --</option>
+                                                    @if(isset($routes) && $routes->count())
+                                                        <optgroup label="Routes (Route Management)">
+                                                            @foreach ($routes as $r)
+                                                                @php $rVal = $r->formatted_route ?: ($r->start_place . ' TO ' . $r->end_place); @endphp
+                                                                <option value="{{ $rVal }}" {{ $tRoute == $rVal ? 'selected' : '' }}>
+                                                                    {{ $rVal }}
+                                                                </option>
+                                                            @endforeach
+                                                        </optgroup>
+                                                    @endif
+                                                    @if(isset($travelRoutes) && $travelRoutes->count())
+                                                        <optgroup label="Travel Routes (Itineraries)">
+                                                            @foreach ($travelRoutes as $tr)
+                                                                <option value="{{ $tr->name }}" {{ $tRoute == $tr->name ? 'selected' : '' }}>
+                                                                    {{ $tr->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </optgroup>
+                                                    @endif
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-bold small">Vehicle Type (Vehicle CRUD) <span class="text-danger">*</span></label>
+                                                <select name="transports[{{ $tIdx }}][vehicle]" class="form-select form-select-sm pkg-vehicle-select">
+                                                    <option value="">-- Select Vehicle from CRUD --</option>
+                                                    @if(isset($vehicles) && $vehicles->count())
+                                                        @foreach ($vehicles as $veh)
+                                                            @php
+                                                                $vLabel = trim(($veh->vehicle_type ?: 'Vehicle') . ($veh->brand_name ? ' - ' . $veh->brand_name : '') . ($veh->plate_number ? ' (' . $veh->plate_number . ')' : ''));
+                                                                $vVal = $veh->vehicle_type ?: $vLabel;
+                                                            @endphp
+                                                            <option value="{{ $vVal }}" {{ $tVeh == $vVal ? 'selected' : '' }}>
+                                                                {{ $vLabel }}
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-bold small">Transport Service / Notes</label>
+                                                <input type="text" name="transports[{{ $tIdx }}][type]" class="form-control form-control-sm" placeholder="e.g. Full Complete Hajj Transport / AC Buses" value="{{ $tType }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
 
                             <div class="d-flex justify-content-between mt-4">
@@ -577,6 +666,41 @@
 
     <script>
         const allHotels = @json($hotels ?? []);
+        const allMealPlans = @json($mealPlans ?? []);
+        const allRoutes = [
+            @if(isset($routes) && $routes->count())
+                @foreach ($routes as $r)
+                    @php $rVal = $r->formatted_route ?: ($r->start_place . ' TO ' . $r->end_place); @endphp
+                    { val: @json($rVal), label: @json($rVal), group: 'Routes (Route Management)' },
+                @endforeach
+            @endif
+            @if(isset($travelRoutes) && $travelRoutes->count())
+                @foreach ($travelRoutes as $tr)
+                    { val: @json($tr->name), label: @json($tr->name), group: 'Travel Routes' },
+                @endforeach
+            @endif
+        ];
+        const allVehicles = [
+            @if(isset($vehicles) && $vehicles->count())
+                @foreach ($vehicles as $veh)
+                    @php
+                        $vLabel = trim(($veh->vehicle_type ?: 'Vehicle') . ($veh->brand_name ? ' - ' . $veh->brand_name : '') . ($veh->plate_number ? ' (' . $veh->plate_number . ')' : ''));
+                        $vVal = $veh->vehicle_type ?: $vLabel;
+                    @endphp
+                    { val: @json($vVal), label: @json($vLabel) },
+                @endforeach
+            @endif
+        ];
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
         function filterHotelsForSelect(selectEl, placeVal) {
             if (!selectEl) return;
@@ -648,12 +772,29 @@
             }
         }
 
-        let accCounter = document.querySelectorAll('.accommodation-row').length || 5;
+        let accCounter = document.querySelectorAll('.accommodation-row').length;
+
+        function updateAccPlaceholder() {
+            const container = document.getElementById('accommodations-container');
+            const placeholder = document.getElementById('no-acc-placeholder');
+            if (!container || !placeholder) return;
+            const rows = container.querySelectorAll('.accommodation-row');
+            if (rows.length === 0) {
+                placeholder.classList.remove('d-none');
+            } else {
+                placeholder.classList.add('d-none');
+            }
+        }
 
         document.getElementById('add-accommodation-btn')?.addEventListener('click', function() {
             const container = document.getElementById('accommodations-container');
             const idx = accCounter++;
             const newIndexNumber = container.querySelectorAll('.accommodation-row').length + 1;
+
+            let mealOptionsHtml = '<option value="">-- Select Meal Plan from CRUD --</option>';
+            allMealPlans.forEach(mp => {
+                mealOptionsHtml += `<option value="${escapeHtml(mp.name)}">${escapeHtml(mp.name)}</option>`;
+            });
 
             const html = `
             <div class="accommodation-row border rounded p-3 mb-3 bg-light" data-row-index="${idx}">
@@ -696,12 +837,14 @@
                         <input type="text" name="accommodations[${idx}][sharing]" class="form-control form-control-sm" placeholder="Hijri e.g. 29 Zil Qadh 1448">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold small">Meal Plan</label>
-                        <input type="text" name="accommodations[${idx}][food_package]" class="form-control form-control-sm" placeholder="e.g. FULL BOARD" value="FULL BOARD">
+                        <label class="form-label fw-bold small">Meal Plan (Meal Plan CRUD)</label>
+                        <select name="accommodations[${idx}][food_package]" class="form-select form-select-sm">
+                            ${mealOptionsHtml}
+                        </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold small">Meal Detail Note</label>
-                        <input type="text" name="accommodations[${idx}][sharing_type]" class="form-control form-control-sm" placeholder="e.g. Breakfast, Lunch, Dinner Asian Meal" value="Breakfast, Lunch, Dinner Asian Meal">
+                        <label class="form-label fw-bold small">Meal Detail Note (Optional)</label>
+                        <input type="text" name="accommodations[${idx}][sharing_type]" class="form-control form-control-sm" placeholder="e.g. Special Asian Menu, 3 Times Buffet">
                     </div>
                 </div>
             </div>`;
@@ -709,6 +852,7 @@
             container.insertAdjacentHTML('beforeend', html);
             const addedRow = container.lastElementChild;
             bindAccommodationRowEvents(addedRow);
+            updateAccPlaceholder();
         });
 
         document.getElementById('accommodations-container')?.addEventListener('click', function(e) {
@@ -717,10 +861,10 @@
                 const row = btn.closest('.accommodation-row');
                 if (row) {
                     row.remove();
-                    // Renumber stay segment badges
                     document.querySelectorAll('.stay-segment-badge').forEach((badge, i) => {
                         badge.textContent = `Stay Segment #${i + 1}`;
                     });
+                    updateAccPlaceholder();
                 }
             }
         });
@@ -728,6 +872,93 @@
         // Initialize existing rows
         document.querySelectorAll('.accommodation-row').forEach(row => {
             bindAccommodationRowEvents(row);
+        });
+        updateAccPlaceholder();
+
+        // ═════════════════════════════════════════
+        // DYNAMIC PACKAGE TRANSPORTS
+        // ═════════════════════════════════════════
+        let transCounter = document.querySelectorAll('.transport-row').length || 1;
+
+        function buildRouteOptionsHtml(selectedVal) {
+            let options = '<option value="">-- Select Route from CRUD --</option>';
+            const selectedClean = (selectedVal || '').toLowerCase().trim();
+            const groups = {};
+
+            allRoutes.forEach(r => {
+                const grp = r.group || 'Routes';
+                if (!groups[grp]) groups[grp] = [];
+                const isSel = (r.val.toLowerCase().trim() === selectedClean);
+                groups[grp].push({ ...r, isSel });
+            });
+
+            for (const [groupName, items] of Object.entries(groups)) {
+                options += `<optgroup label="${escapeHtml(groupName)}">`;
+                items.forEach(item => {
+                    options += `<option value="${escapeHtml(item.val)}" ${item.isSel ? 'selected' : ''}>${escapeHtml(item.label)}</option>`;
+                });
+                options += `</optgroup>`;
+            }
+            return options;
+        }
+
+        function buildVehicleOptionsHtml(selectedVal) {
+            let options = '<option value="">-- Select Vehicle from CRUD --</option>';
+            const selectedClean = (selectedVal || '').toLowerCase().trim();
+            allVehicles.forEach(veh => {
+                const isSel = (veh.val.toLowerCase().trim() === selectedClean);
+                options += `<option value="${escapeHtml(veh.val)}" ${isSel ? 'selected' : ''}>${escapeHtml(veh.label)}</option>`;
+            });
+            return options;
+        }
+
+        document.getElementById('add-package-transport-btn')?.addEventListener('click', function() {
+            const container = document.getElementById('package-transports-container');
+            const idx = transCounter++;
+            const newIndexNumber = container.querySelectorAll('.transport-row').length + 1;
+
+            const html = `
+            <div class="transport-row border rounded p-3 mb-3 bg-light" data-row-index="${idx}">
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                    <span class="badge bg-secondary transport-segment-badge">Transport Segment #${newIndexNumber}</span>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-trans-btn py-0 px-2" style="font-size:12px;">
+                        <i class="mdi mdi-delete-outline"></i> Remove
+                    </button>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold small">Transport Sector / Route (Route CRUD) <span class="text-danger">*</span></label>
+                        <select name="transports[${idx}][route]" class="form-select form-select-sm pkg-route-select">
+                            ${buildRouteOptionsHtml('')}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small">Vehicle Type (Vehicle CRUD) <span class="text-danger">*</span></label>
+                        <select name="transports[${idx}][vehicle]" class="form-select form-select-sm pkg-vehicle-select">
+                            ${buildVehicleOptionsHtml('')}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small">Transport Service / Notes</label>
+                        <input type="text" name="transports[${idx}][type]" class="form-control form-control-sm" placeholder="e.g. Full Complete Hajj Transport / AC Buses">
+                    </div>
+                </div>
+            </div>`;
+
+            container.insertAdjacentHTML('beforeend', html);
+        });
+
+        document.getElementById('package-transports-container')?.addEventListener('click', function(e) {
+            const btn = e.target.closest('.remove-trans-btn');
+            if (btn) {
+                const row = btn.closest('.transport-row');
+                if (row) {
+                    row.remove();
+                    document.querySelectorAll('.transport-segment-badge').forEach((badge, i) => {
+                        badge.textContent = `Transport Segment #${i + 1}`;
+                    });
+                }
+            }
         });
     </script>
 @endsection

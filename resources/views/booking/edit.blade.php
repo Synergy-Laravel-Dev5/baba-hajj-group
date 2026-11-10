@@ -1,40 +1,55 @@
 @extends('layout.master')
-@section('title', 'Edit Booking')
+@section('title', 'Edit ' . ($packageType === 'umrah' ? 'Umrah' : 'Hajj') . ' Booking #' . $booking->id)
 
 @section('content')
     <div class="content-page">
         <div class="content">
             <div class="container-fluid">
 
-                <div class="py-3 d-flex justify-content-between align-items-center">
-                    <h4 class="fs-18 fw-semibold m-0">Edit Booking</h4>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('booking.show', $booking->id) }}" class="btn btn-info btn-sm">
-                            <i class="mdi mdi-eye me-1"></i> View
+                <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column justify-content-between">
+                    <div class="flex-grow-1">
+                        <h4 class="fs-18 fw-bold m-0 d-flex align-items-center gap-2">
+                            @if($packageType === 'umrah')
+                                <i class="mdi mdi-mosque text-success"></i> Edit Umrah Booking File #{{ $booking->id }}
+                            @else
+                                <i class="mdi mdi-kaaba text-warning"></i> Edit Hajj Booking File #{{ $booking->id }}
+                            @endif
+                            <span class="badge {{ $packageType === 'umrah' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle' }} fs-12 px-2 py-1 text-uppercase">
+                                {{ $packageType }} Mode
+                            </span>
+                        </h4>
+                        <small class="text-muted">Edit pilgrim details, flights, hotels, and costing in one continuous single-page file.</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-2 mt-sm-0">
+                        <a href="{{ route('booking.show', $booking->id) }}" class="btn btn-outline-info btn-sm">
+                            <i class="mdi mdi-eye me-1"></i> View Booking
                         </a>
-                        <a href="{{ route('booking.index') }}" class="btn btn-secondary btn-sm">
-                            <i class="mdi mdi-arrow-left me-1"></i> Back
+                        <a href="{{ route('booking.index', ['package' => $packageType]) }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="mdi mdi-arrow-left me-1"></i> Back to {{ ucfirst($packageType) }} Bookings
                         </a>
+                        <button type="submit" form="bookingForm" class="btn btn-success btn-sm px-3 fw-bold">
+                            <i class="mdi mdi-content-save me-1"></i> Update Booking
+                        </button>
                     </div>
                 </div>
 
-                @if (isset($errors) && $errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $e)
-                                <li>{{ $e }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
+            @if (isset($errors) && $errors->any())
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $e)
+                            <li>{{ $e }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show">
-                        <i class="mdi mdi-alert-circle me-1"></i> {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="mdi mdi-alert-circle me-1"></i> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
 
                 {{-- Summary Bar --}}
                 <div class="booking-summary-bar mb-3 px-3 py-2 d-flex flex-wrap gap-3 align-items-center rounded"
@@ -60,59 +75,36 @@
                     @csrf
                     @method('PUT')
 
-                    {{-- TAB NAV --}}
-                    <ul class="nav nav-tabs booking-tabs mb-0" id="bookingTabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-bs-toggle="tab" href="#tab-details">
-                                <i class="mdi mdi-account me-1"></i>Booking Details
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-package">
-                                <i class="mdi mdi-cube-outline me-1"></i>Package
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-camp-qurbani">
-                                <i class="mdi mdi-tent me-1"></i>Camp & Qurbani
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-persons">
-                                <i class="mdi mdi-account-group me-1"></i>Persons
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-flight">
-                                <i class="mdi mdi-airplane me-1"></i>Flight
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-hotel">
-                                <i class="mdi mdi-hotel me-1"></i>Hotel
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-transport">
-                                <i class="mdi mdi-bus me-1"></i>Transport
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-visa">
-                                <i class="mdi mdi-passport me-1"></i>Visa
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-bs-toggle="tab" href="#tab-costing">
-                                <i class="mdi mdi-cash me-1"></i>Costing
-                            </a>
-                        </li>
-                    </ul>
+                    {{-- QUICK JUMP NAV BAR --}}
+                    <div class="booking-quick-nav sticky-top bg-white border rounded shadow-sm p-2 mb-3 d-flex flex-wrap gap-2 align-items-center">
+                        <span class="fs-12 fw-bold text-muted text-uppercase me-1"><i class="mdi mdi-format-list-bulleted me-1"></i>Sections:</span>
+                        <a href="#tab-details" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-account me-1"></i>1. Details</a>
+                        <a href="#tab-package" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-cube-outline me-1"></i>2. Package</a>
+                        @if($packageType === 'hajj')
+                            <a href="#tab-camp-qurbani" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-tent me-1"></i>3. Camp & Qurbani</a>
+                        @endif
+                        <a href="#tab-persons" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-account-group me-1"></i>4. Persons</a>
+                        <a href="#tab-flight" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-airplane me-1"></i>5. Flight</a>
+                        <a href="#tab-hotel" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-hotel me-1"></i>6. Hotel</a>
+                        <a href="#tab-transport" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-bus me-1"></i>7. Transport</a>
+                        <a href="#tab-visa" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-passport me-1"></i>8. Visa</a>
+                        <a href="#tab-costing" class="btn btn-sm btn-outline-primary py-1 px-2 fs-12"><i class="mdi mdi-cash me-1"></i>9. Costing</a>
+                        <button type="submit" form="bookingForm" class="btn btn-sm btn-success ms-auto py-1 px-3 fs-12 fw-bold">
+                            <i class="mdi mdi-content-save me-1"></i>Update Booking
+                        </button>
+                    </div>
 
-                    <div class="tab-content border border-top-0 rounded-bottom p-4 bg-white" id="bookingTabsContent">
+                    <div class="booking-sections-wrapper d-flex flex-column gap-4" id="bookingSectionsWrapper">
 
-                        {{-- TAB 1: Booking Details --}}
-                        <div class="tab-pane fade show active" id="tab-details">
+                        {{-- SECTION 1: Booking Details --}}
+                        <div class="card mb-0 border shadow-sm booking-section-card" id="tab-details">
+                            <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                                <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                    <i class="mdi mdi-account text-primary me-2"></i>1. Booking Details
+                                </h5>
+                                <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                            </div>
+                            <div class="card-body p-3 p-md-4">
                             <div class="row g-3">
 
                                 {{-- BOOKING FOR TOGGLE --}}
@@ -211,35 +203,43 @@
                                     <textarea name="remarks" class="form-control" rows="2" placeholder="Special requests, instructions, booking remarks...">{{ old('remarks', $booking->remarks) }}</textarea>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end mt-4">
-                                <button type="button" class="btn btn-primary btn-next">Next <i
-                                        class="mdi mdi-arrow-right ms-1"></i></button>
-                            </div>
                         </div>
+                    </div>
 
-                        {{-- TAB 2: Package Selection & Details --}}
-                        <div class="tab-pane fade" id="tab-package">
-                            <input type="hidden" name="package_type" value="{{ $booking->package_type ?? 'hajj' }}">
+                    {{-- SECTION 2: Package Selection & Details --}}
+                    <div class="card mb-0 border shadow-sm booking-section-card" id="tab-package">
+                        <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                <i class="mdi mdi-cube-outline text-primary me-2"></i>2. Package Selection & Details
+                            </h5>
+                            <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                        </div>
+                        <div class="card-body p-3 p-md-4">
                             <div class="row g-3">
+                                {{-- HIDDEN PACKAGE TYPE (Inherited from booking / active context) --}}
+                                <input type="hidden" name="package_type" id="package_type" value="{{ $packageType }}">
+
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold">
-                                        <i class="mdi mdi-cube-send me-1 text-primary"></i>Select Package
+                                        <i class="mdi mdi-cube-send me-1 text-primary"></i>Select {{ ucfirst($packageType) }} Package
                                     </label>
-                                    <select name="package_id" id="packageSelect" class="form-select border-primary" data-placeholder="-- Select Package --">
-                                        <option value="">-- Select Package --</option>
+                                    <select name="package_id" id="packageSelect" class="form-select border-primary" data-placeholder="-- Select {{ ucfirst($packageType) }} Package --">
+                                        <option value="">-- Select {{ ucfirst($packageType) }} Package --</option>
                                         @foreach ($packages as $pkg)
                                             @php
                                                 $pCode = $pkg->code ?? $pkg->package_number ?? '';
-                                                $pTitle = $pkg->package_title ?? $pkg->name ?? 'Hajj Package';
+                                                $pTitle = $pkg->package_title ?? $pkg->name ?? (ucfirst($packageType) . ' Package');
                                                 $pYear = $pkg->year ?? $pkg->gregorian_year;
-                                                $pStay = $pkg->stay_type ?? $pkg->category ?? 'Package';
+                                                $pStay = $pkg->stay_type ?? $pkg->category ?? (ucfirst($packageType) . ' Package');
                                             @endphp
-                                            <option value="{{ $pkg->id }}" {{ old('package_id', $booking->package_id) == $pkg->id ? 'selected' : '' }}>
-                                                {{ $pCode ? '[' . $pCode . '] ' : '' }}{{ $pTitle }} ({{ $pYear }}) - {{ $pStay }}
+                                            <option value="{{ $pkg->id }}"
+                                                data-type="{{ $packageType }}"
+                                                {{ old('package_id', $booking->package_id) == $pkg->id ? 'selected' : '' }}>
+                                                {{ $pCode ? '[' . $pCode . '] ' : '' }}{{ $pTitle }} {{ $pYear ? "($pYear)" : '' }} - {{ $pStay }}
                                             </option>
                                         @endforeach
                                     </select>
-                                    <small class="text-muted">Selecting a package will auto-load its camp rates, dates, and qurbani options.</small>
+                                    <small class="text-muted" id="pkg_filter_hint">Showing {{ $packages->count() }} {{ strtoupper($packageType) }} package(s). Selecting will auto-populate pricing, stay schedule and dates.</small>
                                 </div>
 
                                 <div class="col-md-3">
@@ -318,18 +318,19 @@
                                 </div>
 
                             </div>
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-prev">
-                                    <i class="mdi mdi-arrow-left me-1"></i> Prev
-                                </button>
-                                <button type="button" class="btn btn-primary btn-next">
-                                    Next <i class="mdi mdi-arrow-right ms-1"></i>
-                                </button>
-                            </div>
                         </div>
+                    </div>
 
-                        {{-- TAB 3: Camp & Qurbani (DEDICATED SEPARATE TAB) --}}
-                        <div class="tab-pane fade" id="tab-camp-qurbani">
+                    @if($packageType === 'hajj')
+                    {{-- SECTION 3: Camp & Qurbani --}}
+                    <div class="card mb-0 border shadow-sm booking-section-card" id="tab-camp-qurbani">
+                        <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                <i class="mdi mdi-tent text-primary me-2"></i>3. Camp & Qurbani
+                            </h5>
+                            <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                        </div>
+                        <div class="card-body p-3 p-md-4">
                             @php
                                 $rb = $booking->room_breakdown ?? [];
                             @endphp
@@ -578,18 +579,24 @@
 
                             </div>
 
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-prev">
-                                    <i class="mdi mdi-arrow-left me-1"></i> Prev
-                                </button>
-                                <button type="button" class="btn btn-primary btn-next">
-                                    Next <i class="mdi mdi-arrow-right ms-1"></i>
-                                </button>
-                            </div>
                         </div>
+                    </div>
+                    @else
+                        <input type="hidden" name="camp" value="{{ $booking->camp ?? '' }}">
+                        <input type="hidden" name="qurbani_option" value="{{ $booking->qurbani_option ?? 'not_included' }}">
+                        <input type="hidden" name="qurbani_qty" value="{{ $booking->qurbani_qty ?? 0 }}">
+                        <input type="hidden" name="qurbani_charges" value="{{ $booking->qurbani_charges ?? 0 }}">
+                    @endif
 
-                        {{-- TAB 4: Persons --}}
-                        <div class="tab-pane fade" id="tab-persons">
+                    {{-- SECTION 4: Persons --}}
+                    <div class="card mb-0 border shadow-sm booking-section-card" id="tab-persons">
+                        <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                <i class="mdi mdi-account-group text-primary me-2"></i>4. Persons (Pilgrims)
+                            </h5>
+                            <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                        </div>
+                        <div class="card-body p-3 p-md-4">
                             <p class="text-muted small mb-3">
                                 <i class="mdi mdi-information me-1"></i>
                                 Rows are based on No. of Pax. Main passenger can be linked to a client.
@@ -766,17 +773,18 @@
                                     <i class="mdi mdi-account-plus me-1"></i>+ Add Passenger
                                 </button>
                             </div>
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-prev"><i
-                                        class="mdi mdi-arrow-left me-1"></i> Prev</button>
-                                <button type="button" class="btn btn-primary btn-next">Next <i
-                                        class="mdi mdi-arrow-right ms-1"></i></button>
-                            </div>
                         </div>
+                    </div>
 
-                        {{-- TAB 5: Flight --}}
-                        {{-- TAB 5: Flight --}}
-                        <div class="tab-pane fade" id="tab-flight">
+                    {{-- SECTION 5: Flight --}}
+                    <div class="card mb-0 border shadow-sm booking-section-card" id="tab-flight">
+                        <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                <i class="mdi mdi-airplane text-primary me-2"></i>5. Flight Itinerary
+                            </h5>
+                            <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                        </div>
+                        <div class="card-body p-3 p-md-4">
 
                             {{-- DEPARTURE --}}
                             <div class="row g-3 mb-4">
@@ -892,19 +900,18 @@
                                 <small class="text-info ms-2">(Auto-generated from No. of Pax)</small>
                             </h6>
                             <div id="flightPersonsList"></div>
-
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-prev">
-                                    <i class="mdi mdi-arrow-left me-1"></i> Prev
-                                </button>
-                                <button type="button" class="btn btn-primary btn-next">
-                                    Next <i class="mdi mdi-arrow-right ms-1"></i>
-                                </button>
-                            </div>
                         </div>
+                    </div>
 
-                        {{-- TAB 6: Hotel --}}
-                        <div class="tab-pane fade" id="tab-hotel">
+                    {{-- SECTION 6: Hotel --}}
+                    <div class="card mb-0 border shadow-sm booking-section-card" id="tab-hotel">
+                        <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                <i class="mdi mdi-hotel text-primary me-2"></i>6. Hotel Allocations & Room Sharing
+                            </h5>
+                            <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                        </div>
+                        <div class="card-body p-3 p-md-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h5 class="fs-16 fw-bold text-dark m-0">🏨 Hotel & Accommodation Schedule</h5>
@@ -995,10 +1002,17 @@
                                             <div class="col-md-2">
                                                 <label class="form-label fw-semibold" style="font-size:12px;">Meal Plan</label>
                                                 <select name="hotels[{{ $loop->index }}][meal_plan]" class="form-select form-select-sm">
-                                                    <option value="Room Only" {{ ($hotel->meal_plan ?? '') === 'Room Only' ? 'selected' : '' }}>Room Only (RO)</option>
-                                                    <option value="Bed & Breakfast" {{ ($hotel->meal_plan ?? '') === 'Bed & Breakfast' ? 'selected' : '' }}>Bed & Breakfast (BB)</option>
-                                                    <option value="Half Board" {{ ($hotel->meal_plan ?? 'Half Board') === 'Half Board' ? 'selected' : '' }}>Half Board (HB)</option>
-                                                    <option value="Full Board" {{ ($hotel->meal_plan ?? '') === 'Full Board' ? 'selected' : '' }}>Full Board (FB)</option>
+                                                    <option value="">-- Select Meal Plan --</option>
+                                                    @if(isset($mealPlans) && $mealPlans->count())
+                                                        @foreach($mealPlans as $mp)
+                                                            <option value="{{ $mp->name }}" {{ ($hotel->meal_plan ?? '') === $mp->name ? 'selected' : '' }}>
+                                                                {{ $mp->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                    @if(!empty($hotel->meal_plan) && !($mealPlans ?? collect())->contains('name', $hotel->meal_plan))
+                                                        <option value="{{ $hotel->meal_plan }}" selected>{{ $hotel->meal_plan }}</option>
+                                                    @endif
                                                 </select>
                                             </div>
                                             <div class="col-md-2">
@@ -1100,10 +1114,12 @@
                                             <div class="col-md-2">
                                                 <label class="form-label fw-semibold" style="font-size:12px;">Meal Plan</label>
                                                 <select name="hotels[0][meal_plan]" class="form-select form-select-sm">
-                                                    <option value="Room Only">Room Only (RO)</option>
-                                                    <option value="Bed & Breakfast">Bed & Breakfast (BB)</option>
-                                                    <option value="Half Board" selected>Half Board (HB)</option>
-                                                    <option value="Full Board">Full Board (FB)</option>
+                                                    <option value="">-- Select Meal Plan --</option>
+                                                    @if(isset($mealPlans) && $mealPlans->count())
+                                                        @foreach($mealPlans as $mp)
+                                                            <option value="{{ $mp->name }}">{{ $mp->name }}</option>
+                                                        @endforeach
+                                                    @endif
                                                 </select>
                                             </div>
                                             <div class="col-md-2">
@@ -1139,16 +1155,18 @@
                                 @endforelse
                             </div>
 
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-prev"><i
-                                        class="mdi mdi-arrow-left me-1"></i> Prev</button>
-                                <button type="button" class="btn btn-primary btn-next">Next <i
-                                        class="mdi mdi-arrow-right ms-1"></i></button>
-                            </div>
                         </div>
+                    </div>
 
-                        {{-- TAB 7: Transport --}}
-                        <div class="tab-pane fade" id="tab-transport">
+                    {{-- SECTION 7: Transport --}}
+                    <div class="card mb-0 border shadow-sm booking-section-card" id="tab-transport">
+                        <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                <i class="mdi mdi-bus text-primary me-2"></i>7. Transportation & Route Schedule
+                            </h5>
+                            <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                        </div>
+                        <div class="card-body p-3 p-md-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h5 class="fs-16 fw-bold text-dark m-0">🚌 Transportation & Route Schedule</h5>
@@ -1203,27 +1221,6 @@
                                                             @endforeach
                                                         </optgroup>
                                                     @endif
-                                                    <optgroup label="Common Routes">
-                                                        @foreach([
-                                                            'Karachi → Jeddah → Makkah → Madinah',
-                                                            'Jeddah Airport → Makkah Hotel',
-                                                            'Makkah Hotel → Madinah Hotel',
-                                                            'Madinah Hotel → Makkah Hotel',
-                                                            'Makkah Hotel → Jeddah Airport',
-                                                            'Madinah Hotel → Jeddah Airport',
-                                                            'Makkah → Mina → Arafat → Muzdalifah → Mina',
-                                                            'Ziyarat Makkah Mukarramah',
-                                                            'Ziyarat Madinah Munawwarah'
-                                                        ] as $stdRoute)
-                                                            @php
-                                                                $isSel = strcasecmp($t->route, $stdRoute) === 0;
-                                                                if ($isSel) $currentRouteMatched = true;
-                                                            @endphp
-                                                            <option value="{{ $stdRoute }}" {{ $isSel ? 'selected' : '' }}>
-                                                                {{ $stdRoute }}
-                                                            </option>
-                                                        @endforeach
-                                                    </optgroup>
                                                     @if(!empty($t->route) && !$currentRouteMatched)
                                                         <option value="{{ $t->route }}" selected>{{ $t->route }}</option>
                                                     @endif
@@ -1233,36 +1230,23 @@
                                                 <label class="form-label fw-semibold" style="font-size:12px;">Transport Type (Vehicle)</label>
                                                 <select name="transports[{{ $i }}][transport_type]" class="form-select form-select-sm">
                                                     <option value="">-- Select Vehicle / Transport --</option>
+                                                    @php $currentVehMatched = false; @endphp
                                                     @if(isset($vehicles) && $vehicles->count())
                                                         @foreach($vehicles as $veh)
                                                             @php
                                                                 $vehLabel = trim(($veh->vehicle_type ?: 'Vehicle') . ($veh->brand_name ? ' - ' . $veh->brand_name : '') . ($veh->plate_number ? ' (' . $veh->plate_number . ')' : ''));
                                                                 $vehVal = $veh->vehicle_type ?: $vehLabel;
                                                                 $isSel = strcasecmp($t->transport_type, $vehVal) === 0 || strcasecmp($t->transport_type, $vehLabel) === 0;
+                                                                if ($isSel) $currentVehMatched = true;
                                                             @endphp
                                                             <option value="{{ $vehVal }}" {{ $isSel ? 'selected' : '' }}>
                                                                 {{ $vehLabel }}
                                                             </option>
                                                         @endforeach
                                                     @endif
-                                                    @foreach ([
-                                                        'Bus / Coach' => 'Bus / Coach',
-                                                        'Coaster' => 'Coaster',
-                                                        'Private Car' => 'Private Car',
-                                                        'GMC / SUV' => 'GMC / SUV',
-                                                        'Hiace / Van' => 'Hiace / Van',
-                                                        'Train' => 'Haramain Train',
-                                                        'Taxi' => 'Taxi',
-                                                        'bus' => 'Bus (Legacy)',
-                                                        'private_car' => 'Private Car (Legacy)',
-                                                        'train' => 'Train (Legacy)',
-                                                        'shared_van' => 'Shared Van (Legacy)',
-                                                        'taxi' => 'Taxi (Legacy)'
-                                                    ] as $val => $lbl)
-                                                        <option value="{{ $val }}" {{ strcasecmp($t->transport_type, $val) === 0 ? 'selected' : '' }}>
-                                                            {{ $lbl }}
-                                                        </option>
-                                                    @endforeach
+                                                    @if(!empty($t->transport_type) && !$currentVehMatched)
+                                                        <option value="{{ $t->transport_type }}" selected>{{ $t->transport_type }}</option>
+                                                    @endif
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
@@ -1280,7 +1264,7 @@
                                                 <select name="transports[0][route]" class="form-select form-select-sm route-select" data-placeholder="-- Select Route or Type Custom --">
                                                     <option value="">-- Select Route --</option>
                                                     @if(isset($routes) && $routes->count())
-                                                        <optgroup label="Routes (Route CRUD)">
+                                                        <optgroup label="Routes (Route Management)">
                                                             @foreach($routes as $r)
                                                                 @php $rVal = $r->formatted_route ?: ($r->start_place . ' TO ' . $r->end_place); @endphp
                                                                 <option value="{{ $rVal }}">{{ $rVal }}</option>
@@ -1294,17 +1278,9 @@
                                                             @endforeach
                                                         </optgroup>
                                                     @endif
-                                                    <optgroup label="Common Routes">
-                                                        <option value="Karachi → Jeddah → Makkah → Madinah">Karachi → Jeddah → Makkah → Madinah</option>
-                                                        <option value="Jeddah Airport → Makkah Hotel">Jeddah Airport → Makkah Hotel</option>
-                                                        <option value="Makkah Hotel → Madinah Hotel">Makkah Hotel → Madinah Hotel</option>
-                                                        <option value="Madinah Hotel → Makkah Hotel">Madinah Hotel → Makkah Hotel</option>
-                                                        <option value="Makkah Hotel → Jeddah Airport">Makkah Hotel → Jeddah Airport</option>
-                                                        <option value="Madinah Hotel → Jeddah Airport">Madinah Hotel → Jeddah Airport</option>
-                                                        <option value="Makkah → Mina → Arafat → Muzdalifah → Mina">Makkah → Mina → Arafat → Muzdalifah → Mina</option>
-                                                        <option value="Ziyarat Makkah Mukarramah">Ziyarat Makkah Mukarramah</option>
-                                                        <option value="Ziyarat Madinah Munawwarah">Ziyarat Madinah Munawwarah</option>
-                                                    </optgroup>
+                                                    @if((!isset($routes) || !$routes->count()) && (!isset($travelRoutes) || !$travelRoutes->count()))
+                                                        <option value="" disabled>-- No routes found in Route CRUD --</option>
+                                                    @endif
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
@@ -1319,14 +1295,9 @@
                                                             @endphp
                                                             <option value="{{ $vehVal }}">{{ $vehLabel }}</option>
                                                         @endforeach
+                                                    @else
+                                                        <option value="" disabled>-- No vehicles found in Vehicle CRUD --</option>
                                                     @endif
-                                                    <option value="Bus / Coach">Bus / Coach</option>
-                                                    <option value="Coaster">Coaster</option>
-                                                    <option value="Private Car">Private Car</option>
-                                                    <option value="GMC / SUV">GMC / SUV</option>
-                                                    <option value="Hiace / Van">Hiace / Van</option>
-                                                    <option value="Train">Haramain Train</option>
-                                                    <option value="Taxi">Taxi</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-3">
@@ -1338,17 +1309,18 @@
                                     </div>
                                 @endforelse
                             </div>
-
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-prev"><i
-                                        class="mdi mdi-arrow-left me-1"></i> Prev</button>
-                                <button type="button" class="btn btn-primary btn-next">Next <i
-                                        class="mdi mdi-arrow-right ms-1"></i></button>
-                            </div>
                         </div>
+                    </div>
 
-                        {{-- TAB 8: Visa --}}
-                        <div class="tab-pane fade" id="tab-visa">
+                    {{-- SECTION 8: Visa --}}
+                    <div class="card mb-0 border shadow-sm booking-section-card" id="tab-visa">
+                        <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                <i class="mdi mdi-passport text-primary me-2"></i>8. Visa Information
+                            </h5>
+                            <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                        </div>
+                        <div class="card-body p-3 p-md-4">
                             <p class="text-muted small mb-3">
                                 <i class="mdi mdi-information me-1"></i>
                                 Edit visa details for each passenger below.
@@ -1410,16 +1382,18 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-prev"><i
-                                        class="mdi mdi-arrow-left me-1"></i> Prev</button>
-                                <button type="button" class="btn btn-primary btn-next">Next <i
-                                        class="mdi mdi-arrow-right ms-1"></i></button>
-                            </div>
                         </div>
+                    </div>
 
-                        {{-- TAB 9: Costing --}}
-                        <div class="tab-pane fade" id="tab-costing">
+                    {{-- SECTION 9: Costing --}}
+                    <div class="card mb-0 border shadow-sm booking-section-card" id="tab-costing">
+                        <div class="card-header bg-light py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                            <h5 class="card-title m-0 fs-15 fw-bold text-dark">
+                                <i class="mdi mdi-cash text-primary me-2"></i>9. Costing & Payment Summary
+                            </h5>
+                            <a href="#top" class="text-muted fs-12 text-decoration-none"><i class="mdi mdi-arrow-up"></i> Top</a>
+                        </div>
+                        <div class="card-body p-3 p-md-4">
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold text-primary">Package Cost (per person avg)</label>
@@ -1536,46 +1510,58 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between mt-4">
-                                <button type="button" class="btn btn-outline-secondary btn-prev">
-                                    <i class="mdi mdi-arrow-left me-1"></i> Prev
-                                </button>
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('booking.index') }}" class="btn btn-secondary">Cancel</a>
-                                    <button type="submit" class="btn btn-success px-5">
+                                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                    <a href="{{ route('booking.index') }}" class="btn btn-secondary px-4">
+                                        <i class="mdi mdi-arrow-left me-1"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-success px-5 py-2 fs-15 fw-bold">
                                         <i class="mdi mdi-content-save me-1"></i> Update Booking
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                    </div>{{-- end tab-content --}}
+                    </div>{{-- end booking-sections-wrapper --}}
                 </form>
             </div>
         </div>
     </div>
 
     <style>
-        .booking-tabs .nav-link {
-            color: #64748b;
-            font-size: 13px;
-            padding: 10px 16px;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s ease;
+        body {
+            background-color: #f8fafc;
         }
-        .booking-tabs .nav-link:hover {
-            color: #0d6efd;
-            background: rgba(13, 110, 253, 0.05);
+        .booking-top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 105;
         }
-        .booking-tabs .nav-link.active {
-            color: #0d6efd !important;
-            font-weight: 700 !important;
-            border-color: #cbd5e1 #cbd5e1 #fff !important;
-            border-top: 3px solid #0d6efd !important;
-            background: #fff !important;
-            box-shadow: 0 -2px 6px rgba(13, 110, 253, 0.08);
+        .booking-standalone-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding-bottom: 60px;
         }
-        .tab-content { min-height: 380px; }
+        /* Sticky Summary Bar & Quick Navigation */
+        .booking-summary-bar {
+            position: sticky;
+            top: 56px;
+            z-index: 102;
+            background: #f0f4ff;
+            border: 1px solid #d0d9f0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        .booking-quick-nav {
+            position: sticky;
+            top: 104px;
+            z-index: 101;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .booking-section-card {
+            scroll-margin-top: 165px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
 
         /* Focused Card and Enclosing Block Highlight */
         .person-card:focus-within,
@@ -1659,7 +1645,7 @@
 
     <script>
         const clientsData = @json($clients);
-        const packagesData = @json($packages);
+        const packagesData = @json($allPackages ?? $packages);
         const hotelsData = @json($hotels);
         const roomTypesData = @json($roomTypes ?? []);
         const existingVisas = @json($booking->visas);
@@ -1787,24 +1773,25 @@
         }
 
         // ═══════════════════════════════════════
-        // TAB NAVIGATION
+        // SINGLE PAGE SECTION SCROLL NAVIGATION
         // ═══════════════════════════════════════
-        const tabLinks = Array.from(document.querySelectorAll('#bookingTabs .nav-link'));
-
-        function activateTab(idx) {
-            if (idx < 0 || idx >= tabLinks.length) return;
-            tabLinks[idx].click();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                const offset = 175;
+                const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+            }
         }
 
-        document.addEventListener('click', function(e) {
-            const btn = e.target.closest('.btn-next, .btn-prev');
-            if (!btn) return;
-            const cur = tabLinks.findIndex(t => t.classList.contains('active'));
-            btn.classList.contains('btn-next') ? activateTab(cur + 1) : activateTab(cur - 1);
+        document.querySelectorAll('.booking-quick-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    scrollToSection(href.substring(1));
+                }
+            });
         });
 
         // ═══════════════════════════════════════
@@ -2213,6 +2200,29 @@
             return opts;
         }
 
+        const mealPlanListOptions = [
+            @if(isset($mealPlans) && $mealPlans->count())
+                @foreach($mealPlans as $mp)
+                    { val: @json($mp->name), label: @json($mp->name) },
+                @endforeach
+            @endif
+        ];
+
+        function getMealPlanOptionsHtml(selectedVal) {
+            let options = '<option value="">-- Select Meal Plan --</option>';
+            const selectedClean = (selectedVal || '').toLowerCase().trim();
+            let hasMatch = false;
+            mealPlanListOptions.forEach(opt => {
+                const isSel = (opt.val.toLowerCase().trim() === selectedClean);
+                if (isSel) hasMatch = true;
+                options += `<option value="${escapeHtml(opt.val)}" ${isSel ? 'selected' : ''}>${escapeHtml(opt.label)}</option>`;
+            });
+            if (selectedVal && selectedVal.trim() && !hasMatch) {
+                options += `<option value="${escapeHtml(selectedVal)}" selected>${escapeHtml(selectedVal)}</option>`;
+            }
+            return options;
+        }
+
         const vehicleListOptions = [
             @if(isset($vehicles) && $vehicles->count())
                 @foreach($vehicles as $veh)
@@ -2223,27 +2233,20 @@
                     { val: @json($vehVal), label: @json($vehLabel) },
                 @endforeach
             @endif
-            { val: "Bus / Coach", label: "Bus / Coach" },
-            { val: "Coaster", label: "Coaster" },
-            { val: "Private Car", label: "Private Car" },
-            { val: "GMC / SUV", label: "GMC / SUV" },
-            { val: "Hiace / Van", label: "Hiace / Van" },
-            { val: "Train", label: "Haramain Train" },
-            { val: "Taxi", label: "Taxi" },
-            { val: "bus", label: "Bus (Legacy)" },
-            { val: "private_car", label: "Private Car (Legacy)" },
-            { val: "train", label: "Train (Legacy)" },
-            { val: "shared_van", label: "Shared Van (Legacy)" },
-            { val: "taxi", label: "Taxi (Legacy)" }
         ];
 
         function getVehicleOptionsHtml(selectedVal) {
             let options = '<option value="">-- Select Vehicle / Transport --</option>';
             const selectedClean = (selectedVal || '').toLowerCase().trim();
+            let hasMatch = false;
             vehicleListOptions.forEach(opt => {
                 const isSel = (opt.val.toLowerCase().trim() === selectedClean || opt.label.toLowerCase().trim() === selectedClean);
+                if (isSel) hasMatch = true;
                 options += `<option value="${escapeHtml(opt.val)}" ${isSel ? 'selected' : ''}>${escapeHtml(opt.label)}</option>`;
             });
+            if (selectedVal && selectedVal.trim() && !hasMatch) {
+                options += `<option value="${escapeHtml(selectedVal)}" selected>${escapeHtml(selectedVal)}</option>`;
+            }
             return options;
         }
 
@@ -2259,15 +2262,6 @@
                     { val: @json($tr->name), label: @json($tr->name), group: 'Travel Routes' },
                 @endforeach
             @endif
-            { val: "Karachi → Jeddah → Makkah → Madinah", label: "Karachi → Jeddah → Makkah → Madinah", group: 'Common Routes' },
-            { val: "Jeddah Airport → Makkah Hotel", label: "Jeddah Airport → Makkah Hotel", group: 'Common Routes' },
-            { val: "Makkah Hotel → Madinah Hotel", label: "Makkah Hotel → Madinah Hotel", group: 'Common Routes' },
-            { val: "Madinah Hotel → Makkah Hotel", label: "Madinah Hotel → Makkah Hotel", group: 'Common Routes' },
-            { val: "Makkah Hotel → Jeddah Airport", label: "Makkah Hotel → Jeddah Airport", group: 'Common Routes' },
-            { val: "Madinah Hotel → Jeddah Airport", label: "Madinah Hotel → Jeddah Airport", group: 'Common Routes' },
-            { val: "Makkah → Mina → Arafat → Muzdalifah → Mina", label: "Makkah → Mina → Arafat → Muzdalifah → Mina", group: 'Common Routes' },
-            { val: "Ziyarat Makkah Mukarramah", label: "Ziyarat Makkah Mukarramah", group: 'Common Routes' },
-            { val: "Ziyarat Madinah Munawwarah", label: "Ziyarat Madinah Munawwarah", group: 'Common Routes' }
         ];
 
         function getRouteOptionsHtml(selectedVal) {
@@ -2412,10 +2406,7 @@
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold" style="font-size:12px;">Meal Plan</label>
                                 <select name="hotels[${idx}][meal_plan]" class="form-select form-select-sm">
-                                    <option value="Room Only">Room Only (RO)</option>
-                                    <option value="Bed & Breakfast">Bed & Breakfast (BB)</option>
-                                    <option value="Half Board" selected>Half Board (HB)</option>
-                                    <option value="Full Board">Full Board (FB)</option>
+                                    ${getMealPlanOptionsHtml(h.food_package || h.meal_plan || '')}
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -2507,6 +2498,14 @@
                     if (lastAcc && lastAcc.check_out && arrDate && !arrDate.value) {
                         arrDate.value = lastAcc.check_out.substring(0, 10);
                     }
+                }
+
+                // Fallback for valid_from and valid_until (common in Umrah packages)
+                if (depDate && !depDate.value && pkg.valid_from) {
+                    depDate.value = pkg.valid_from.substring(0, 10);
+                }
+                if (arrDate && !arrDate.value && pkg.valid_until) {
+                    arrDate.value = pkg.valid_until.substring(0, 10);
                 }
             }
         }
@@ -2625,6 +2624,67 @@
 
             calcTotal();
         });
+
+        // ═══════════════════════════════════════
+        // PACKAGE TYPE FILTERING (HAJJ vs UMRAH)
+        // ═══════════════════════════════════════
+        function filterPackagesByType(type) {
+            type = (type || 'hajj').toLowerCase();
+            const select = document.getElementById('packageSelect');
+            if (!select) return;
+
+            const currentVal = parseInt(select.value) || 0;
+            let currentValValid = false;
+
+            Array.from(select.options).forEach(opt => {
+                if (!opt.value) return; // placeholder option
+                const optType = (opt.dataset.type || 'hajj').toLowerCase();
+                if (optType === type) {
+                    opt.hidden = false;
+                    opt.disabled = false;
+                    if (parseInt(opt.value) === currentVal) {
+                        currentValValid = true;
+                    }
+                } else {
+                    opt.hidden = true;
+                    opt.disabled = true;
+                }
+            });
+
+            // Update hint text
+            const hint = document.getElementById('pkg_filter_hint');
+            if (hint) {
+                const count = Array.from(select.options).filter(o => o.value && (o.dataset.type || 'hajj').toLowerCase() === type).length;
+                hint.textContent = `Showing ${count} ${type.toUpperCase()} package(s).`;
+            }
+
+            // If previously selected package belongs to the other type, clear it!
+            if (!currentValValid && currentVal) {
+                select.value = '';
+                $(select).val('').trigger('change');
+            } else {
+                $(select).trigger('change.select2');
+            }
+
+            // Toggle Hajj-only sections: Camp & Qurbani
+            const campSection = document.getElementById('tab-camp-qurbani');
+            const campNavLink = document.querySelector('a[href="#tab-camp-qurbani"]');
+            if (type === 'umrah') {
+                if (campSection) campSection.style.display = 'none';
+                if (campNavLink) campNavLink.style.display = 'none';
+                const campSelect = document.getElementById('campSelect');
+                if (campSelect) { campSelect.value = ''; $(campSelect).trigger('change.select2'); }
+                const qurbaniOption = document.getElementById('qurbani_option');
+                if (qurbaniOption) { qurbaniOption.value = 'not_included'; $(qurbaniOption).trigger('change.select2'); }
+            } else {
+                if (campSection) campSection.style.display = '';
+                if (campNavLink) campNavLink.style.display = '';
+            }
+        }
+
+        // Initialize package type on load
+        const initialPkgType = '{{ $packageType ?? ($booking->package_type ?? "hajj") }}';
+        filterPackagesByType(initialPkgType);
 
         // ═══════════════════════════════════════
         // BUILD PERSON ROWS (WITH FULL DETAILS)
@@ -3101,10 +3161,7 @@
                         <div class="col-md-2">
                             <label class="form-label fw-semibold" style="font-size:12px;">Meal Plan</label>
                             <select name="hotels[${hotelIdx}][meal_plan]" class="form-select form-select-sm">
-                                <option value="Room Only">Room Only (RO)</option>
-                                <option value="Bed & Breakfast">Bed & Breakfast (BB)</option>
-                                <option value="Half Board" selected>Half Board (HB)</option>
-                                <option value="Full Board">Full Board (FB)</option>
+                                ${getMealPlanOptionsHtml('')}
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -3497,10 +3554,7 @@
                     if (!clientSelectEl || !clientSelectEl.value) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
-                        const detailsTabLink = document.querySelector('a[href="#tab-details"]');
-                        if (detailsTabLink && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                            bootstrap.Tab.getOrCreateInstance(detailsTabLink).show();
-                        }
+                        scrollToSection('tab-details');
                         alert('⚠️ Please select a Client before updating the booking.');
                         if ($(clientSelectEl).data('select2')) {
                             $(clientSelectEl).select2('open');
@@ -3513,10 +3567,7 @@
                     if (!companySelectEl || !companySelectEl.value) {
                         e.preventDefault();
                         e.stopImmediatePropagation();
-                        const detailsTabLink = document.querySelector('a[href="#tab-details"]');
-                        if (detailsTabLink && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                            bootstrap.Tab.getOrCreateInstance(detailsTabLink).show();
-                        }
+                        scrollToSection('tab-details');
                         alert('⚠️ Please select a Company before updating the booking.');
                         if ($(companySelectEl).data('select2')) {
                             $(companySelectEl).select2('open');
@@ -3532,10 +3583,7 @@
                 if (paxInput && (parseInt(paxInput.value) || 0) < 1) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
-                    const detailsTabLink = document.querySelector('a[href="#tab-details"]');
-                    if (detailsTabLink && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                        bootstrap.Tab.getOrCreateInstance(detailsTabLink).show();
-                    }
+                    scrollToSection('tab-details');
                     alert('⚠️ No of Pax must be at least 1.');
                     paxInput.focus();
                     return false;
@@ -3554,16 +3602,7 @@
                     
                     alert(`⛔ BOOKING BLOCKED: Room ${roomList.join(', ')} is FULL!\n\nYou cannot save this booking because the selected room has reached maximum bed capacity.\n\nPlease choose a different room or increase the bed capacity in the Rooming List report before proceeding.`);
                     
-                    // Switch to Hotel tab
-                    const hotelTabLink = document.querySelector('a[href="#tab-hotel"], a[data-bs-target="#tab-hotel"]');
-                    if (hotelTabLink) {
-                        if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                            bootstrap.Tab.getOrCreateInstance(hotelTabLink).show();
-                        } else {
-                            hotelTabLink.click();
-                        }
-                    }
-                    
+                    scrollToSection('tab-hotel');
                     fullRoomInputs[0].focus();
                     return false;
                 }
@@ -3590,5 +3629,23 @@
         $(document).ready(function() {
             initSearchableSelects('#bookingForm');
         });
+
+        // Auto-focus search input when Select2 dropdown opens
+        $(document).on('select2:open', function() {
+            setTimeout(function() {
+                const searchInput = document.querySelector('.select2-container--open .select2-search__field');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }, 10);
+        });
+
+        // Ensure Select2 selection dispatches native change event
+        $(document).on('select2:select select2:unselect select2:clear', 'select', function() {
+            this.dispatchEvent(new Event('change', { bubbles: true }));
+        });
     </script>
+            </div>
+        </div>
+    </div>
 @endsection

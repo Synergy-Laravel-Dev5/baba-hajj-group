@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\ExpenseTransaction;
+use App\Models\Client;
+use App\Models\Invoice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -75,6 +77,27 @@ class DashboardController extends Controller
 
         $usersTrend = $usersLastWeek > 0
             ? round((($usersThisWeek - $usersLastWeek) / $usersLastWeek) * 100, 1)
+            : 0;
+
+        $totalClients = Client::count();
+        $clientsThisWeek = Client::where('created_at', '>=', $weekAgo)->count();
+        $clientsLastWeek = Client::whereBetween('created_at', [
+            $lastWeekStart,
+            $lastWeekEnd
+        ])->count();
+        $clientsTrend = $clientsLastWeek > 0
+            ? round((($clientsThisWeek - $clientsLastWeek) / $clientsLastWeek) * 100, 1)
+            : 0;
+
+        $totalInvoices = Invoice::count();
+        $totalInvoicesAmount = (float) Invoice::sum('total_amount');
+        $invoicesThisWeek = Invoice::where('created_at', '>=', $weekAgo)->count();
+        $invoicesLastWeek = Invoice::whereBetween('created_at', [
+            $lastWeekStart,
+            $lastWeekEnd
+        ])->count();
+        $invoicesTrend = $invoicesLastWeek > 0
+            ? round((($invoicesThisWeek - $invoicesLastWeek) / $invoicesLastWeek) * 100, 1)
             : 0;
 
         $baseQuery = fn() => Booking::where('package_type', $package)
@@ -210,6 +233,13 @@ class DashboardController extends Controller
 
             'totalUsers',
             'usersTrend',
+
+            'totalClients',
+            'clientsTrend',
+
+            'totalInvoices',
+            'totalInvoicesAmount',
+            'invoicesTrend',
 
             'totalExpenses',
             'expensesTrend',

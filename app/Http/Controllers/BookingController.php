@@ -19,15 +19,30 @@ class BookingController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('booking_view');
-        $package = session('dashboard_package', 'hajj');
-        $year    = (int) session('dashboard_year', Carbon::now()->year);
+        $package = strtolower($request->get('package', session('dashboard_package', 'hajj')));
+        if (!in_array($package, ['hajj', 'umrah'])) {
+            $package = 'hajj';
+        }
+        $year    = (int) $request->get('year', session('dashboard_year', Carbon::now()->year));
+
+        // Save selected package context to session
+        session(['dashboard_package' => $package]);
 
         $bookings = Booking::with(['client', 'company', 'package', 'persons'])
+            ->where(function ($q) use ($package) {
+                $q->whereRaw('LOWER(COALESCE(package_type, "hajj")) = ?', [$package]);
+            })
             ->orderBy('id', 'asc')
             ->get();
+
+        $hajjCount = Booking::where(function ($q) {
+            $q->whereRaw('LOWER(COALESCE(package_type, "hajj")) = ?', ['hajj']);
+        })->count();
+
+        $umrahCount = Booking::whereRaw('LOWER(package_type) = ?', ['umrah'])->count();
 
         $trashCount = Booking::onlyTrashed()->count();
 
@@ -35,19 +50,37 @@ class BookingController extends Controller
             return max($b->persons->count(), (int)($b->no_of_pax ?: 0));
         });
 
-        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax'));
+        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax', 'hajjCount', 'umrahCount'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $this->authorize('booking_create');
+        $packageType = strtolower($request->get('package_type', session('dashboard_package', 'hajj')));
+        if (!in_array($packageType, ['hajj', 'umrah'])) {
+            $packageType = 'hajj';
+        }
+
         $clients   = Client::where('status', 'active')->get();
         $companies = Company::all();
         $years     = [date('Y'), date('Y') + 1, date('Y') + 2];
         $airlines  = \App\Models\Airline::all();
         $hotels    = \App\Models\Hotel::all();
         $roomTypes = \App\Models\RoomType::where('status', 'active')->orderBy('capacity')->get();
-        $packages  = Package::with(['accommodations', 'transportFlights', 'transports', 'transportTrains'])->latest()->get();
+
+        $packages = Package::with(['accommodations', 'transportFlights', 'transports', 'transportTrains'])
+            ->where(function ($q) use ($packageType) {
+                if ($packageType === 'hajj') {
+                    $q->where('package_type', 'hajj')
+                      ->orWhereNull('package_type')
+                      ->orWhere('package_type', '');
+                } else {
+                    $q->where('package_type', 'umrah');
+                }
+            })
+            ->latest()
+            ->get();
+
         $nextHbNumber = \App\Models\BookingPerson::generateNextHbNumber();
         $nextHajjId   = \App\Models\BookingPerson::generateNextHajjId();
         $vehicles  = \App\Models\Vehicle::where('status', 'active')->orderBy('vehicle_type')->orderBy('brand_name')->get();
@@ -62,8 +95,12 @@ class BookingController extends Controller
         if ($travelRoutes->isEmpty()) {
             $travelRoutes = \App\Models\TravelRoute::all();
         }
+        $mealPlans = \App\Models\MealPlan::where('status', 'active')->orderBy('name')->get();
+        if ($mealPlans->isEmpty()) {
+            $mealPlans = \App\Models\MealPlan::all();
+        }
 
-        return view('booking.create', compact('clients', 'companies', 'years', 'airlines', 'hotels', 'roomTypes', 'packages', 'nextHbNumber', 'nextHajjId', 'vehicles', 'routes', 'travelRoutes'));
+        return view('booking.create', compact('clients', 'companies', 'years', 'airlines', 'hotels', 'roomTypes', 'packages', 'packageType', 'nextHbNumber', 'nextHajjId', 'vehicles', 'routes', 'travelRoutes', 'mealPlans'));
     }
 
     public function store(Request $request)
@@ -306,7 +343,8 @@ class BookingController extends Controller
 
             DB::commit();
 
-            return redirect()->route('booking.index')->with('success', 'Booking created successfully!');
+            return redirect()->route('booking.index', ['package' => $booking->package_type])
+                ->with('success', ucfirst($booking->package_type) . ' Booking created successfully!');
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Booking store error: ' . $e->getMessage(), [
@@ -324,17 +362,39 @@ class BookingController extends Controller
         return view('booking.show', compact('booking'));
     }
 
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         $this->authorize('booking_edit');
-        $booking   = Booking::with(['package', 'persons', 'hotels', 'transports', 'visas'])->findOrFail($id);
+        $booking     = Booking::with(['package', 'persons', 'hotels', 'transports', 'visas'])->findOrFail($id);
+        $packageType = strtolower($request->get('package_type', $booking->package_type ?: session('dashboard_package', 'hajj')));
+        if (!in_array($packageType, ['hajj', 'umrah'])) {
+            $packageType = 'hajj';
+        }
+
         $clients   = Client::where('status', 'active')->get();
         $companies = Company::all();
         $years     = [date('Y'), date('Y') + 1, date('Y') + 2];
         $airlines  = \App\Models\Airline::all();
         $hotels    = \App\Models\Hotel::all();
         $roomTypes = \App\Models\RoomType::where('status', 'active')->orderBy('capacity')->get();
-        $packages  = Package::with(['accommodations', 'transportFlights', 'transports', 'transportTrains'])->latest()->get();
+
+        $packages = Package::with(['accommodations', 'transportFlights', 'transports', 'transportTrains'])
+            ->where(function ($q) use ($packageType, $booking) {
+                if ($packageType === 'hajj') {
+                    $q->where(function ($sq) {
+                        $sq->where('package_type', 'hajj')
+                           ->orWhereNull('package_type')
+                           ->orWhere('package_type', '');
+                    });
+                } else {
+                    $q->where('package_type', 'umrah');
+                }
+                if ($booking->package_id) {
+                    $q->orWhere('id', $booking->package_id);
+                }
+            })
+            ->latest()
+            ->get();
 
         $transactionsPaid = Transaction::where('client_id', $booking->client_id)
             ->where('status', 'confirmed')
@@ -356,8 +416,12 @@ class BookingController extends Controller
         if ($travelRoutes->isEmpty()) {
             $travelRoutes = \App\Models\TravelRoute::all();
         }
+        $mealPlans = \App\Models\MealPlan::where('status', 'active')->orderBy('name')->get();
+        if ($mealPlans->isEmpty()) {
+            $mealPlans = \App\Models\MealPlan::all();
+        }
 
-        return view('booking.edit', compact('booking', 'clients', 'companies', 'years', 'transactionsPaid', 'airlines', 'hotels', 'roomTypes', 'packages', 'bookingHbNumber', 'vehicles', 'routes', 'travelRoutes'));
+        return view('booking.edit', compact('booking', 'clients', 'companies', 'years', 'transactionsPaid', 'airlines', 'hotels', 'roomTypes', 'packages', 'packageType', 'bookingHbNumber', 'vehicles', 'routes', 'travelRoutes', 'mealPlans'));
     }
 
     public function update(Request $request, $id)
@@ -624,7 +688,8 @@ class BookingController extends Controller
 
             DB::commit();
 
-            return redirect()->route('booking.index')->with('success', 'Booking updated successfully!');
+            return redirect()->route('booking.index', ['package' => $booking->package_type])
+                ->with('success', ucfirst($booking->package_type) . ' Booking updated successfully!');
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Booking update error: ' . $e->getMessage(), [

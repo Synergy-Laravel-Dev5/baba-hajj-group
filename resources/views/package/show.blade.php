@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @php
-        $isHajj = ($package->package_type ?? 'umrah') === 'hajj';
+        $pType = strtolower(trim((string)($package->package_type ?? 'hajj')));
+        $isHajj = ($pType === 'hajj' || str_contains(strtolower($package->package_title ?? ''), 'hajj') || str_contains(strtolower($package->name ?? ''), 'hajj') || !empty($package->camp_category) || !empty($package->maktab_c_quad_pkr) || !empty($package->maktab_a_quad_pkr));
         $mainTitle = $isHajj ? 'HAJJ' : 'UMRAH';
         $fullTitle = ($package->package_title ?? $package->name) ?? ($mainTitle . ' Packages');
 
@@ -333,15 +334,16 @@
             flex-direction: column;
             align-items: flex-start;
             z-index: 5;
-            background: rgba(255, 255, 255, 0.75);
-            padding: 3px 8px;
-            border-radius: 8px;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
         }
         .header-brand-logo {
-            height: 70px;
+            height: 74px;
             width: auto;
             object-fit: contain;
             display: block;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
         }
 
         /* Top Right Titles & Dates */
@@ -574,83 +576,108 @@
         /* ── Special Features, Urdu Highlight & Inclusions ── */
         .features-inclusions-row {
             display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 6px;
+            margin-bottom: 2px;
+            width: 100%;
+        }
+        .tier-features-subrow {
+            display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 6px;
-            flex-wrap: nowrap;
+            gap: 6px;
+            width: 100%;
         }
         .feature-meal-box {
             border: 1.5px solid var(--baba-border);
             border-radius: 12px;
-            padding: 4px 12px;
-            font-size: 11px;
+            padding: 3px 10px;
+            font-size: 10.5px;
             font-weight: 800;
             color: var(--baba-primary);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
-        .urdu-highlight-pill {
-            font-family: 'Noto Nastaliq Urdu', 'Amiri', serif;
-            font-size: 13.5px;
-            font-weight: 700;
-            color: var(--baba-primary-dark);
-            direction: rtl;
-            text-align: right;
-            padding: 2px 8px;
-            line-height: 1.6;
-            white-space: nowrap;
-            border: 1px solid var(--baba-border);
-            border-radius: 10px;
-        }
-        .ziyarat-features-pill {
-            border: 1.5px solid var(--baba-border);
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: 800;
-            color: #FFFFFF;
-            background: var(--baba-primary);
             display: inline-flex;
             align-items: center;
             gap: 5px;
             white-space: nowrap;
             letter-spacing: 0.3px;
+            text-transform: uppercase;
+            flex-shrink: 0;
         }
-        .inclusions-icons-bar {
+        .urdu-highlight-pill {
+            font-family: 'Noto Nastaliq Urdu', 'Amiri', serif;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--baba-primary-dark);
+            direction: rtl;
+            text-align: center;
+            padding: 2px 10px;
+            line-height: 1.5;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border: 1px solid var(--baba-border);
+            border-radius: 10px;
+            flex-grow: 1;
+        }
+        .ziyarat-features-pill {
+            border: 1.5px solid var(--baba-border);
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #FFFFFF;
+            background: var(--baba-primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+        }
+        .tier-inclusions-strip {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-left: auto;
+            justify-content: space-between;
+            background: #FAF8F5;
+            border: 1px dashed var(--baba-border);
+            border-radius: 10px;
+            padding: 4px 12px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .inclusions-label-tag {
             background: var(--baba-primary);
             color: #FFFFFF;
-            font-size: 9px;
+            font-size: 9.5px;
             font-weight: 800;
-            padding: 3px 9px;
+            padding: 3px 10px;
             border-radius: 12px;
             letter-spacing: 0.4px;
             white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .inclusions-icons-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 16px;
+            flex-grow: 1;
         }
         .inclusion-single-item {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             text-align: center;
-            gap: 1px;
+            gap: 4px;
         }
         .inclusion-single-item i {
-            font-size: 16px;
+            font-size: 15px;
             color: var(--baba-primary);
             line-height: 1;
         }
         .inclusion-single-item span {
-            font-size: 7.5px;
+            font-size: 8.5px;
             font-weight: 800;
             color: var(--baba-primary);
             letter-spacing: 0.3px;
@@ -827,7 +854,7 @@
         <header class="flyer-header">
             <!-- Left Official Logo (No duplicate / No background clash) -->
             <div class="header-brand-wrap">
-                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}"
+                <img src="{{ asset('assets/images/logo_clean_transparent.png') }}?v={{ time() }}"
                      alt="Baba Group of Companies" class="header-brand-logo">
             </div>
 
@@ -916,41 +943,47 @@
 
                     <!-- Features & Inclusions Row -->
                     <div class="features-inclusions-row">
-                        <div class="feature-meal-box">
-                            <i class="mdi mdi-silverware-clean"></i> {{ $tier['meal_plan'] }}
+                        <div class="tier-features-subrow">
+                            <div class="feature-meal-box">
+                                <i class="mdi mdi-silverware-clean"></i> {{ $tier['meal_plan'] }}
+                            </div>
+
+                            <div class="urdu-highlight-pill">
+                                {!! $tier['urdu_note'] !!}
+                            </div>
+
+                            <div class="ziyarat-features-pill">
+                                <i class="mdi mdi-star-four-points fs-10"></i>
+                                {{ $isHajj ? 'HAJJ ARKAN & ZIYARAT' : 'ZIYARAT MAKKAH - MADINA' }}
+                                <i class="mdi mdi-star-four-points fs-10"></i>
+                            </div>
                         </div>
 
-                        <div class="urdu-highlight-pill">
-                            {!! $tier['urdu_note'] !!}
-                        </div>
-
-                        <div class="ziyarat-features-pill">
-                            <i class="mdi mdi-star-four-points fs-10"></i>
-                            {{ $isHajj ? 'HAJJ ARKAN & ZIYARAT' : 'ZIYARAT MAKKAH - MADINA' }}
-                            <i class="mdi mdi-star-four-points fs-10"></i>
-                        </div>
-
-                        <div class="inclusions-icons-bar">
-                            <div class="inclusions-label-tag">PACKAGE INCLUDE</div>
-                            <div class="inclusion-single-item">
-                                <i class="mdi mdi-office-building"></i>
-                                <span>HOTEL</span>
+                        <div class="tier-inclusions-strip">
+                            <div class="inclusions-label-tag">
+                                <i class="mdi mdi-check-decagram-outline me-1"></i>PACKAGE INCLUSIONS
                             </div>
-                            <div class="inclusion-single-item">
-                                <i class="mdi mdi-account-tie"></i>
-                                <span>GUIDER</span>
-                            </div>
-                            <div class="inclusion-single-item">
-                                <i class="mdi mdi-passport"></i>
-                                <span>VISA</span>
-                            </div>
-                            <div class="inclusion-single-item">
-                                <i class="mdi mdi-ticket-confirmation"></i>
-                                <span>TICKET</span>
-                            </div>
-                            <div class="inclusion-single-item">
-                                <i class="mdi mdi-bus"></i>
-                                <span>TRANSPORT</span>
+                            <div class="inclusions-icons-bar">
+                                <div class="inclusion-single-item">
+                                    <i class="mdi mdi-office-building"></i>
+                                    <span>HOTEL</span>
+                                </div>
+                                <div class="inclusion-single-item">
+                                    <i class="mdi mdi-account-tie"></i>
+                                    <span>GUIDER</span>
+                                </div>
+                                <div class="inclusion-single-item">
+                                    <i class="mdi mdi-passport"></i>
+                                    <span>VISA</span>
+                                </div>
+                                <div class="inclusion-single-item">
+                                    <i class="mdi mdi-ticket-confirmation"></i>
+                                    <span>TICKET</span>
+                                </div>
+                                <div class="inclusion-single-item">
+                                    <i class="mdi mdi-bus"></i>
+                                    <span>TRANSPORT</span>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -17,26 +17,66 @@ class PackageController extends Controller
 
     protected $itineraryImagePath = 'assets/images/packages/itinerary';
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('package_view');
-        $packages = Package::latest()->paginate(20);
-        $trashCount = Package::onlyTrashed()->count();
+        $package = strtolower($request->get('package', session('dashboard_package', 'hajj')));
+        if (!in_array($package, ['hajj', 'umrah'])) {
+            $package = 'hajj';
+        }
+        session(['dashboard_package' => $package]);
 
-        return view('package.index', compact('packages', 'trashCount'));
+        $packages = Package::where(function ($q) use ($package) {
+            if ($package === 'hajj') {
+                $q->where('package_type', 'hajj')
+                  ->orWhereNull('package_type')
+                  ->orWhere('package_type', '');
+            } else {
+                $q->where('package_type', 'umrah');
+            }
+        })->latest()->paginate(20);
+
+        $hajjCount = Package::where(function ($q) {
+            $q->where('package_type', 'hajj')
+              ->orWhereNull('package_type')
+              ->orWhere('package_type', '');
+        })->count();
+
+        $umrahCount = Package::where('package_type', 'umrah')->count();
+
+        $trashCount = Package::onlyTrashed()->where(function ($q) use ($package) {
+            if ($package === 'hajj') {
+                $q->where('package_type', 'hajj')
+                  ->orWhereNull('package_type')
+                  ->orWhere('package_type', '');
+            } else {
+                $q->where('package_type', 'umrah');
+            }
+        })->count();
+
+        return view('package.index', compact('packages', 'trashCount', 'package', 'hajjCount', 'umrahCount'));
     }
     public function create()
     {
         $this->authorize('package_create');
         $package = new Package();
+        $package->package_type = 'hajj';
         $giveaways = Giveaway::all();
         $companies = Company::all();
         $trainingSessions = TrainingSession::all();
         $hotels = \App\Models\Hotel::all();
         $airlines = \App\Models\Airline::all();
         $trains = \App\Models\Train::all();
+        $vehicles = \App\Models\Vehicle::where('status', 'active')->orderBy('vehicle_type')->get();
+        if ($vehicles->isEmpty()) { $vehicles = \App\Models\Vehicle::all(); }
+        $routes = \App\Models\Route::where('status', 'active')->orderBy('start_place')->get();
+        if ($routes->isEmpty()) { $routes = \App\Models\Route::all(); }
+        $travelRoutes = \App\Models\TravelRoute::where('status', 'active')->orderBy('name')->get();
+        if ($travelRoutes->isEmpty()) { $travelRoutes = \App\Models\TravelRoute::all(); }
+        $mealPlans = \App\Models\MealPlan::where('status', 'active')->orderBy('name')->get();
+        if ($mealPlans->isEmpty()) { $mealPlans = \App\Models\MealPlan::all(); }
 
-        return view('package.create', compact('package', 'giveaways', 'companies', 'trainingSessions', 'hotels', 'airlines', 'trains'));
+        return view('package.create', compact('package', 'giveaways', 'companies', 'trainingSessions', 'hotels', 'airlines', 'trains', 'vehicles', 'routes', 'travelRoutes', 'mealPlans'));
     }
     public function store(Request $request)
     {
@@ -46,6 +86,9 @@ class PackageController extends Controller
         $package = DB::transaction(function () use ($request, $data) {
             $package = new Package();
             $package->fill($data['package']);
+            if (empty($package->package_type)) {
+                $package->package_type = 'hajj';
+            }
             $package->save();
 
             $this->saveRelations($request, $package, $data);
@@ -75,8 +118,16 @@ class PackageController extends Controller
         $hotels = \App\Models\Hotel::all();
         $airlines = \App\Models\Airline::all();
         $trains = \App\Models\Train::all();
+        $vehicles = \App\Models\Vehicle::where('status', 'active')->orderBy('vehicle_type')->get();
+        if ($vehicles->isEmpty()) { $vehicles = \App\Models\Vehicle::all(); }
+        $routes = \App\Models\Route::where('status', 'active')->orderBy('start_place')->get();
+        if ($routes->isEmpty()) { $routes = \App\Models\Route::all(); }
+        $travelRoutes = \App\Models\TravelRoute::where('status', 'active')->orderBy('name')->get();
+        if ($travelRoutes->isEmpty()) { $travelRoutes = \App\Models\TravelRoute::all(); }
+        $mealPlans = \App\Models\MealPlan::where('status', 'active')->orderBy('name')->get();
+        if ($mealPlans->isEmpty()) { $mealPlans = \App\Models\MealPlan::all(); }
 
-        return view('package.edit', compact('package', 'giveaways', 'companies', 'trainingSessions', 'hotels', 'airlines', 'trains'));
+        return view('package.edit', compact('package', 'giveaways', 'companies', 'trainingSessions', 'hotels', 'airlines', 'trains', 'vehicles', 'routes', 'travelRoutes', 'mealPlans'));
     }
     public function show($id)
     {
@@ -104,6 +155,9 @@ class PackageController extends Controller
 
         DB::transaction(function () use ($request, $package, $data) {
             $package->fill($data['package']);
+            if (empty($package->package_type)) {
+                $package->package_type = 'hajj';
+            }
             $package->save();
 
             $package->accommodations()->delete();
@@ -126,7 +180,11 @@ class PackageController extends Controller
     public function trash()
     {
         $this->authorize('package_trash_view');
-        $packages = Package::onlyTrashed()->latest()->paginate(20);
+        $packages = Package::onlyTrashed()->where(function ($q) {
+            $q->where('package_type', 'hajj')
+              ->orWhereNull('package_type')
+              ->orWhere('package_type', '');
+        })->latest()->paginate(20);
 
         return view('package.trash', compact('packages'));
     }

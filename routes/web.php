@@ -33,6 +33,7 @@ use App\Http\Controllers\DepartureGroupController;
 use App\Http\Controllers\HajiGroupController;
 use App\Http\Controllers\RoomInventoryController;
 use App\Http\Controllers\RoomTypeController;
+use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\CheckInReportController;
 use App\Http\Controllers\MaktabReportController;
 use App\Http\Controllers\PersonReportController;
@@ -55,10 +56,6 @@ use App\Http\Controllers\MobileOps\VisaInquiryController;
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-
-    Route::get('/', function () {
-        return redirect()->route('login');
-    });
 });
 
 Route::controller(HajjApplicationController::class)->group(function () {
@@ -397,6 +394,18 @@ Route::middleware('auth')->group(function () {
                 Route::delete('delete/{id}', 'destroy')->name('room-type.delete');
                 Route::get('trash', 'trash')->name('room-type.trash');
                 Route::get('restore/{id}', 'restore')->name('room-type.restore');
+            });
+
+        Route::controller(MealPlanController::class)
+            ->prefix('meal-plan')->group(function () {
+                Route::get('/', 'index')->name('meal-plan.index');
+                Route::get('create', 'create')->name('meal-plan.create');
+                Route::post('store', 'store')->name('meal-plan.store');
+                Route::get('edit/{id}', 'edit')->name('meal-plan.edit');
+                Route::put('update/{id}', 'update')->name('meal-plan.update');
+                Route::delete('delete/{id}', 'destroy')->name('meal-plan.delete');
+                Route::get('trash', 'trash')->name('meal-plan.trash');
+                Route::get('restore/{id}', 'restore')->name('meal-plan.restore');
             });
 
         Route::controller(VehicleController::class)

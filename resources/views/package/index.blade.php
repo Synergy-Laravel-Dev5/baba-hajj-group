@@ -7,13 +7,33 @@
         <div class="content">
             <div class="container-fluid">
 
-                <div class="py-3 d-flex align-items-center justify-content-between">
-                    <h4 class="fs-18 fw-semibold m-0">Packages</h4>
+                <div class="py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h4 class="fs-18 fw-semibold m-0">{{ ucfirst($package) }} Packages</h4>
+
+                        <div class="btn-group btn-group-sm me-2" role="group">
+                            <a href="{{ route('package.index', ['package' => 'hajj']) }}"
+                               class="btn {{ $package === 'hajj' ? 'btn-warning text-dark fw-bold' : 'btn-outline-secondary' }}">
+                                <i class="mdi mdi-kaaba me-1"></i>Hajj ({{ $hajjCount ?? 0 }})
+                            </a>
+                            <a href="{{ route('package.index', ['package' => 'umrah']) }}"
+                               class="btn {{ $package === 'umrah' ? 'btn-success text-white fw-bold' : 'btn-outline-secondary' }}">
+                                <i class="mdi mdi-mosque me-1"></i>Umrah ({{ $umrahCount ?? 0 }})
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-2">
                         @can('package_create')
-                            <a href="{{ route('package.create') }}" class="btn btn-primary btn-sm">
-                                + Add Package
-                            </a>
+                            @if($package === 'umrah')
+                                <a href="{{ route('mobile-ops.umrah-packages.create') }}" class="btn btn-success btn-sm d-flex align-items-center gap-1">
+                                    <i class="mdi mdi-plus"></i> Add Umrah Package
+                                </a>
+                            @else
+                                <a href="{{ route('package.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+                                    <i class="mdi mdi-plus"></i> Add Hajj Package
+                                </a>
+                            @endif
                         @endcan
                         @can('package_trash_view')
                             <a href="{{ route('package.trash') }}" class="btn btn-danger btn-sm">
@@ -84,6 +104,12 @@
                                             </td>
                                         </tr>
                                     @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4 text-muted">
+                                                <i class="mdi mdi-package-variant-closed fs-24 d-block mb-1"></i>
+                                                No {{ ucfirst($package) }} packages found.
+                                            </td>
+                                        </tr>
                                     @endforelse
                                 </tbody>
                             </table>

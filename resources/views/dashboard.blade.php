@@ -784,7 +784,7 @@
                 <div class="row g-3 mb-3">
 
                     {{-- Metric 1: Confirmed Bookings --}}
-                    <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="col-12 col-md-4">
                         <div class="dash-stat-card">
                             <div>
                                 <div class="stat-card-header">
@@ -814,7 +814,70 @@
                         </div>
                     </div>
 
-                    {{-- Metric 2: Gross Invoiced Revenue --}}
+                    {{-- Metric: Total Clients --}}
+                    <div class="col-12 col-md-4">
+                        <div class="dash-stat-card">
+                            <div>
+                                <div class="stat-card-header">
+                                    <span class="stat-card-title">Total clients</span>
+                                    <div class="stat-card-icon">
+                                        <i class="ri-user-star-line"></i>
+                                    </div>
+                                </div>
+                                <div class="stat-card-value-block">
+                                    <div class="stat-card-value tabular-nums">
+                                        <span class="counter-number" data-target="{{ $totalClients ?? 0 }}">0</span>
+                                        <span class="stat-card-unit">clients</span>
+                                    </div>
+                                    <div class="stat-card-sublabel">
+                                        <i class="ri-contacts-line"></i>
+                                        <span>Registered portal clients</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card-footer">
+                                <span class="trend-pill {{ ($clientsTrend ?? 0) >= 0 ? 'up' : 'down' }} tabular-nums">
+                                    <i class="ri-arrow-{{ ($clientsTrend ?? 0) >= 0 ? 'up' : 'down' }}-line"></i>
+                                    {{ abs($clientsTrend ?? 0) }}% vs last month
+                                </span>
+                                <span>Active client base</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Metric: Total Client Invoices --}}
+                    <div class="col-12 col-md-4">
+                        <div class="dash-stat-card">
+                            <div>
+                                <div class="stat-card-header">
+                                    <span class="stat-card-title">Total client invoices</span>
+                                    <div class="stat-card-icon">
+                                        <i class="ri-file-text-line"></i>
+                                    </div>
+                                </div>
+                                <div class="stat-card-value-block">
+                                    <div class="stat-card-value tabular-nums">
+                                        <span class="counter-number" data-target="{{ $totalInvoices ?? 0 }}">0</span>
+                                        <span class="stat-card-unit">invoices</span>
+                                    </div>
+                                    <div class="stat-card-sublabel tabular-nums">
+                                        <i class="ri-money-dollar-circle-line"></i>
+                                        <span>PKR {{ number_format($totalInvoicesAmount ?? 0, 2) }} billed</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="stat-card-footer">
+                                <span class="trend-pill {{ ($invoicesTrend ?? 0) >= 0 ? 'up' : 'down' }} tabular-nums">
+                                    <i class="ri-arrow-{{ ($invoicesTrend ?? 0) >= 0 ? 'up' : 'down' }}-line"></i>
+                                    {{ abs($invoicesTrend ?? 0) }}% vs last month
+                                </span>
+                                <span>Generated billing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- [TEMPORARILY COMMENTED CARDS - KEPT IN CODE]
+                    <!-- Metric 2: Gross Invoiced Revenue -->
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="dash-stat-card">
                             <div>
@@ -844,7 +907,7 @@
                         </div>
                     </div>
 
-                    {{-- Metric 3: Total Collections --}}
+                    <!-- Metric 3: Total Collections -->
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="dash-stat-card">
                             <div>
@@ -877,7 +940,7 @@
                         </div>
                     </div>
 
-                    {{-- Metric 4: Net Operating Margin --}}
+                    <!-- Metric 4: Net Operating Margin -->
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="dash-stat-card">
                             <div>
@@ -905,15 +968,14 @@
                             </div>
                         </div>
                     </div>
+                    --}}
 
                 </div>
 
-                {{-- ══════════════════════════════════════════════════════════════
-                   3. EXPENSES, RECEIVABLES & TEAM (Row 2)
-                ══════════════════════════════════════════════════════════════ --}}
+                {{-- [TEMPORARILY COMMENTED: 3. EXPENSES, RECEIVABLES & TEAM (Row 2)]
                 <div class="row g-3 mb-3">
 
-                    {{-- Pakistan Expenses --}}
+                    <!-- Pakistan Expenses -->
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="dash-stat-card">
                             <div>
@@ -943,7 +1005,7 @@
                         </div>
                     </div>
 
-                    {{-- Saudi Operations (SAR) --}}
+                    <!-- Saudi Operations (SAR) -->
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="dash-stat-card">
                             <div>
@@ -970,7 +1032,7 @@
                         </div>
                     </div>
 
-                    {{-- Pending Receivables --}}
+                    <!-- Pending Receivables -->
                     @php
                         $outstandingReceivables = max(0, $totalRevenue - $totalReceived);
                         $dueRate = $totalRevenue > 0 ? min(100, round(($outstandingReceivables / $totalRevenue) * 100, 1)) : 0;
@@ -1003,7 +1065,7 @@
                         </div>
                     </div>
 
-                    {{-- Team & Operators --}}
+                    <!-- Team & Operators -->
                     <div class="col-12 col-sm-6 col-xl-3">
                         <div class="dash-stat-card">
                             <div>
@@ -1034,6 +1096,7 @@
                     </div>
 
                 </div>
+                --}}
 
                 {{-- ══════════════════════════════════════════════════════════════
                    4. QUICK ACTIONS STRIP
@@ -1045,7 +1108,7 @@
                     </div>
                     <div class="quick-actions-group">
                         @can('booking_create')
-                            <a href="{{ route('booking.create') }}" class="btn-quick-link">
+                            <a href="{{ route('booking.create', ['package_type' => $package]) }}" class="btn-quick-link">
                                 <i class="ri-add-line"></i> New booking
                             </a>
                         @endcan
@@ -1060,7 +1123,7 @@
                             </a>
                         @endcan
                         @can('booking_view')
-                            <a href="{{ route('booking.index') }}" class="btn-quick-link">
+                            <a href="{{ route('booking.index', ['package' => $package]) }}" class="btn-quick-link">
                                 <i class="ri-file-list-line"></i> Pilgrim manifests
                             </a>
                         @endcan
@@ -1212,7 +1275,7 @@
                                 @endcan
 
                                 {{-- Pilgrim Manifests --}}
-                                <a href="{{ route('booking.index') }}" class="service-row-tile">
+                                <a href="{{ route('booking.index', ['package' => $package]) }}" class="service-row-tile">
                                     <div class="service-tile-symbol">
                                         <i class="ri-group-line"></i>
                                     </div>
@@ -1246,7 +1309,7 @@
                                         <input type="text" id="bookingSearchInput" class="table-filter-input" placeholder="Filter by client...">
                                     </div>
 
-                                    <a href="{{ route('booking.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius: var(--radius-control); font-size: 13px; font-weight: 500;">
+                                    <a href="{{ route('booking.index', ['package' => $package]) }}" class="btn btn-sm btn-outline-secondary" style="border-radius: var(--radius-control); font-size: 13px; font-weight: 500;">
                                         <span>View all</span>
                                         <i class="ri-arrow-right-line ms-1"></i>
                                     </a>
@@ -1353,7 +1416,7 @@
                                                         </div>
                                                         <p class="text-muted fs-12 mb-3">No pilgrim booking records found for cycle {{ $year }}.</p>
                                                         @can('booking_create')
-                                                            <a href="{{ route('booking.create') }}" class="btn-dash-primary" style="display: inline-flex;">
+                                                            <a href="{{ route('booking.create', ['package_type' => $package]) }}" class="btn-dash-primary" style="display: inline-flex;">
                                                                 <i class="ri-add-line"></i> Record first booking
                                                             </a>
                                                         @endcan

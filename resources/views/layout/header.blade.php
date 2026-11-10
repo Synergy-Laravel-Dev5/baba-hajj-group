@@ -226,7 +226,7 @@
                         </a>
                     </li>
                     @endcan
-                    @canany(['package_view', 'hotel_view', 'room_type_view', 'flight_view', 'route_view', 'travel_route_view', 'train_view', 'vehicle_view', 'training_session_view'])
+                    @canany(['package_view', 'hotel_view', 'room_type_view', 'meal_plan_view', 'flight_view', 'route_view', 'travel_route_view', 'train_view', 'vehicle_view', 'training_session_view'])
                     <li>
                         <a href="#sidebarPackageManagement" data-bs-toggle="collapse">
                             <i data-feather="package"></i>
@@ -237,7 +237,7 @@
                             <ul class="nav-second-level">
                                 @can('package_view')
                                 <li>
-                                    <a class="tp-link" href="{{ route('package.index') }}">
+                                    <a class="tp-link" href="{{ route('package.index', ['package' => session('dashboard_package', 'hajj')]) }}">
                                         Packages
                                     </a>
                                 </li>
@@ -253,6 +253,13 @@
                                 <li>
                                     <a class="tp-link" href="{{ route('room-type.index') }}">
                                         Room Types
+                                    </a>
+                                </li>
+                                @endcan
+                                @can('meal_plan_view')
+                                <li>
+                                    <a class="tp-link" href="{{ route('meal-plan.index') }}">
+                                        Meal Plans
                                     </a>
                                 </li>
                                 @endcan
@@ -305,7 +312,7 @@
                     @endcanany
                     @can('booking_view')
                         <li>
-                            <a href="{{ route('booking.index') }}">
+                            <a href="{{ route('booking.index', ['package' => session('dashboard_package', 'hajj')]) }}">
                                 <i data-feather="calendar"></i>
                                 <span>Booking</span>
                             </a>
