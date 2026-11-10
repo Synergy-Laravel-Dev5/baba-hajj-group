@@ -45,33 +45,32 @@
     <!-- Custom Styles for Sidebar & Branding (Modern Executive React SaaS Light Theme) -->
     <style>
         /* ══════════════════════════════════════════════════════════════
-           MODERN EXECUTIVE REACT SAAS THEME (Clean White Sidebar & Crystal HD Logo)
+           LUXURY EXECUTIVE BLACK SIDEBAR & WHITE HEADER THEME
         ══════════════════════════════════════════════════════════════ */
-        /* 1. Sidebar Container (Clean White Modern React SaaS) */
+        /* 1. Sidebar Container (Sleek Black Luxury Theme) */
         .app-sidebar-menu {
             padding-top: 76px !important;
-            background: #FFFFFF !important;
-            border-right: 1px solid #E2E8F0 !important;
-            box-shadow: 1px 0 3px rgba(15, 23, 42, 0.03), 2px 0 12px rgba(15, 23, 42, 0.02) !important;
+            background: #090D16 !important; /* Deep Luxury Black */
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 2px 0 16px rgba(0, 0, 0, 0.35) !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
-        /* 2. Sidebar Logo Box (Clean White Seamless Card) */
+        /* 2. Sidebar Logo Box (Deep Black Seamless Card) */
         .logo-box {
             height: 76px !important;
             width: 260px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 5px 14px !important;
-            background: #FFFFFF !important;
-            border-bottom: 1px solid #E2E8F0 !important;
-            border-right: 1px solid #E2E8F0 !important;
+            padding: 8px 16px !important;
+            background: #090D16 !important; /* Matches sidebar black */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
             z-index: 1001 !important;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02) !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         .logo-box .logo {
@@ -117,32 +116,26 @@
             justify-content: center !important;
         }
 
-        /* 3. Ultra-Crisp High-DPI Logo Rendering (Zero Blur) */
+        /* 3. Ultra-Crisp White Logo Rendering on Black Background */
         .sidebar-logo-full {
-            height: 66px !important;
-            max-height: 66px !important;
+            height: 56px !important;
+            max-height: 56px !important;
             width: auto !important;
-            max-width: 220px !important;
+            max-width: 215px !important;
             object-fit: contain !important;
             display: block !important;
             margin: 0 auto !important;
-            image-rendering: -webkit-optimize-contrast !important;
-            image-rendering: crisp-edges !important;
-            transform: translateZ(0) !important;
-            backface-visibility: hidden !important;
-            filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.04)) !important;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5)) !important;
             transition: transform 0.2s ease !important;
         }
         .sidebar-logo-full:hover {
-            transform: scale(1.02) !important;
+            transform: scale(1.03) !important;
         }
         .sidebar-logo-small {
-            height: 40px !important;
-            max-height: 40px !important;
-            width: 40px !important;
+            height: 38px !important;
+            max-height: 38px !important;
+            width: 38px !important;
             object-fit: contain !important;
-            image-rendering: -webkit-optimize-contrast !important;
-            image-rendering: crisp-edges !important;
         }
 
         /* ── CRITICAL: Hide logo-box and collapse cleanly when sidebar is closed/hidden ── */
@@ -170,7 +163,7 @@
             margin-left: 0 !important;
         }
 
-        /* ── Modern Navigation on Clean White Sidebar ── */
+        /* ── Navigation Items on Deep Black Sidebar ── */
         #sidebar-menu {
             padding: 12px 0 32px 0 !important;
         }
@@ -179,7 +172,7 @@
             font-weight: 700 !important;
             letter-spacing: 0.8px !important;
             text-transform: uppercase !important;
-            color: #94A3B8 !important;
+            color: #64748B !important;
             padding: 16px 20px 6px 20px !important;
             display: flex !important;
             align-items: center !important;
@@ -189,7 +182,7 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: #F1F5F9;
+            background: rgba(255, 255, 255, 0.08) !important;
             margin-left: 8px;
         }
 
@@ -201,11 +194,11 @@
             display: flex !important;
             align-items: center !important;
             padding: 9.5px 14px !important;
-            color: #475569 !important;
+            color: #CBD5E1 !important; /* Crisp light silver on black */
             font-size: 13.5px !important;
             font-weight: 500 !important;
             border-radius: 9px !important;
-            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: all 0.2s ease !important;
             text-decoration: none !important;
         }
         #sidebar-menu > ul > li > a i,
@@ -213,52 +206,52 @@
             width: 17px !important;
             height: 17px !important;
             margin-right: 12px !important;
-            color: #64748B !important;
+            color: #94A3B8 !important;
             stroke-width: 2 !important;
-            transition: all 0.18s ease !important;
+            transition: all 0.2s ease !important;
             flex-shrink: 0 !important;
         }
         #sidebar-menu > ul > li > a:hover {
-            background: #F8FAFC !important;
-            color: #0F172A !important;
-            transform: translateX(2px) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #FFFFFF !important;
+            transform: translateX(3px) !important;
         }
         #sidebar-menu > ul > li > a:hover i,
         #sidebar-menu > ul > li > a:hover svg {
-            color: #B4882F !important;
+            color: #D4AF37 !important; /* Gold on hover */
             stroke-width: 2.2 !important;
         }
 
-        /* Active / Selected Menu Item with Modern React Gold Pill */
+        /* Active / Selected Menu Item with Brand Gold Accent */
         #sidebar-menu > ul > li.menuitem-active > a,
         #sidebar-menu > ul > li > a.active {
-            background: linear-gradient(90deg, #FEF8EC 0%, #FFFDF7 100%) !important;
-            color: #8C6D1F !important;
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.04) 100%) !important;
+            color: #F7E7BE !important;
             font-weight: 700 !important;
-            border-left: 3.5px solid #C5A059 !important;
-            box-shadow: 0 1px 3px rgba(197, 160, 89, 0.15) !important;
+            border-left: 3.5px solid #D4AF37 !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
         }
         #sidebar-menu > ul > li.menuitem-active > a i,
         #sidebar-menu > ul > li > a.active i,
         #sidebar-menu > ul > li.menuitem-active > a svg,
         #sidebar-menu > ul > li > a.active svg {
-            color: #C5A059 !important;
+            color: #D4AF37 !important;
             stroke-width: 2.2 !important;
         }
 
         /* Arrow / Chevron for collapse */
         #sidebar-menu .menu-arrow {
             margin-left: auto !important;
-            color: #94A3B8 !important;
+            color: #64748B !important;
             font-size: 11px !important;
             transition: transform 0.2s ease !important;
         }
 
-        /* Submenus */
+        /* Submenus on Black Sidebar */
         .nav-second-level {
             padding-left: 0 !important;
             margin: 3px 0 6px 24px !important;
-            border-left: 1.5px solid #E2E8F0 !important;
+            border-left: 1.5px solid rgba(255, 255, 255, 0.1) !important;
         }
         .nav-second-level li {
             margin: 1px 0 !important;
@@ -267,39 +260,57 @@
             padding: 6.5px 14px !important;
             font-size: 13px !important;
             font-weight: 500 !important;
-            color: #64748B !important;
+            color: #94A3B8 !important;
             border-radius: 6px !important;
             display: block !important;
             transition: all 0.15s ease !important;
             text-decoration: none !important;
         }
         .nav-second-level li a:hover {
-            color: #0F172A !important;
-            background: #F1F5F9 !important;
+            color: #FFFFFF !important;
+            background: rgba(255, 255, 255, 0.06) !important;
             transform: translateX(2px) !important;
         }
         .nav-second-level li a.active,
         .nav-second-level li.active > a {
-            color: #8C6D1F !important;
+            color: #F7E7BE !important;
             font-weight: 700 !important;
-            background: #FEF8EC !important;
-            border-left: 2px solid #C5A059 !important;
+            background: rgba(212, 175, 55, 0.12) !important;
+            border-left: 2px solid #D4AF37 !important;
         }
 
-        /* Modern subtle scrollbar on white sidebar */
+        /* Scrollbar on black sidebar */
         .app-sidebar-menu [data-simplebar] .simplebar-scrollbar:before {
-            background: #CBD5E1 !important;
+            background: rgba(255, 255, 255, 0.25) !important;
             border-radius: 4px !important;
         }
 
-        /* ── Header Topbar: Royal Midnight Navy & Gold Theme ── */
+        /* ── Header Topbar: Clean White Theme ── */
         .topbar-custom {
-            background: linear-gradient(90deg, #071527 0%, #0E233E 55%, #0B1D36 100%) !important;
-            border-bottom: 2px solid #C9A84C !important;
-            box-shadow: 0 4px 20px rgba(7, 21, 39, 0.28) !important;
+            background: #FFFFFF !important;
+            border-bottom: 1px solid #E2E8F0 !important;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06) !important;
             height: 76px !important;
             padding: 0 20px !important;
             transition: all 0.2s ease-out !important;
+        }
+
+        /* Topbar Baba Hajj Group Badge & User text */
+        .topbar-custom .topbar-badge-baba {
+            background: #F8FAFC !important;
+            color: #8C6D1F !important;
+            border: 1px solid #E2E8F0 !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            padding: 5px 12px !important;
+            border-radius: 20px !important;
+            letter-spacing: 0.5px !important;
+        }
+        .topbar-custom .topbar-user-heading {
+            color: #0F172A !important;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.3px !important;
         }
 
         /* Live Pulsing Dot for Mobile Ops */
@@ -319,12 +330,140 @@
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* Hamburger Sidebar Toggle Button */
+        /* ════ Topbar Brand Pill, Search & Date Capsule ════ */
+        .topbar-portal-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: #090D16;
+            color: #FFFFFF;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 5px 12px;
+            border-radius: 9px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+        .portal-pulse-gold {
+            width: 7px;
+            height: 7px;
+            background: #D4AF37;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+            animation: pulseGold 2s infinite;
+        }
+        @keyframes pulseGold {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+        .portal-brand-text {
+            font-size: 11.5px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            color: #F7E7BE;
+        }
+        .portal-badge-year {
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(212, 175, 55, 0.2);
+            color: #ECC870;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        /* Topbar Global Search */
+        .topbar-search-wrap {
+            position: relative;
+            width: 280px;
+        }
+        .topbar-search-input {
+            width: 100%;
+            height: 38px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 6px 65px 6px 36px;
+            font-size: 12.5px;
+            color: #0F172A;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .topbar-search-input:focus {
+            background: #FFFFFF;
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+        .topbar-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94A3B8;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        .topbar-search-badge {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #FFFFFF;
+            border: 1px solid #CBD5E1;
+            color: #64748B;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Topbar Date Capsule */
+        .topbar-date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+        .topbar-hijri-year {
+            color: #8F6F25;
+            font-family: serif;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* Topbar Booking Button */
+        .topbar-btn-booking {
+            background: linear-gradient(135deg, #090D16 0%, #172033 100%);
+            color: #F7E7BE !important;
+            border: 1px solid #C5A059;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 9px;
+            box-shadow: 0 2px 6px rgba(9, 13, 22, 0.15);
+            transition: all 0.22s ease;
+            text-decoration: none;
+        }
+        .topbar-btn-booking:hover {
+            background: linear-gradient(135deg, #D4AF37 0%, #B88E28 100%);
+            color: #090D16 !important;
+            border-color: #D4AF37;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+        }
+
+        /* Hamburger Sidebar Toggle Button on White Header */
         .topbar-custom .button-toggle-menu {
-            background: rgba(255, 255, 255, 0.08) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            background: #F8FAFC !important;
+            border: 1px solid #E2E8F0 !important;
             border-radius: 9px !important;
-            color: #F3DC9B !important;
+            color: #1E293B !important;
             width: 38px !important;
             height: 38px !important;
             display: inline-flex !important;
@@ -332,66 +471,72 @@
             justify-content: center !important;
             padding: 0 !important;
             margin: 0 !important;
-            box-shadow: none !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
             transition: all 0.2s ease !important;
             cursor: pointer !important;
         }
         .topbar-custom .button-toggle-menu:hover {
-            background: rgba(201, 168, 76, 0.2) !important;
-            border-color: #C9A84C !important;
+            background: #D4AF37 !important;
+            border-color: #D4AF37 !important;
             color: #FFFFFF !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 3px 10px rgba(212, 175, 55, 0.35) !important;
         }
         .topbar-custom .button-toggle-menu i,
         .topbar-custom .button-toggle-menu svg {
             width: 20px !important;
             height: 20px !important;
             stroke-width: 2 !important;
+            color: inherit !important;
         }
 
-        /* Topbar User Profile Pill */
+        /* Topbar User Profile Pill on White Header */
         .topbar-custom .nav-user {
-            background: rgba(255, 255, 255, 0.08) !important;
-            border: 1px solid rgba(201, 168, 76, 0.4) !important;
-            padding: 4px 12px 4px 5px !important;
+            background: #F8FAFC !important;
+            border: 1px solid #E2E8F0 !important;
+            padding: 4px 14px 4px 6px !important;
             border-radius: 30px !important;
             display: inline-flex !important;
             align-items: center !important;
             transition: all 0.2s ease !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
         }
         .topbar-custom .nav-user:hover {
-            background: rgba(201, 168, 76, 0.2) !important;
+            background: #FFFFFF !important;
             border-color: #D4AF37 !important;
+            box-shadow: 0 3px 10px rgba(212, 175, 55, 0.25) !important;
+            transform: translateY(-1px) !important;
         }
         .topbar-custom .nav-user .user-avatar-top,
         .topbar-custom .nav-user img {
             width: 32px !important;
             height: 32px !important;
             object-fit: cover !important;
-            border: 1.5px solid #C9A84C !important;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+            border: 1.5px solid #D4AF37 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
         }
         .topbar-custom .nav-user .pro-user-name {
-            color: #FFFFFF !important;
+            color: #0F172A !important;
             font-weight: 700 !important;
             font-size: 13.5px !important;
         }
         .topbar-custom .nav-user i {
-            color: #F3DC9B !important;
+            color: #64748B !important;
             font-size: 14px !important;
             margin-left: 3px !important;
         }
 
         /* Profile Dropdown & Logout Menu Item */
         .profile-dropdown {
-            background: #0B192E !important;
+            background: #FFFFFF !important;
             border-radius: 12px !important;
-            border: 1px solid rgba(201, 168, 76, 0.35) !important;
-            box-shadow: 0 12px 32px rgba(7, 21, 39, 0.5) !important;
+            border: 1px solid #E2E8F0 !important;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12) !important;
             padding: 8px !important;
             min-width: 210px !important;
         }
         .profile-dropdown .noti-title {
-            background: rgba(255, 255, 255, 0.04) !important;
+            background: #F8FAFC !important;
             border-radius: 8px !important;
             padding: 8px 12px !important;
         }
@@ -399,30 +544,30 @@
             color: #94A3B8 !important;
         }
         .profile-dropdown .noti-title h6 {
-            color: #FFFFFF !important;
+            color: #0F172A !important;
         }
         .profile-dropdown .dropdown-divider {
-            border-color: rgba(255, 255, 255, 0.08) !important;
+            border-color: #F1F5F9 !important;
         }
         .profile-dropdown .dropdown-item {
             border-radius: 8px !important;
             font-size: 13.5px !important;
             font-weight: 500 !important;
-            color: #CBD5E1 !important;
+            color: #334155 !important;
             padding: 8px 12px !important;
             transition: all 0.18s ease !important;
         }
         .profile-dropdown .dropdown-item:hover {
-            background: rgba(201, 168, 76, 0.18) !important;
-            color: #F3DC9B !important;
+            background: #FEF8EC !important;
+            color: #8C6D1F !important;
         }
         .profile-dropdown .dropdown-item i.mdi-lock-reset {
-            color: #E5C368 !important;
+            color: #D4AF37 !important;
         }
         .profile-dropdown .logout-menu-btn {
-            color: #FF6B6B !important;
+            color: #EF4444 !important;
             font-weight: 600 !important;
-            background: rgba(239, 68, 68, 0.1) !important;
+            background: #FEF2F2 !important;
             border: none !important;
             width: 100% !important;
             text-align: left !important;
@@ -439,30 +584,34 @@
         }
 
         /* ══════════════════════════════════════════════════════════════
-           GLOBAL LUXURY BUTTON THEME (Matching Header Navy & Gold)
+           GLOBAL BUTTON THEME & HOVER EFFECTS (MATCHING LOGO GOLD ACCENTS)
         ══════════════════════════════════════════════════════════════ */
+        .btn {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
         /* Primary / Create / Update / Submit / Next Buttons */
         .btn-primary,
         .btn-primary:active,
         .btn-primary:focus,
         .btn-next,
         .btn-save-booking {
-            background: linear-gradient(135deg, #071527 0%, #0E233E 55%, #15325B 100%) !important;
-            color: #F3DC9B !important;
-            border: 1px solid #C9A84C !important;
+            background: #090D16 !important;
+            color: #F7E7BE !important;
+            border: 1px solid #D4AF37 !important;
             font-weight: 600 !important;
             border-radius: 6px !important;
-            box-shadow: 0 2px 8px rgba(7, 21, 39, 0.25) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
             transition: all 0.2s ease !important;
         }
         .btn-primary:hover,
         .btn-next:hover,
         .btn-save-booking:hover {
             background: linear-gradient(135deg, #D4AF37 0%, #B88E28 100%) !important;
-            color: #071527 !important;
-            border-color: #D4AF37 !important;
-            box-shadow: 0 4px 14px rgba(201, 168, 76, 0.45) !important;
-            transform: translateY(-1px) !important;
+            color: #0F172A !important;
+            border-color: #B88B28 !important;
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.45) !important;
+            transform: translateY(-1.5px) !important;
         }
 
         /* Secondary / Back / Cancel Buttons */
@@ -477,9 +626,9 @@
         }
         .btn-secondary:hover,
         .btn-outline-secondary:hover {
-            background: #0E233E !important;
-            color: #F3DC9B !important;
-            border-color: #C9A84C !important;
+            background: #090D16 !important;
+            color: #D4AF37 !important;
+            border-color: #D4AF37 !important;
             transform: translateY(-1px) !important;
         }
 
@@ -487,19 +636,19 @@
         .btn-warning,
         .btn-outline-warning {
             background: linear-gradient(135deg, #D4AF37 0%, #B88E28 100%) !important;
-            color: #071527 !important;
-            border: 1px solid #C9A84C !important;
+            color: #0F172A !important;
+            border: 1px solid #B88E28 !important;
             font-weight: 700 !important;
             border-radius: 6px !important;
-            box-shadow: 0 2px 8px rgba(201, 168, 76, 0.3) !important;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3) !important;
             transition: all 0.2s ease !important;
         }
         .btn-warning:hover,
         .btn-outline-warning:hover {
-            background: #0E233E !important;
-            color: #F3DC9B !important;
-            border-color: #C9A84C !important;
-            box-shadow: 0 4px 14px rgba(7, 21, 39, 0.4) !important;
+            background: #090D16 !important;
+            color: #D4AF37 !important;
+            border-color: #D4AF37 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
             transform: translateY(-1px) !important;
         }
 
@@ -516,62 +665,26 @@
         }
         .btn-success:hover,
         .btn-outline-success:hover {
-            background: #059669 !important;
-            color: #FFFFFF !important;
-            border-color: #059669 !important;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
-            transform: translateY(-1px) !important;
-        }
-
-        /* Info / View Buttons */
-        .btn-info,
-        .btn-outline-info {
-            background: linear-gradient(135deg, #0C4A6E 0%, #0284C7 100%) !important;
-            color: #F0F9FF !important;
-            border: 1px solid #38BDF8 !important;
-            font-weight: 600 !important;
-            border-radius: 6px !important;
-            transition: all 0.2s ease !important;
-        }
-        .btn-info:hover,
-        .btn-outline-info:hover {
-            background: #0284C7 !important;
-            color: #FFFFFF !important;
-            border-color: #0284C7 !important;
-            transform: translateY(-1px) !important;
-        }
-
-        /* Danger / Delete / Trash Buttons */
-        .btn-danger,
-        .btn-outline-danger {
-            background: linear-gradient(135deg, #881337 0%, #BE123C 100%) !important;
-            color: #FFF1F2 !important;
-            border: 1px solid #F43F5E !important;
-            font-weight: 600 !important;
-            border-radius: 6px !important;
-            box-shadow: 0 2px 8px rgba(190, 18, 60, 0.2) !important;
-            transition: all 0.2s ease !important;
-        }
-        .btn-danger:hover,
-        .btn-outline-danger:hover {
-            background: #E11D48 !important;
-            color: #FFFFFF !important;
-            border-color: #E11D48 !important;
-            box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4) !important;
-            transform: translateY(-1px) !important;
+            background: linear-gradient(135deg, #D4AF37 0%, #B88E28 100%) !important;
+            color: #0F172A !important;
+            border-color: #B88B28 !important;
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.45) !important;
+            transform: translateY(-1.5px) !important;
         }
 
         /* Outlined Buttons on Dark / Table Context */
         .btn-outline-primary {
-            background: rgba(201, 168, 76, 0.08) !important;
-            color: #0E233E !important;
-            border: 1.5px solid #0E233E !important;
+            background: #FFFFFF !important;
+            color: #090D16 !important;
+            border: 1.5px solid #CBD5E1 !important;
             font-weight: 600 !important;
         }
         .btn-outline-primary:hover {
-            background: linear-gradient(135deg, #071527 0%, #0E233E 100%) !important;
-            color: #F3DC9B !important;
-            border-color: #C9A84C !important;
+            background: linear-gradient(135deg, #D4AF37 0%, #B88E28 100%) !important;
+            color: #0F172A !important;
+            border-color: #B88B28 !important;
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4) !important;
+            transform: translateY(-1.5px) !important;
         }
 
         /* ── GLOBAL INPUT FOCUS & TAB NAVIGATION HIGHLIGHT (Active Blue Accent) ── */

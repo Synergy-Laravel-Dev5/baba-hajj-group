@@ -303,46 +303,29 @@
         }
 
         /* ══════════════════════════════════════════════════════════════
-           BENTO KPI CARDS WITH HOVER LIFT & GLOW
+           EXECUTIVE KPI CARDS (LUXURY FINTECH & ISLAMIC SUITE)
         ══════════════════════════════════════════════════════════════ */
         .bento-card {
             background: #FFFFFF;
+            background-image: radial-gradient(circle at 100% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 65%);
             border-radius: 18px;
-            border: 1px solid var(--react-border);
+            border: 1.5px solid #E2E8F0;
             padding: 22px 22px 18px 22px;
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 4px 12px rgba(15, 23, 42, 0.02);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 6px 16px -4px rgba(15, 23, 42, 0.04);
             transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
             height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            overflow: hidden;
         }
 
         .bento-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 32px -6px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.03);
-            border-color: rgba(201, 168, 76, 0.4);
+            transform: translateY(-3px);
+            border-color: #D4AF37;
+            box-shadow: 0 14px 30px -8px rgba(9, 13, 22, 0.1), 0 0 20px rgba(212, 175, 55, 0.16);
         }
-
-        /* Ambient top indicator bar */
-        .bento-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-        }
-
-        .card-accent-gold::before { background: var(--gold-gradient); }
-        .card-accent-emerald::before { background: var(--emerald-gradient); }
-        .card-accent-indigo::before { background: linear-gradient(90deg, #4F46E5, #818CF8); }
-        .card-accent-cyan::before { background: linear-gradient(90deg, #0284C7, #38BDF8); }
-        .card-accent-amber::before { background: linear-gradient(90deg, #D97706, #FBBF24); }
-        .card-accent-rose::before { background: linear-gradient(90deg, #E11D48, #FB7185); }
-        .card-accent-violet::before { background: linear-gradient(90deg, #7C3AED, #A78BFA); }
 
         .bento-header {
             display: flex;
@@ -352,48 +335,90 @@
         }
 
         .bento-title {
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.6px;
-            color: var(--react-text-muted);
+            letter-spacing: 0.8px;
+            color: #64748B;
             margin: 0;
         }
 
         .bento-icon-wrapper {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 19px;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 20px;
             flex-shrink: 0;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .bento-card:hover .bento-icon-wrapper {
-            transform: scale(1.1) rotate(4deg);
+            transform: scale(1.08) rotate(2deg);
         }
 
-        .icon-box-gold { background: #FEF8EC; color: #B4882F; border: 1px solid #F5E5BE; }
-        .icon-box-emerald { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
-        .icon-box-indigo { background: #EEF2FF; color: #4F46E5; border: 1px solid #C7D2FE; }
-        .icon-box-cyan { background: #F0F9FF; color: #0284C7; border: 1px solid #BAE6FD; }
-        .icon-box-amber { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
-        .icon-box-rose { background: #FFF1F2; color: #E11D48; border: 1px solid #FECDD3; }
-        .icon-box-violet { background: #F5F3FF; color: #7C3AED; border: 1px solid #DDD6FE; }
+        /* Sophisticated Executive Icon Badges (Subtle, Rich, Distinct) */
+        .bento-icon-bookings {
+            background: #090D16;
+            color: #D4AF37;
+            border: 1.5px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 3px 10px rgba(9, 13, 22, 0.15);
+        }
+        .bento-icon-revenue {
+            background: linear-gradient(135deg, #FEF8EC 0%, #FDF1D6 100%);
+            color: #9A7422;
+            border: 1.5px solid #ECC870;
+            box-shadow: 0 3px 10px rgba(197, 160, 89, 0.15);
+        }
+        .bento-icon-collected {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+            color: #047857;
+            border: 1.5px solid #A7F3D0;
+            box-shadow: 0 3px 10px rgba(5, 150, 105, 0.15);
+        }
+        .bento-icon-profit {
+            background: linear-gradient(135deg, #FEF9EE 0%, #FEEBC8 100%);
+            color: #B45309;
+            border: 1.5px solid #FCD34D;
+            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.15);
+        }
+        .bento-icon-expenses {
+            background: #FFFBEB;
+            color: #D97706;
+            border: 1.5px solid #FDE68A;
+            box-shadow: 0 3px 10px rgba(217, 119, 6, 0.12);
+        }
+        .bento-icon-saudi {
+            background: #F5F3FF;
+            color: #7C3AED;
+            border: 1.5px solid #DDD6FE;
+            box-shadow: 0 3px 10px rgba(124, 58, 237, 0.12);
+        }
+        .bento-icon-dues {
+            background: #FFF1F2;
+            color: #E11D48;
+            border: 1.5px solid #FECDD3;
+            box-shadow: 0 3px 10px rgba(225, 29, 72, 0.12);
+        }
+        .bento-icon-team {
+            background: #F1F5F9;
+            color: #0F172A;
+            border: 1.5px solid #CBD5E1;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+        }
 
         .bento-value-row {
             margin-bottom: 10px;
         }
 
         .bento-value {
-            font-size: 26px;
+            font-size: 27px;
             font-weight: 800;
-            color: var(--react-text-main);
+            color: #0F172A;
             letter-spacing: -0.6px;
-            line-height: 1.1;
+            line-height: 1.15;
             display: flex;
             align-items: baseline;
             gap: 6px;
@@ -403,7 +428,7 @@
         .bento-unit {
             font-size: 13.5px;
             font-weight: 700;
-            color: var(--react-text-muted);
+            color: #94A3B8;
             letter-spacing: normal;
         }
 
@@ -413,32 +438,32 @@
             justify-content: space-between;
             gap: 8px;
             font-size: 12px;
-            color: var(--react-text-sub);
-            padding-top: 10px;
+            color: #64748B;
+            padding-top: 12px;
             border-top: 1px solid #F1F5F9;
         }
 
         .trend-pill {
             display: inline-flex;
             align-items: center;
-            gap: 3px;
-            font-size: 11.5px;
+            gap: 4px;
+            font-size: 11px;
             font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
+            padding: 3px 9px;
+            border-radius: 6px;
             white-space: nowrap;
         }
 
         .trend-pill.up {
             background: #ECFDF5;
-            color: #059669;
-            border: 1px solid rgba(5, 150, 105, 0.2);
+            color: #047857;
+            border: 1px solid #A7F3D0;
         }
 
         .trend-pill.down {
             background: #FEF2F2;
-            color: #DC2626;
-            border: 1px solid rgba(220, 38, 38, 0.2);
+            color: #B91C1C;
+            border: 1px solid #FECDD3;
         }
 
         .trend-pill.neutral {
@@ -449,18 +474,19 @@
 
         /* Collection Progress Bar */
         .collection-progress-wrap {
-            margin-top: 8px;
+            margin-top: 10px;
             background: #F1F5F9;
             height: 7px;
             border-radius: 10px;
             overflow: hidden;
             position: relative;
+            border: 1px solid #E2E8F0;
         }
 
         .collection-progress-bar {
             height: 100%;
             border-radius: 10px;
-            background: linear-gradient(90deg, #0284C7, #38BDF8);
+            background: linear-gradient(90deg, #D4AF37 0%, #10B981 100%);
             transition: width 1s ease-in-out;
         }
 
@@ -572,8 +598,8 @@
         .service-tile {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 13px 14px;
+            gap: 12px;
+            padding: 12px 14px;
             border-radius: 12px;
             background: #F8FAFC;
             border: 1px solid #F1F5F9;
@@ -589,26 +615,98 @@
 
         .service-tile:hover {
             background: #FFFFFF;
-            border-color: rgba(197, 160, 89, 0.4);
-            transform: translateX(4px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+            border-color: #D4AF37;
+            transform: translateX(3px);
+            box-shadow: 0 6px 16px rgba(9, 13, 22, 0.05);
             color: inherit;
         }
 
         .service-tile-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 19px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            color: #0F172A;
             flex-shrink: 0;
-            transition: transform 0.2s ease;
+            transition: all 0.2s ease;
         }
 
         .service-tile:hover .service-tile-icon {
-            transform: scale(1.08);
+            background: #090D16;
+            color: #D4AF37;
+            border-color: #090D16;
+            transform: scale(1.05);
+        }
+
+        /* ════ Operational Quick Actions Ribbon ════ */
+        .quick-action-strip {
+            background: #FFFFFF;
+            border: 1px solid var(--react-border);
+            border-radius: 14px;
+            padding: 11px 16px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+        }
+
+        .quick-action-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--react-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .quick-action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 13px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            color: var(--react-text-main);
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quick-action-pill:hover {
+            background: #090D16;
+            color: #D4AF37;
+            border-color: #090D16;
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 12px rgba(9, 13, 22, 0.12);
+        }
+
+        .quick-action-pill i {
+            font-size: 14px;
+            color: #C5A059;
+            transition: color 0.2s ease;
+        }
+
+        .quick-action-pill:hover i {
+            color: #D4AF37;
         }
 
         .service-tile-title {
@@ -858,24 +956,24 @@
                 </div>
 
                 {{-- ══════════════════════════════════════════════════════════════
-                   2. CORE FINANCIAL & OPERATIONAL KPIS (Row 1 - Bento Cards)
+                   2. CORE REVENUE & PROFIT INTELLIGENCE (Row 1 - Bento Cards)
                 ══════════════════════════════════════════════════════════════ --}}
                 <div class="row g-3 mb-3 anim-stagger-2">
 
                     {{-- Card 1: Bookings & Pax --}}
-                    <div class="col-6 col-md-3">
-                        <div class="bento-card card-accent-indigo">
+                    <div class="col-6 col-xl-3">
+                        <div class="bento-card">
                             <div>
                                 <div class="bento-header">
                                     <span class="bento-title">{{ ucfirst($package) }} Bookings</span>
-                                    <div class="bento-icon-wrapper icon-box-indigo">
+                                    <div class="bento-icon-wrapper bento-icon-bookings">
                                         <i class="ri-calendar-check-line"></i>
                                     </div>
                                 </div>
                                 <div class="bento-value-row">
                                     <div class="bento-value">
                                         <span class="counter-number" data-target="{{ $totalBookings }}">0</span>
-                                        <span class="badge bg-dark text-white fw-bold px-2 py-1 ms-1" style="font-size: 11.5px; border-radius: 8px;">
+                                        <span class="badge" style="background: #090D16; color: #D4AF37; font-weight: 700; font-size: 11.5px; padding: 4px 9px; border-radius: 6px; border: 1px solid rgba(212, 175, 55, 0.35);">
                                             {{ number_format($totalPax ?? 0) }} Pax
                                         </span>
                                     </div>
@@ -892,12 +990,12 @@
                     </div>
 
                     {{-- Card 2: Gross Invoiced Revenue --}}
-                    <div class="col-6 col-md-3">
-                        <div class="bento-card card-accent-emerald">
+                    <div class="col-6 col-xl-3">
+                        <div class="bento-card">
                             <div>
                                 <div class="bento-header">
                                     <span class="bento-title">Gross Revenue</span>
-                                    <div class="bento-icon-wrapper icon-box-emerald">
+                                    <div class="bento-icon-wrapper bento-icon-revenue">
                                         <i class="ri-line-chart-line"></i>
                                     </div>
                                 </div>
@@ -913,18 +1011,18 @@
                                     <i class="ri-arrow-{{ $revenueTrend >= 0 ? 'up' : 'down' }}-line"></i>
                                     {{ abs($revenueTrend) }}%
                                 </span>
-                                <span>Total packages billed</span>
+                                <span>Total billed</span>
                             </div>
                         </div>
                     </div>
 
                     {{-- Card 3: Total Collections Received --}}
-                    <div class="col-6 col-md-3">
-                        <div class="bento-card card-accent-cyan">
+                    <div class="col-6 col-xl-3">
+                        <div class="bento-card">
                             <div>
                                 <div class="bento-header">
                                     <span class="bento-title">Total Collected</span>
-                                    <div class="bento-icon-wrapper icon-box-cyan">
+                                    <div class="bento-icon-wrapper bento-icon-collected">
                                         <i class="ri-wallet-3-line"></i>
                                     </div>
                                 </div>
@@ -946,18 +1044,18 @@
                                     <i class="ri-arrow-{{ $receivedTrend >= 0 ? 'up' : 'down' }}-line"></i>
                                     {{ abs($receivedTrend) }}%
                                 </span>
-                                <span><strong>{{ $collectionRate }}%</strong> collected</span>
+                                <span><strong>{{ $collectionRate }}%</strong> recovery rate</span>
                             </div>
                         </div>
                     </div>
 
                     {{-- Card 4: Operating Profit / Loss --}}
-                    <div class="col-6 col-md-3">
-                        <div class="bento-card {{ $isProfit ? 'card-accent-gold' : 'card-accent-rose' }}">
+                    <div class="col-6 col-xl-3">
+                        <div class="bento-card">
                             <div>
                                 <div class="bento-header">
                                     <span class="bento-title">{{ $isProfit ? 'Net Operating Profit' : 'Operating Deficit' }}</span>
-                                    <div class="bento-icon-wrapper {{ $isProfit ? 'icon-box-gold' : 'icon-box-rose' }}">
+                                    <div class="bento-icon-wrapper bento-icon-profit">
                                         <i class="ri-{{ $isProfit ? 'funds-line' : 'error-warning-line' }}"></i>
                                     </div>
                                 </div>
@@ -980,17 +1078,17 @@
                 </div>
 
                 {{-- ══════════════════════════════════════════════════════════════
-                   3. SECONDARY OPERATIONAL KPIS (Row 2 - Expenses & Team)
+                   3. COST CONTROLS, RECEIVABLES & TEAM (Row 2 - 4 Bento Cards)
                 ══════════════════════════════════════════════════════════════ --}}
-                <div class="row g-3 mb-4 anim-stagger-3">
+                <div class="row g-3 mb-3 anim-stagger-3">
 
                     {{-- Expenses PKR --}}
-                    <div class="col-6 col-md-4">
-                        <div class="bento-card card-accent-amber">
+                    <div class="col-6 col-xl-3">
+                        <div class="bento-card">
                             <div>
                                 <div class="bento-header">
                                     <span class="bento-title">Pakistan Expenses</span>
-                                    <div class="bento-icon-wrapper icon-box-amber">
+                                    <div class="bento-icon-wrapper bento-icon-expenses">
                                         <i class="ri-bank-card-line"></i>
                                     </div>
                                 </div>
@@ -1012,12 +1110,12 @@
                     </div>
 
                     {{-- Expenses SAR --}}
-                    <div class="col-6 col-md-4">
-                        <div class="bento-card card-accent-violet">
+                    <div class="col-6 col-xl-3">
+                        <div class="bento-card">
                             <div>
                                 <div class="bento-header">
                                     <span class="bento-title">Saudi Operations (SAR)</span>
-                                    <div class="bento-icon-wrapper icon-box-violet">
+                                    <div class="bento-icon-wrapper bento-icon-saudi">
                                         <i class="ri-exchange-dollar-line"></i>
                                     </div>
                                 </div>
@@ -1040,14 +1138,44 @@
                         </div>
                     </div>
 
+                    {{-- Pending Receivables / Due Balance --}}
+                    @php
+                        $outstandingReceivables = max(0, $totalRevenue - $totalReceived);
+                        $dueRate = $totalRevenue > 0 ? min(100, round(($outstandingReceivables / $totalRevenue) * 100, 1)) : 0;
+                    @endphp
+                    <div class="col-6 col-xl-3">
+                        <div class="bento-card">
+                            <div>
+                                <div class="bento-header">
+                                    <span class="bento-title">Pending Receivables</span>
+                                    <div class="bento-icon-wrapper bento-icon-dues">
+                                        <i class="ri-hand-coin-line"></i>
+                                    </div>
+                                </div>
+                                <div class="bento-value-row">
+                                    <div class="bento-value" style="color: {{ $outstandingReceivables > 0 ? '#E11D48' : '#0F172A' }};">
+                                        <span class="bento-unit" style="color: {{ $outstandingReceivables > 0 ? '#E11D48' : '#94A3B8' }};">PKR</span>
+                                        <span class="counter-number" data-target="{{ $outstandingReceivables }}">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bento-footer">
+                                <span class="trend-pill {{ $outstandingReceivables > 0 ? 'down' : 'up' }}">
+                                    {{ $dueRate }}% uncollected
+                                </span>
+                                <span>Pilgrim dues pending</span>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- System Users & Staff --}}
-                    <div class="col-12 col-md-4">
-                        <div class="bento-card card-accent-gold">
+                    <div class="col-6 col-xl-3">
+                        <div class="bento-card">
                             <div>
                                 <div class="bento-header">
                                     <span class="bento-title">Active Team & Agents</span>
-                                    <div class="bento-icon-wrapper icon-box-gold">
-                                        <i class="ri-user-settings-line"></i>
+                                    <div class="bento-icon-wrapper bento-icon-team">
+                                        <i class="ri-team-line"></i>
                                     </div>
                                 </div>
                                 <div class="bento-value-row">
@@ -1067,6 +1195,48 @@
                         </div>
                     </div>
 
+                </div>
+
+                {{-- ══════════════════════════════════════════════════════════════
+                   OPERATIONAL QUICK ACTIONS RIBBON
+                ══════════════════════════════════════════════════════════════ --}}
+                <div class="quick-action-strip anim-stagger-3">
+                    <div class="quick-action-label">
+                        <i class="ri-flashlight-line text-warning"></i>
+                        <span>Executive Shortcuts:</span>
+                    </div>
+                    <div class="quick-action-buttons">
+                        @can('booking_create')
+                            <a href="{{ route('booking.create') }}" class="quick-action-pill">
+                                <i class="ri-add-circle-line"></i> New Booking
+                            </a>
+                        @endcan
+                        @can('client_Transactions_view')
+                            <a href="{{ route('transaction.create') }}" class="quick-action-pill">
+                                <i class="ri-wallet-3-line"></i> Record Payment
+                            </a>
+                        @endcan
+                        @can('expense_view')
+                            <a href="{{ route('expense.transaction.create') }}" class="quick-action-pill">
+                                <i class="ri-file-add-line"></i> Log Expense
+                            </a>
+                        @endcan
+                        @can('booking_view')
+                            <a href="{{ route('booking.index') }}" class="quick-action-pill">
+                                <i class="ri-file-list-3-line"></i> Pilgrim Manifests
+                            </a>
+                        @endcan
+                        @can('hotel_view')
+                            <a href="{{ route('hotel.index') }}" class="quick-action-pill">
+                                <i class="ri-hotel-bed-line"></i> Hotel Allocations
+                            </a>
+                        @endcan
+                        @can('flight_view')
+                            <a href="{{ route('flight.index') }}" class="quick-action-pill">
+                                <i class="ri-plane-line"></i> Flight Itineraries
+                            </a>
+                        @endcan
+                    </div>
                 </div>
 
                 {{-- ══════════════════════════════════════════════════════════════
@@ -1107,14 +1277,17 @@
                             @endphp
                             <div class="chart-meta-chips">
                                 <div class="chart-chip">
+                                    <i class="ri-archive-line text-muted"></i>
                                     <span>Annual Volume:</span>
                                     <strong>{{ number_format($totalAnnualBookings) }} Files</strong>
                                 </div>
                                 <div class="chart-chip">
+                                    <i class="ri-fire-line text-warning"></i>
                                     <span>Peak Month:</span>
                                     <strong>{{ $peakMonthName }} ({{ number_format($peakMonthlyValue) }})</strong>
                                 </div>
                                 <div class="chart-chip">
+                                    <i class="ri-bar-chart-2-line text-info"></i>
                                     <span>Monthly Avg:</span>
                                     <strong>{{ round($totalAnnualBookings / 12, 1) }} / mo</strong>
                                 </div>
@@ -1143,23 +1316,23 @@
                                 {{-- Flight Itineraries --}}
                                 @can('flight_view')
                                     <a href="{{ route('flight.index') }}" class="service-tile">
-                                        <div class="service-tile-icon" style="background:#FEF8EC; color:#B4882F; border:1px solid #F5E5BE;">
-                                            ✈️
+                                        <div class="service-tile-icon">
+                                            <i class="ri-plane-line"></i>
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="service-tile-title">Flight Itineraries</div>
-                                            <div class="service-tile-desc">{{ number_format($flightsThisMonth) }} active this month</div>
+                                            <div class="service-tile-desc">{{ number_format($flightsThisMonth) }} flights active this month</div>
                                         </div>
                                         <i class="ri-arrow-right-s-line service-tile-arrow"></i>
                                     </a>
                                 @else
                                     <div class="service-tile">
-                                        <div class="service-tile-icon" style="background:#FEF8EC; color:#B4882F; border:1px solid #F5E5BE;">
-                                            ✈️
+                                        <div class="service-tile-icon">
+                                            <i class="ri-plane-line"></i>
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="service-tile-title">Flight Itineraries</div>
-                                            <div class="service-tile-desc">{{ number_format($flightsThisMonth) }} active this month</div>
+                                            <div class="service-tile-desc">{{ number_format($flightsThisMonth) }} flights active this month</div>
                                         </div>
                                     </div>
                                 @endcan
@@ -1167,23 +1340,23 @@
                                 {{-- Hotel Allocations --}}
                                 @can('hotel_view')
                                     <a href="{{ route('hotel.index') }}" class="service-tile">
-                                        <div class="service-tile-icon" style="background:#ECFDF5; color:#059669; border:1px solid #A7F3D0;">
-                                            🏨
+                                        <div class="service-tile-icon">
+                                            <i class="ri-hotel-bed-line"></i>
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="service-tile-title">Hotels & Maktabs</div>
-                                            <div class="service-tile-desc">{{ number_format($hotelsThisMonth) }} allocations logged</div>
+                                            <div class="service-tile-desc">{{ number_format($hotelsThisMonth) }} room allocations logged</div>
                                         </div>
                                         <i class="ri-arrow-right-s-line service-tile-arrow"></i>
                                     </a>
                                 @else
                                     <div class="service-tile">
-                                        <div class="service-tile-icon" style="background:#ECFDF5; color:#059669; border:1px solid #A7F3D0;">
-                                            🏨
+                                        <div class="service-tile-icon">
+                                            <i class="ri-hotel-bed-line"></i>
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="service-tile-title">Hotels & Maktabs</div>
-                                            <div class="service-tile-desc">{{ number_format($hotelsThisMonth) }} allocations logged</div>
+                                            <div class="service-tile-desc">{{ number_format($hotelsThisMonth) }} room allocations logged</div>
                                         </div>
                                     </div>
                                 @endcan
@@ -1191,8 +1364,8 @@
                                 {{-- Visa Approvals --}}
                                 @canany(['visa_country_view', 'visa_inquiry_view'])
                                     <a href="{{ Route::has('mobile-ops.visa-countries.index') ? route('mobile-ops.visa-countries.index') : route('mobile-ops.dashboard') }}" class="service-tile">
-                                        <div class="service-tile-icon" style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE;">
-                                            📄
+                                        <div class="service-tile-icon">
+                                            <i class="ri-passport-line"></i>
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="service-tile-title">Visa E-Passes</div>
@@ -1202,8 +1375,8 @@
                                     </a>
                                 @else
                                     <div class="service-tile">
-                                        <div class="service-tile-icon" style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE;">
-                                            📄
+                                        <div class="service-tile-icon">
+                                            <i class="ri-passport-line"></i>
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="service-tile-title">Visa E-Passes</div>
@@ -1214,8 +1387,8 @@
 
                                 {{-- Pilgrim Groups --}}
                                 <a href="{{ route('booking.index') }}" class="service-tile">
-                                    <div class="service-tile-icon" style="background:#FEF8EC; color:#B4882F; border:1px solid #F5E5BE;">
-                                        👥
+                                    <div class="service-tile-icon">
+                                        <i class="ri-group-line"></i>
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="service-tile-title">{{ ucfirst($package) }} Group Manifests</div>
@@ -1354,8 +1527,22 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="text-center py-4 text-muted">
-                                                    No {{ $package }} bookings found for this period.
+                                                <td colspan="6" class="text-center py-5">
+                                                    <div class="py-4 text-center">
+                                                        <div class="mb-3">
+                                                            <div class="d-inline-flex align-items-center justify-content-center"
+                                                                 style="width: 56px; height: 56px; border-radius: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; font-size: 24px; color: #94A3B8;">
+                                                                <i class="ri-inbox-line"></i>
+                                                            </div>
+                                                        </div>
+                                                        <h6 class="fw-bold mb-1" style="color: #475569;">No {{ ucfirst($package) }} Bookings Recorded</h6>
+                                                        <p class="text-muted fs-12 mb-3">No pilgrim booking files found for cycle {{ $year }}.</p>
+                                                        @can('booking_create')
+                                                            <a href="{{ route('booking.create') }}" class="btn btn-sm btn-dark" style="border-radius: 8px; font-weight: 600; padding: 6px 16px;">
+                                                                <i class="ri-add-line me-1"></i> Create First Booking
+                                                            </a>
+                                                        @endcan
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforelse

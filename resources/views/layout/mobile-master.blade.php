@@ -24,11 +24,11 @@
     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
 
     <style>
-        /* ── Header Topbar: Deep Midnight Navy & Luxury Gold (Exact Master Match) ── */
+        /* ── Header Topbar: Clean Elegant White Theme ── */
         .topbar-custom {
-            background: linear-gradient(135deg, #071527 0%, #0E233E 55%, #08162A 100%) !important;
-            border-bottom: 2px solid #C9A84C !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 1px 0 rgba(201, 168, 76, 0.2) !important;
+            background: #FFFFFF !important;
+            border-bottom: 1px solid #E2E8F0 !important;
+            box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06) !important;
             height: 70px !important;
             padding: 0 20px !important;
             display: flex !important;
@@ -37,12 +37,12 @@
             transition: all 0.2s ease-out !important;
         }
 
-        /* Hamburger Sidebar Toggle Button */
+        /* Hamburger Sidebar Toggle Button on White Header */
         .topbar-custom .button-toggle-menu {
-            background: rgba(201, 168, 76, 0.12) !important;
-            border: 1px solid rgba(201, 168, 76, 0.35) !important;
+            background: #F8FAFC !important;
+            border: 1px solid #E2E8F0 !important;
             border-radius: 8px !important;
-            color: #F3DC9B !important;
+            color: #1E293B !important;
             width: 40px !important;
             height: 40px !important;
             display: inline-flex !important;
@@ -50,39 +50,42 @@
             justify-content: center !important;
             padding: 0 !important;
             margin: 0 !important;
-            box-shadow: none !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
             transition: all 0.2s ease !important;
             cursor: pointer !important;
         }
 
         .topbar-custom .button-toggle-menu:hover {
-            background: linear-gradient(135deg, #D4AF37, #B88E28) !important;
+            background: #D4AF37 !important;
             border-color: #D4AF37 !important;
-            color: #071527 !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 3px 10px rgba(212, 175, 55, 0.35) !important;
+            transform: translateY(-1px) !important;
         }
 
         .topbar-custom .button-toggle-menu i {
             font-size: 20px !important;
+            color: inherit !important;
         }
 
         /* Mobile Ops Badge in Topbar */
         .mobile-ops-badge {
-            background: linear-gradient(135deg, #064E3B 0%, #047857 100%) !important;
-            color: #ECFDF5 !important;
-            border: 1px solid #10B981 !important;
+            background: #F8FAFC !important;
+            color: #047857 !important;
+            border: 1px solid #A7F3D0 !important;
             font-size: 11px !important;
             font-weight: 700 !important;
             padding: 6px 14px !important;
             border-radius: 20px !important;
             letter-spacing: 0.6px !important;
-            box-shadow: 0 2px 8px rgba(4, 120, 87, 0.3) !important;
+            box-shadow: 0 1px 3px rgba(4, 120, 87, 0.1) !important;
         }
 
         /* Back to Admin Gold Button */
         .btn-back-admin {
-            background: linear-gradient(135deg, #D4AF37 0%, #B88E28 100%) !important;
-            color: #071527 !important;
-            border: 1px solid #C9A84C !important;
+            background: #0F172A !important;
+            color: #F8FAFC !important;
+            border: 1px solid #0F172A !important;
             font-weight: 700 !important;
             border-radius: 20px !important;
             padding: 6px 16px !important;
@@ -91,29 +94,29 @@
             display: inline-flex !important;
             align-items: center !important;
             gap: 6px !important;
-            box-shadow: 0 2px 8px rgba(201, 168, 76, 0.3) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
             transition: all 0.2s ease !important;
         }
 
         .btn-back-admin:hover {
-            background: #0E233E !important;
-            color: #F3DC9B !important;
-            border-color: #C9A84C !important;
-            box-shadow: 0 4px 14px rgba(7, 21, 39, 0.4) !important;
+            background: linear-gradient(135deg, #D4AF37 0%, #B88B28 100%) !important;
+            color: #0F172A !important;
+            border-color: #B88B28 !important;
+            box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4) !important;
             transform: translateY(-1px) !important;
         }
 
-        /* ── Sidebar Logo Box & Clean Collapse Matching Master ── */
+        /* ── Sidebar Logo Box & Clean Collapse on Deep Black Sidebar ── */
         .logo-box {
-            height: 100px !important;
+            height: 76px !important;
             width: 260px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 8px 15px !important;
-            background: #FFFFFF !important;
-            border-bottom: 1px solid #E2E8F0 !important;
-            border-right: 1px solid #E2E8F0 !important;
+            padding: 8px 16px !important;
+            background: #090D16 !important; /* Deep Luxury Black */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
@@ -122,20 +125,77 @@
         }
 
         .sidebar-logo-full {
-            height: 84px !important;
-            max-height: 84px !important;
+            height: 56px !important;
+            max-height: 56px !important;
             width: auto !important;
-            max-width: 220px !important;
+            max-width: 215px !important;
             object-fit: contain !important;
             display: block !important;
             margin: 0 auto !important;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5)) !important;
         }
 
         .app-sidebar-menu {
-            padding-top: 100px !important;
-            background: #FFFFFF !important;
-            border-right: 1px solid #E2E8F0 !important;
+            padding-top: 76px !important;
+            background: #090D16 !important; /* Deep Luxury Black */
+            border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
             transition: all 0.2s ease-out !important;
+        }
+
+        #sidebar-menu .menu-link {
+            color: #CBD5E1 !important;
+            transition: all 0.2s ease !important;
+        }
+        #sidebar-menu .menu-link:hover {
+            color: #FFFFFF !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+        #sidebar-menu .menu-item.menuitem-active .menu-link {
+            background: linear-gradient(90deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.04) 100%) !important;
+            color: #F7E7BE !important;
+            border-left: 3.5px solid #D4AF37 !important;
+        }
+        #sidebar-menu .menu-item.menuitem-active .menu-link i {
+            color: #D4AF37 !important;
+        }
+
+        /* Global Button Hover matching Logo Gold */
+        .btn {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .btn-success:hover,
+        .btn-primary:hover,
+        .btn-outline-primary:hover,
+        .btn-outline-success:hover {
+            background: linear-gradient(135deg, #D4AF37 0%, #B88B28 100%) !important;
+            border-color: #B88B28 !important;
+            color: #0F172A !important;
+            font-weight: 700 !important;
+            transform: translateY(-1.5px) !important;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35) !important;
+        }
+
+        body[data-sidebar="hidden"] .logo-box,
+        .left-side-menu.condensed .logo-box,
+        body[data-sidebar="hidden"] .sidebar-logo-full {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            transform: translateX(-100%) !important;
+        }
+
+        body[data-sidebar="hidden"] .app-sidebar-menu {
+            width: 0 !important;
+            overflow: hidden !important;
+            visibility: hidden !important;
+        }
+
+        body[data-sidebar="hidden"] .topbar-custom {
+            left: 0 !important;
+        }
+
+        body[data-sidebar="hidden"] .content-page {
+            margin-left: 0 !important;
         }
 
         body[data-sidebar="hidden"] .logo-box,
@@ -193,7 +253,7 @@
                     <div class="logo-box">
                         <a href="{{ route('mobile-ops.dashboard') }}" class="logo">
                             <span class="logo-lg">
-                                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" class="sidebar-logo-full"
+                                <img src="{{ asset('assets/images/logo-white.png') }}?v={{ time() }}" class="sidebar-logo-full"
                                     alt="Baba Hajj Group Logo">
                             </span>
                         </a>

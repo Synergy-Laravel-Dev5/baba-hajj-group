@@ -2,38 +2,59 @@
     <div class="topbar-custom">
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center">
-                <ul class="list-unstyled topnav-menu mb-0 d-flex align-items-center">
-                    <li>
-                        <button class="button-toggle-menu nav-link" aria-label="Toggle Sidebar">
-                            <i data-feather="menu" class="noti-icon"></i>
-                        </button>
-                    </li>
-                    <li class="d-none d-lg-block ms-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge"
-                                style="background: rgba(201, 168, 76, 0.18); color: #F3DC9B; border: 1px solid rgba(201, 168, 76, 0.45); font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 20px; letter-spacing: 0.5px;">
-                                🕋 BABA HAJJ GROUP
-                            </span>
-                            <h5 class="mb-0 text-white fw-bold" style="font-size: 15px; letter-spacing: 0.3px;">
-                                {{ Auth::user()->name ?? 'Admin User' }}
-                            </h5>
+                <!-- Left Nav: Hamburger + Brand Badge + Search -->
+                <div class="d-flex align-items-center gap-2">
+                    <button class="button-toggle-menu nav-link" aria-label="Toggle Sidebar">
+                        <i data-feather="menu" class="noti-icon"></i>
+                    </button>
+
+                    <div class="topbar-portal-pill d-none d-sm-inline-flex ms-1">
+                        <span class="portal-pulse-gold"></span>
+                        <span class="portal-brand-text">BABA HAJJ GROUP</span>
+                        <span class="portal-badge-year">2026</span>
+                    </div>
+
+                    <div class="topbar-search-wrap d-none d-lg-block ms-2">
+                        <form action="{{ route('booking.index') }}" method="GET" class="m-0 position-relative">
+                            <i class="ri-search-line topbar-search-icon"></i>
+                            <input type="text" name="search" class="topbar-search-input" placeholder="Search pilgrims, passport, voucher #...">
+                            <span class="topbar-search-badge">Search</span>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Nav: Date Pill + Portal Link + New Booking + User Profile -->
+                <ul class="list-unstyled topnav-menu mb-0 d-flex align-items-center gap-2">
+                    <li class="d-none d-xl-block">
+                        <div class="topbar-date-pill">
+                            <i class="ri-calendar-event-line text-warning"></i>
+                            <span>{{ date('D, d M Y') }}</span>
+                            <span class="text-muted">•</span>
+                            <span class="topbar-hijri-year">1447H</span>
                         </div>
                     </li>
-                </ul>
 
-                <ul class="list-unstyled topnav-menu mb-0 d-flex align-items-center gap-2">
                     @canany(['mobile_ops_dashboard_view', 'umrah_package_view', 'domestic_package_view', 'international_package_view', 'mobile_ops_inquiry_view', 'gallery_view', 'book_view', 'guideline_view', 'video_view', 'visa_country_view', 'visa_inquiry_view'])
-                    <li class="d-none d-lg-block">
+                    <li class="d-none d-md-block">
                         <div class="position-relative">
                             <a href="{{ route('mobile-ops.dashboard') }}"
-                                class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 me-3"
+                                class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
                                 style="border-radius: 20px; font-weight: 600; padding: 5px 14px; border-color: rgba(16, 185, 129, 0.4);">
                                 <span class="live-pulse-dot"></span>
-                                <span>Mobile App Portal</span>
+                                <span>Mobile Portal</span>
                             </a>
                         </div>
                     </li>
                     @endcanany
+
+                    @can('booking_create')
+                    <li class="d-none d-sm-block">
+                        <a href="{{ route('booking.create') }}" class="btn btn-sm topbar-btn-booking d-inline-flex align-items-center gap-1">
+                            <i class="ri-add-line"></i>
+                            <span>New Booking</span>
+                        </a>
+                    </li>
+                    @endcan
 
                     <li class="dropdown notification-list topbar-dropdown">
                         <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#"
@@ -84,7 +105,7 @@
                     <a class="logo logo-dark" href="{{ route('dashboard') }}">
                         <span class="logo-lg">
                             <span class="sidebar-brand-pill">
-                                <img src="{{ asset('assets/images/baba_hajj_logo_ultra.png') }}?v={{ time() }}"
+                                <img src="{{ asset('assets/images/logo-white.png') }}?v={{ time() }}"
                                     alt="Baba Hajj Group" class="sidebar-logo-full">
                             </span>
                         </span>
@@ -159,13 +180,6 @@
                                     </a>
                                 </li>
                                 @endcan
-                                @can('lead_create')
-                                <li>
-                                    <a class="tp-link" href="{{ route('lead.create') }}">
-                                        Add Lead
-                                    </a>
-                                </li>
-                                @endcan
                             </ul>
                         </div>
                     </li>
@@ -199,14 +213,6 @@
                                     <a class="tp-link {{ request()->routeIs('invoice.index') ? 'active' : '' }}"
                                         href="{{ route('invoice.index') }}">
                                         <span>All Invoices</span>
-                                    </a>
-                                </li>
-                                @endcan
-                                @can('invoice_create')
-                                <li class="{{ request()->routeIs('invoice.create') ? 'menuitem-active' : '' }}">
-                                    <a class="tp-link {{ request()->routeIs('invoice.create') ? 'active' : '' }}"
-                                        href="{{ route('invoice.create') }}">
-                                        <span>+ Create Invoice</span>
                                     </a>
                                 </li>
                                 @endcan

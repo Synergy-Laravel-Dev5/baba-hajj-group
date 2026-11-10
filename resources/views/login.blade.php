@@ -286,34 +286,34 @@
             background: linear-gradient(90deg, #8F6F25 0%, #D4AF37 25%, #F4E5BE 50%, #D4AF37 75%, #8F6F25 100%);
         }
 
-        /* ════ LOGO MEDALLION (COMPACT) ════ */
+        /* ════ LOGO MEDALLION (LUXURY CONTRAST) ════ */
         .logo-medallion {
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .logo-frame {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 3px 14px;
-            background: #FFFFFF;
-            border-radius: 12px;
-            border: 1.5px solid rgba(212, 175, 55, 0.38);
-            box-shadow: 0 4px 14px rgba(11, 20, 36, 0.05), 0 0 0 3px rgba(212, 175, 55, 0.05);
+            padding: 8px 20px;
+            background: #090D16;
+            border-radius: 14px;
+            border: 1.5px solid rgba(212, 175, 55, 0.45);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 0 14px rgba(212, 175, 55, 0.15);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .logo-frame:hover {
             transform: translateY(-2px) scale(1.02);
             border-color: var(--gold-bright);
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.22);
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
         }
 
         .portal-logo-img {
-            height: 48px; /* Compact, razor-sharp & clean */
+            height: 46px; /* Razor-sharp, clean & prominent */
             width: auto;
-            max-width: 170px;
+            max-width: 180px;
             object-fit: contain;
             display: block;
             transition: transform 0.3s ease;
@@ -685,7 +685,7 @@
                 <!-- Logo Medallion Frame (High-Contrast, Clean & Large) -->
                 <div class="logo-medallion">
                     <div class="logo-frame">
-                        <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}?v={{ time() }}"
+                        <img src="{{ asset('assets/images/logo-white.png') }}?v={{ time() }}"
                              alt="Baba Hajj Group (Pvt.) Ltd."
                              class="portal-logo-img">
                     </div>
