@@ -26,11 +26,11 @@
                 <!-- Right Nav: Date Pill + Portal Link + New Booking + User Profile -->
                 <ul class="list-unstyled topnav-menu mb-0 d-flex align-items-center gap-2">
                     <li class="d-none d-xl-block">
-                        <div class="topbar-date-pill">
+                        <div class="topbar-date-pill" title="Islamic Date: {{ current_hijri_date() }}">
                             <i class="ri-calendar-event-line text-warning"></i>
                             <span>{{ date('D, d M Y') }}</span>
                             <span class="text-muted">•</span>
-                            <span class="topbar-hijri-year">1447H</span>
+                            <span class="topbar-hijri-year">{{ current_hijri_year() }}</span>
                         </div>
                     </li>
 
@@ -46,16 +46,6 @@
                         </div>
                     </li>
                     @endcanany
-
-                    @can('booking_create')
-                    <li class="d-none d-sm-block">
-                        <a href="{{ route('booking.create') }}" class="btn btn-sm topbar-btn-booking d-inline-flex align-items-center gap-1">
-                            <i class="ri-add-line"></i>
-                            <span>New Booking</span>
-                        </a>
-                    </li>
-                    @endcan
-
                     <li class="dropdown notification-list topbar-dropdown">
                         <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#"
                             role="button" aria-haspopup="false" aria-expanded="false">
@@ -105,7 +95,7 @@
                     <a class="logo logo-dark" href="{{ route('dashboard') }}">
                         <span class="logo-lg">
                             <span class="sidebar-brand-pill">
-                                <img src="{{ asset('assets/images/logo-white.png') }}?v={{ time() }}"
+                                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}"
                                     alt="Baba Hajj Group" class="sidebar-logo-full">
                             </span>
                         </span>

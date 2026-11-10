@@ -46,8 +46,9 @@
         }
 
         .brand-logo img {
-            max-height: 75px;
+            max-height: 90px;
             width: auto;
+            object-fit: contain;
         }
 
         .brand-title {
@@ -269,7 +270,7 @@
         <!-- Header Branding -->
         <div class="header-brand">
             <div class="brand-logo">
-                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group">
+                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Baba Hajj Group">
             </div>
             <div class="text-end">
                 <div class="brand-title">BABA HAJJ GROUP (PVT) LTD.</div>

@@ -124,7 +124,7 @@
 
                                         <!-- LOGO -->
                                         <div class="mb-4 text-center">
-                                            <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" height="95" style="object-fit:contain; border-radius: 8px;">
+                                            <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" height="95" style="object-fit:contain; border-radius: 8px;">
                                         </div>
 
                                         <!-- TITLE -->

@@ -70,7 +70,7 @@ th, td{
 
 <h3>صفحہ نمبر : 8</h3>
 <h1>اقرار نامہ</h1>
-<h3>برائے حج 2026 ء (1447 ہجری)</h3>
+<h3>برائے حج {{ $booking->package->gregorian_year ?? ($booking->package->year ?? date('Y')) }} ء ({{ $booking->package->hijri_year ?? current_hijri_year(false) }} ہجری)</h3>
 
 میں
 <span style="border-bottom:1px solid #000; display:inline-block; padding-bottom:2px;">

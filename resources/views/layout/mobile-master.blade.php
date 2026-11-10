@@ -29,7 +29,7 @@
             background: #FFFFFF !important;
             border-bottom: 1px solid #E2E8F0 !important;
             box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06) !important;
-            height: 70px !important;
+            height: 88px !important;
             padding: 0 20px !important;
             display: flex !important;
             align-items: center !important;
@@ -108,12 +108,12 @@
 
         /* ── Sidebar Logo Box & Clean Collapse on Deep Black Sidebar ── */
         .logo-box {
-            height: 76px !important;
+            height: 88px !important;
             width: 260px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 8px 16px !important;
+            padding: 6px 12px !important;
             background: #090D16 !important; /* Deep Luxury Black */
             border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -125,18 +125,18 @@
         }
 
         .sidebar-logo-full {
-            height: 56px !important;
-            max-height: 56px !important;
+            height: 74px !important;
+            max-height: 76px !important;
             width: auto !important;
-            max-width: 215px !important;
+            max-width: 235px !important;
             object-fit: contain !important;
             display: block !important;
             margin: 0 auto !important;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5)) !important;
+            filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5)) !important;
         }
 
         .app-sidebar-menu {
-            padding-top: 76px !important;
+            padding-top: 88px !important;
             background: #090D16 !important; /* Deep Luxury Black */
             border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
             transition: all 0.2s ease-out !important;
@@ -253,7 +253,7 @@
                     <div class="logo-box">
                         <a href="{{ route('mobile-ops.dashboard') }}" class="logo">
                             <span class="logo-lg">
-                                <img src="{{ asset('assets/images/logo-white.png') }}?v={{ time() }}" class="sidebar-logo-full"
+                                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" class="sidebar-logo-full"
                                     alt="Baba Hajj Group Logo">
                             </span>
                         </a>

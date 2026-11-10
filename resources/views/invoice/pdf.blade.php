@@ -202,6 +202,8 @@
     $logoSrc = '';
     if ($company && $company->logo && file_exists(public_path('assets/images/logo/' . $company->logo))) {
         $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('assets/images/logo/' . $company->logo)));
+    } elseif (file_exists(public_path('assets/images/logo.png'))) {
+        $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('assets/images/logo.png')));
     } elseif (file_exists(public_path('assets/images/logo/logo.png'))) {
         $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('assets/images/logo/logo.png')));
     }

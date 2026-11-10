@@ -18,6 +18,7 @@
         $agencyPhone = $booking->emergency_phone ?? ($booking->phone ?? '+92 300 0000000');
         $saudiHelpline = '911 / 1966';
         $packageYear = $booking->package_year ?? date('Y');
+        $hijriYear = !empty($booking->package->hijri_year) ? (str_ends_with(strtoupper($booking->package->hijri_year), 'H') ? $booking->package->hijri_year : $booking->package->hijri_year . 'H') : current_hijri_year();
     @endphp
 
     <style>
@@ -218,9 +219,9 @@
         }
 
         .badge-logo-img {
-            height: 36px;
+            height: 48px;
             width: auto;
-            max-width: 44px;
+            max-width: 65px;
             object-fit: contain;
             filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
         }
@@ -639,7 +640,7 @@
                 <!-- Header -->
                 <div class="badge-header-wrapper">
                     <div class="badge-brand-plate">
-                        <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group" class="badge-logo-img" onerror="this.src='{{ asset('assets/images/logo.png') }}'">
+                        <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Baba Hajj Group" class="badge-logo-img">
                         <div class="badge-brand-text">
                             <div class="badge-brand-title">{{ $appName }}</div>
                             <div class="badge-brand-sub">VIP HAJJ MANIFEST PORTAL</div>
@@ -647,7 +648,7 @@
                     </div>
                     <div class="badge-vip-ribbon">
                         <span class="vip-ribbon-title">
-                            <i class="mdi mdi-kaaba text-warning"></i> VIP HAJJ PASS · {{ $packageYear }} / 1447H
+                            <i class="mdi mdi-kaaba text-warning"></i> VIP HAJJ PASS · {{ $packageYear }} / {{ $hijriYear }}
                         </span>
                         <span class="vip-ribbon-badge">OFFICIAL</span>
                     </div>

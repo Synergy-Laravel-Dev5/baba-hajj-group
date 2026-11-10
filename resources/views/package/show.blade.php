@@ -827,7 +827,7 @@
         <header class="flyer-header">
             <!-- Left Official Logo (No duplicate / No background clash) -->
             <div class="header-brand-wrap">
-                <img src="{{ asset('assets/images/baba_hajj_logo_ultra.png') }}?v={{ time() }}"
+                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}"
                      alt="Baba Group of Companies" class="header-brand-logo">
             </div>
 

@@ -132,11 +132,11 @@
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold">Hijri Year</label>
-                                    <input type="text" name="hijri_year" class="form-control" placeholder="e.g. 1448" value="{{ old('hijri_year') }}">
+                                    <input type="text" name="hijri_year" class="form-control" placeholder="e.g. {{ current_hijri_year(false) }}" value="{{ old('hijri_year', current_hijri_year(false)) }}">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label fw-bold">Gregorian Year</label>
-                                    <input type="text" name="gregorian_year" class="form-control" placeholder="e.g. 2027" value="{{ old('gregorian_year') }}">
+                                    <input type="text" name="gregorian_year" class="form-control" placeholder="e.g. {{ date('Y') }}" value="{{ old('gregorian_year', date('Y')) }}">
                                 </div>
                             </div>
 

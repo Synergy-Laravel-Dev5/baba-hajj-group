@@ -296,3 +296,111 @@ if (!function_exists('formatDateTime')) {
         }
     }
 }
+
+if (!function_exists('current_hijri_year')) {
+    /**
+     * Get dynamic Hijri Year (e.g. '1448H' or '1448')
+     */
+    function current_hijri_year($withSuffix = true, $date = null)
+    {
+        try {
+            $timestamp = $date ? (is_numeric($date) ? (int)$date : strtotime($date)) : time();
+            if (!$timestamp) {
+                $timestamp = time();
+            }
+
+            $suffix = $withSuffix ? 'H' : '';
+
+            // 1. Primary: PHP IntlDateFormatter with Islamic Umm al-Qura calendar (Official Saudi/Hajj standard)
+            if (class_exists('\IntlDateFormatter')) {
+                try {
+                    $fmt = new \IntlDateFormatter(
+                        'en_US@calendar=islamic-umalqura',
+                        \IntlDateFormatter::FULL,
+                        \IntlDateFormatter::NONE,
+                        'Asia/Riyadh',
+                        \IntlDateFormatter::TRADITIONAL,
+                        'y'
+                    );
+                    $year = $fmt->format($timestamp);
+                    if ($year && is_numeric($year)) {
+                        return $year . $suffix;
+                    }
+                } catch (\Throwable $e) {}
+            }
+
+            // 2. High-accuracy mathematical calculation fallback (Gregorian to Hijri)
+            $gYear  = (int)date('Y', $timestamp);
+            $gMonth = (int)date('m', $timestamp);
+            $gDay   = (int)date('d', $timestamp);
+
+            if (function_exists('gregoriantojd')) {
+                $jd = gregoriantojd($gMonth, $gDay, $gYear);
+            } else {
+                $a = (int)((14 - $gMonth) / 12);
+                $y = $gYear + 4800 - $a;
+                $m = $gMonth + 12 * $a - 3;
+                $jd = $gDay + (int)((153 * $m + 2) / 5) + 365 * $y + (int)($y / 4) - (int)($y / 100) + (int)($y / 400) - 32045;
+            }
+
+            $l = $jd - 1948440 + 10632;
+            $n = (int)(($l - 1) / 10631);
+            $l = $l - 10631 * $n + 354;
+            $j = ((int)((10985 - $l) / 5316)) * ((int)((50 * $l) / 17719)) + ((int)($l / 5670)) * ((int)((43 * $l) / 15238));
+            $l = $l - ((int)((30 - $j) / 15)) * ((int)((17719 * $j) / 50)) - ((int)($j / 16)) * ((int)((15238 * $j) / 43)) + 29;
+            $hYear = (int)(30 * $n + $j - 30);
+
+            return $hYear . $suffix;
+        } catch (\Throwable $e) {
+            $year = (int)date('Y');
+            $hYear = round(($year - 622) * (33 / 32));
+            return $hYear . ($withSuffix ? 'H' : '');
+        }
+    }
+}
+
+if (!function_exists('hijri_year')) {
+    /**
+     * Alias for current_hijri_year
+     */
+    function hijri_year($withSuffix = true, $date = null)
+    {
+        return current_hijri_year($withSuffix, $date);
+    }
+}
+
+if (!function_exists('current_hijri_date')) {
+    /**
+     * Get current or given date's full Hijri date string (e.g. '30 Jumada I 1448')
+     */
+    function current_hijri_date($date = null, $format = 'd MMMM y')
+    {
+        try {
+            $timestamp = $date ? (is_numeric($date) ? (int)$date : strtotime($date)) : time();
+            if (!$timestamp) {
+                $timestamp = time();
+            }
+
+            if (class_exists('\IntlDateFormatter')) {
+                try {
+                    $fmt = new \IntlDateFormatter(
+                        'en_US@calendar=islamic-umalqura',
+                        \IntlDateFormatter::FULL,
+                        \IntlDateFormatter::NONE,
+                        'Asia/Riyadh',
+                        \IntlDateFormatter::TRADITIONAL,
+                        $format
+                    );
+                    $res = $fmt->format($timestamp);
+                    if ($res) {
+                        return $res;
+                    }
+                } catch (\Throwable $e) {}
+            }
+
+            return current_hijri_year(true, $timestamp);
+        } catch (\Throwable $e) {
+            return current_hijri_year(true, $date);
+        }
+    }
+}

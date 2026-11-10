@@ -58,7 +58,7 @@
                 <h1>{{ $group->group_name }}</h1>
             </div>
             <div class="sheet-logo">
-                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Logo" onerror="this.style.display='none'">
+                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Logo" onerror="this.style.display='none'">
             </div>
         </div>
 

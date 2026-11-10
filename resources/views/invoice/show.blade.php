@@ -83,6 +83,8 @@
                                     <div class="mb-3">
                                         @if($company && $company->logo && file_exists(public_path('assets/images/logo/' . $company->logo)))
                                             <img src="{{ asset('assets/images/logo/' . $company->logo) }}" alt="Logo" style="max-height: 60px; width: auto;" class="img-fluid">
+                                        @elseif(file_exists(public_path('assets/images/logo.png')))
+                                            <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Logo" style="max-height: 60px; width: auto;" class="img-fluid">
                                         @elseif(file_exists(public_path('assets/images/logo/logo.png')))
                                             <img src="{{ asset('assets/images/logo/logo.png') }}" alt="Logo" style="max-height: 60px; width: auto;" class="img-fluid">
                                         @else

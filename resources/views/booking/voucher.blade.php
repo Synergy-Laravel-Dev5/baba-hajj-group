@@ -62,14 +62,14 @@
         }
 
         .voucher-logo-box {
-            width: 105px;
+            width: 160px;
             flex-shrink: 0;
         }
 
         .voucher-logo-box img {
-            width: 95px;
+            width: 150px;
             height: auto;
-            max-height: 85px;
+            max-height: 95px;
             object-fit: contain;
             display: block;
         }
@@ -543,7 +543,7 @@
             {{-- 1. HEADER --}}
             <div class="voucher-header">
                 <div class="voucher-logo-box">
-                    <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group">
+                    <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Baba Hajj Group">
                 </div>
                 <div class="voucher-company-info text-start">
                     <div class="company-title">{{ $companyName }}</div>

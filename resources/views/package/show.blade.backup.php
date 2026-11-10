@@ -786,7 +786,7 @@
                 <div class="header-center-col">
                     <div class="brand-top-row">
                         <div class="brand-crest-box">
-                            <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Crest" class="brand-crest-img">
+                            <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Baba Hajj Crest" class="brand-crest-img">
                             <div class="brand-gl-number">{{ $package->company->gl_no ?? 'G.L. # 2990' }}</div>
                         </div>
                         <div class="brand-name-box">

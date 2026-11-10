@@ -230,7 +230,7 @@
 
             {{-- Header --}}
             <div class="invoice-header text-center">
-                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" height="100">
+                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" height="100">
                 <p class="company-address-ar mb-0">شركــة إعـمـار الضیافــة الفندقیــة</p>
             </div>
 

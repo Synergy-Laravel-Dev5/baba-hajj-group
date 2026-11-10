@@ -499,7 +499,7 @@
         {{-- Topbar --}}
         <header class="topbar">
             <div class="logo">
-                <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group" style="height: 38px; width: auto; object-fit: contain;">
+                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Baba Hajj Group" style="height: 38px; width: auto; object-fit: contain;">
                 <div>
                     <div class="logo-name">Baba Hajj Group</div>
                     <div class="logo-sub">Management Portal</div>

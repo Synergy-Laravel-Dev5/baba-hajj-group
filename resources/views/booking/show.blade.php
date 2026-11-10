@@ -108,8 +108,9 @@
         }
 
         .bar-logo-img {
-            height: 44px;
+            height: 62px;
             width: auto;
+            max-width: 200px;
             object-fit: contain;
         }
 
@@ -801,7 +802,7 @@
     <!-- ══════════════ TOP ACTION BAR ══════════════ -->
     <header class="top-action-bar no-print">
         <div class="bar-brand">
-            <img src="{{ asset('assets/images/BABA HAJJ GROUP LOGO.png') }}" alt="Baba Hajj Group" class="bar-logo-img" onerror="this.src='{{ asset('assets/images/logo.png') }}'">
+            <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Baba Hajj Group" class="bar-logo-img">
             <div class="bar-brand-text">
                 <h2>Baba Hajj Group</h2>
                 <p>Booking Management & Manifest Portal</p>
