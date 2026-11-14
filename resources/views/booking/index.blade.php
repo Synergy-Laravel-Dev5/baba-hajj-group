@@ -24,19 +24,11 @@
                             <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
 
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <h5 class="mb-0 me-2">{{ ucfirst($package) }} Booking List</h5>
+                                    <h5 class="mb-0 me-2">Hajj Booking List</h5>
 
-                                    {{-- Hajj / Umrah Filter Pills --}}
-                                    <div class="btn-group btn-group-sm me-2" role="group">
-                                        <a href="{{ route('booking.index', ['package' => 'hajj']) }}"
-                                           class="btn {{ $package === 'hajj' ? 'btn-warning text-dark fw-bold' : 'btn-outline-secondary' }}">
-                                            <i class="mdi mdi-kaaba me-1"></i>Hajj ({{ $hajjCount ?? 0 }})
-                                        </a>
-                                        <a href="{{ route('booking.index', ['package' => 'umrah']) }}"
-                                           class="btn {{ $package === 'umrah' ? 'btn-success text-white fw-bold' : 'btn-outline-secondary' }}">
-                                            <i class="mdi mdi-mosque me-1"></i>Umrah ({{ $umrahCount ?? 0 }})
-                                        </a>
-                                    </div>
+                                    <span class="badge bg-warning-subtle text-dark border border-warning-subtle fs-12 px-2 py-1">
+                                        <i class="mdi mdi-kaaba me-1"></i>Hajj
+                                    </span>
 
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-12 px-2 py-1">
                                         <i class="mdi mdi-book-open-outline me-1"></i>Total Bookings: <strong>{{ $bookings->count() }}</strong>
@@ -49,9 +41,9 @@
                                 <div class="d-flex gap-2">
 
                                     @can('booking_create')
-                                        <a href="{{ route('booking.create', ['package_type' => $package]) }}"
+                                        <a href="{{ route('booking.create', ['package_type' => 'hajj']) }}"
                                             class="btn btn-primary btn-sm d-flex gap-1 align-items-center">
-                                            <i class="mdi mdi-plus"></i> Add {{ ucfirst($package) }} Booking
+                                            <i class="mdi mdi-plus"></i> Add Booking
                                         </a>
                                     @endcan
                                     @can('booking_trash_view')
@@ -115,9 +107,13 @@
 
                                                     <td>
                                                         <strong>
-                                                            {{ $booking->booking_for === 'company' ? $booking->company->name ?? 'N/A' : $booking->client->name ?? 'N/A' }}
+                                                            {{ $booking->client->name ?? ($booking->company->company_name ?? 'N/A') }}
                                                         </strong>
-                                                        @if ($booking->booking_for === 'company')
+                                                        @if ($booking->company ?? $booking->client?->referral)
+                                                            <div class="text-muted" style="font-size: 11px;">
+                                                                <i class="mdi mdi-account-tie"></i> Ref: {{ ($booking->company ?? $booking->client?->referral)->company_name }}
+                                                            </div>
+                                                        @elseif ($booking->booking_for === 'company')
                                                             <span class="badge bg-secondary ms-1"
                                                                 style="font-size:10px;">Company</span>
                                                         @endif
@@ -170,6 +166,13 @@
                                                                     <i class="mdi mdi-eye"></i>
                                                                 </a>
                                                             @endcan
+
+                                                            <!-- CLIENT INVOICE -->
+                                                            <a href="{{ route('booking.invoice', $booking->id) }}"
+                                                                target="_blank" class="btn btn-sm btn-outline-info"
+                                                                title="Client Invoice & Statement">
+                                                                <i class="mdi mdi-receipt-text-outline"></i>
+                                                            </a>
 
                                                             <!-- EDIT -->
                                                             @can('booking_edit')

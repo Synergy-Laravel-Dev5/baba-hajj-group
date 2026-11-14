@@ -20,20 +20,13 @@ class PackageController extends Controller
     public function index(Request $request)
     {
         $this->authorize('package_view');
-        $package = strtolower($request->get('package', session('dashboard_package', 'hajj')));
-        if (!in_array($package, ['hajj', 'umrah'])) {
-            $package = 'hajj';
-        }
-        session(['dashboard_package' => $package]);
+        $package = 'hajj';
+        session(['dashboard_package' => 'hajj']);
 
-        $packages = Package::where(function ($q) use ($package) {
-            if ($package === 'hajj') {
-                $q->where('package_type', 'hajj')
-                  ->orWhereNull('package_type')
-                  ->orWhere('package_type', '');
-            } else {
-                $q->where('package_type', 'umrah');
-            }
+        $packages = Package::where(function ($q) {
+            $q->where('package_type', 'hajj')
+              ->orWhereNull('package_type')
+              ->orWhere('package_type', '');
         })->latest()->paginate(20);
 
         $hajjCount = Package::where(function ($q) {
@@ -42,20 +35,50 @@ class PackageController extends Controller
               ->orWhere('package_type', '');
         })->count();
 
-        $umrahCount = Package::where('package_type', 'umrah')->count();
-
-        $trashCount = Package::onlyTrashed()->where(function ($q) use ($package) {
-            if ($package === 'hajj') {
-                $q->where('package_type', 'hajj')
-                  ->orWhereNull('package_type')
-                  ->orWhere('package_type', '');
-            } else {
-                $q->where('package_type', 'umrah');
-            }
+        $trashCount = Package::onlyTrashed()->where(function ($q) {
+            $q->where('package_type', 'hajj')
+              ->orWhereNull('package_type')
+              ->orWhere('package_type', '');
         })->count();
 
-        return view('package.index', compact('packages', 'trashCount', 'package', 'hajjCount', 'umrahCount'));
+        return view('package.index', compact('packages', 'trashCount', 'package', 'hajjCount'));
     }
+
+    public function getNextCode(Request $request)
+    {
+        $prefix = strtoupper(trim($request->get('prefix', '')));
+        if (!$prefix) {
+            return response()->json(['code' => '', 'next_number' => '01']);
+        }
+
+        $basePrefix = preg_replace('/\d+$/', '', $prefix);
+        if ($basePrefix === '') {
+            $basePrefix = $prefix;
+        }
+
+        $existingCodes = Package::where('code', 'LIKE', $basePrefix . '%')
+            ->pluck('code');
+
+        $maxNum = 0;
+        foreach ($existingCodes as $c) {
+            if (preg_match('/^' . preg_quote($basePrefix, '/') . '(\d+)$/i', trim($c), $m)) {
+                $num = (int)$m[1];
+                if ($num > $maxNum) {
+                    $maxNum = $num;
+                }
+            }
+        }
+
+        $nextNum = str_pad($maxNum + 1, 2, '0', STR_PAD_LEFT);
+        $fullCode = $basePrefix . $nextNum;
+
+        return response()->json([
+            'prefix' => $basePrefix,
+            'next_number' => $nextNum,
+            'code' => $fullCode,
+        ]);
+    }
+
     public function create()
     {
         $this->authorize('package_create');
@@ -231,6 +254,7 @@ class PackageController extends Controller
             'qurbani_charges' => 'nullable|numeric|min:0',
             'qurbani_note' => 'nullable|string',
 
+            'price_sharing' => 'nullable|numeric|min:0',
             'maktab_c_quad_pkr' => 'nullable|numeric|min:0',
             'maktab_c_quad_usd' => 'nullable|numeric|min:0',
             'maktab_c_triple_pkr' => 'nullable|numeric|min:0',

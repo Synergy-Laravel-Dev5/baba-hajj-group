@@ -22,35 +22,27 @@ class BookingController extends Controller
     public function index(Request $request)
     {
         $this->authorize('booking_view');
-        $package = strtolower($request->get('package', session('dashboard_package', 'hajj')));
-        if (!in_array($package, ['hajj', 'umrah'])) {
-            $package = 'hajj';
-        }
+        $package = 'hajj';
         $year    = (int) $request->get('year', session('dashboard_year', Carbon::now()->year));
 
         // Save selected package context to session
-        session(['dashboard_package' => $package]);
+        session(['dashboard_package' => 'hajj']);
 
         $bookings = Booking::with(['client', 'company', 'package', 'persons'])
-            ->where(function ($q) use ($package) {
-                $q->whereRaw('LOWER(COALESCE(package_type, "hajj")) = ?', [$package]);
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(COALESCE(package_type, "hajj")) = ?', ['hajj']);
             })
             ->orderBy('id', 'asc')
             ->get();
 
-        $hajjCount = Booking::where(function ($q) {
-            $q->whereRaw('LOWER(COALESCE(package_type, "hajj")) = ?', ['hajj']);
-        })->count();
-
-        $umrahCount = Booking::whereRaw('LOWER(package_type) = ?', ['umrah'])->count();
-
+        $hajjCount = $bookings->count();
         $trashCount = Booking::onlyTrashed()->count();
 
         $totalPax = $bookings->sum(function ($b) {
             return max($b->persons->count(), (int)($b->no_of_pax ?: 0));
         });
 
-        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax', 'hajjCount', 'umrahCount'));
+        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax', 'hajjCount'));
     }
 
     public function create(Request $request)
@@ -160,8 +152,8 @@ class BookingController extends Controller
             }
         }
 
-        $clientId  = $request->booking_for === 'client'  ? $request->client_id  : null;
-        $companyId = $request->booking_for === 'company' ? $request->company_id : null;
+        $clientId  = $request->client_id ?: null;
+        $companyId = $request->company_id ?: null;
 
         $packageCost    = (float) ($request->package_cost ?? 0);
         $noOfPax        = max(1, (int) ($request->no_of_pax ?: 1));
@@ -170,6 +162,7 @@ class BookingController extends Controller
         $otherCharges   = (float) ($request->other_charges ?? 0);
         $qurbaniCharges = (float) ($request->qurbani_charges ?? 0);
         $discount       = (float) ($request->discount ?? 0);
+        $commission     = (float) ($request->commission ?? 0);
         $totalReceived  = (float) ($request->total_received ?? 0);
 
         $total = ($packageCost * $noOfPax)
@@ -184,6 +177,7 @@ class BookingController extends Controller
             $request->except(['persons', 'hotels', 'transports', 'visas', 'flight_persons', '_token']),
             [
                 'package_id'      => $request->package_id ?: null,
+                'booking_for'     => 'client',
                 'client_id'       => $clientId,
                 'company_id'      => $companyId,
                 'package_type'    => $request->package_type ?? 'hajj',
@@ -198,6 +192,7 @@ class BookingController extends Controller
                 'flight_charges'  => $flightCharges,
                 'other_charges'   => $otherCharges,
                 'discount'        => $discount,
+                'commission'      => $commission,
                 'total_received'  => $totalReceived,
                 'total_amount'    => $total,
                 'balance'         => $balance,
@@ -482,8 +477,8 @@ class BookingController extends Controller
             }
         }
 
-        $clientId  = $request->booking_for === 'client'  ? $request->client_id  : null;
-        $companyId = $request->booking_for === 'company' ? $request->company_id : null;
+        $clientId  = $request->client_id ?: null;
+        $companyId = $request->company_id ?: null;
 
         $packageCost    = (float) ($request->package_cost ?? 0);
         $noOfPax        = max(1, (int) ($request->no_of_pax ?: 1));
@@ -492,6 +487,7 @@ class BookingController extends Controller
         $otherCharges   = (float) ($request->other_charges ?? 0);
         $qurbaniCharges = (float) ($request->qurbani_charges ?? 0);
         $discount       = (float) ($request->discount ?? 0);
+        $commission     = (float) ($request->commission ?? 0);
         $totalReceived  = (float) ($request->total_received ?? 0);
 
         $total = ($packageCost * $noOfPax)
@@ -517,6 +513,7 @@ class BookingController extends Controller
             ]),
             [
                 'package_id'      => $request->package_id ?: null,
+                'booking_for'     => 'client',
                 'client_id'       => $clientId,
                 'company_id'      => $companyId,
                 'package_type'    => $request->package_type ?? ($booking->package_type ?? 'hajj'),
@@ -531,6 +528,7 @@ class BookingController extends Controller
                 'flight_charges'  => $flightCharges,
                 'other_charges'   => $otherCharges,
                 'discount'        => $discount,
+                'commission'      => $commission,
                 'total_received'  => $totalReceived,
                 'total_amount'    => $total,
                 'balance'         => $balance,
@@ -780,6 +778,29 @@ class BookingController extends Controller
             'visas'
         ]);
         return view('booking.voucher', compact('booking'));
+    }
+
+    public function invoice(Booking $booking)
+    {
+        $this->authorize('booking_show');
+        $booking->load([
+            'client.referral',
+            'company.addresses',
+            'company.contactNumbers',
+            'company.emails',
+            'company.licenses',
+            'package.accommodations',
+            'package.transports',
+            'package.transportFlights',
+            'persons',
+            'hotels',
+            'transports',
+            'visas',
+            'transactions' => function ($q) {
+                $q->where('status', 'confirmed')->orderBy('payment_date', 'asc');
+            }
+        ]);
+        return view('booking.invoice', compact('booking'));
     }
 
     /**

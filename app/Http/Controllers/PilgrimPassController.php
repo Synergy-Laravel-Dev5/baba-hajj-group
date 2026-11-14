@@ -94,6 +94,9 @@ class PilgrimPassController extends Controller
         ])->findOrFail($id);
 
         $booking = $person->booking;
+        if ($booking) {
+            $booking->loadMissing(['package.accommodations']);
+        }
 
         $makkahHotel = $booking->hotels->first(function ($h) {
             $loc = strtolower($h->location ?? '');
@@ -113,6 +116,49 @@ class PilgrimPassController extends Controller
             return str_contains($loc, 'madinah') || str_contains($loc, 'medina') || str_contains($name, 'madinah') || str_contains($name, 'medina');
         });
 
+        // Fallback to package accommodations if booking hotel rows are not assigned
+        if (!$makkahHotel && $booking->package && $booking->package->accommodations) {
+            $acc = $booking->package->accommodations->first(function ($a) {
+                $p = strtolower($a->place ?? '');
+                $h = strtolower($a->package_a_hotel ?? '');
+                return str_contains($p, 'makkah') || str_contains($h, 'makkah');
+            }) ?? $booking->package->accommodations->first();
+            if ($acc && ($acc->package_a_hotel || $acc->place)) {
+                $makkahHotel = (object)[
+                    'hotel_name' => $acc->package_a_hotel ?? $acc->place,
+                    'room_number' => $person->room_number ?? null
+                ];
+            }
+        }
+
+        if (!$aziziaHotel && $booking->package && $booking->package->accommodations) {
+            $acc = $booking->package->accommodations->first(function ($a) {
+                $p = strtolower($a->place ?? '');
+                $h = strtolower($a->package_a_hotel ?? '');
+                return str_contains($p, 'azizia') || str_contains($h, 'azizia') || str_contains($p, 'aziziya');
+            });
+            if ($acc && ($acc->package_a_hotel || $acc->place)) {
+                $aziziaHotel = (object)[
+                    'hotel_name' => $acc->package_a_hotel ?? $acc->place,
+                    'room_number' => null
+                ];
+            }
+        }
+
+        if (!$madinahHotel && $booking->package && $booking->package->accommodations) {
+            $acc = $booking->package->accommodations->first(function ($a) {
+                $p = strtolower($a->place ?? '');
+                $h = strtolower($a->package_a_hotel ?? '');
+                return str_contains($p, 'madinah') || str_contains($h, 'madinah') || str_contains($p, 'medina');
+            });
+            if ($acc && ($acc->package_a_hotel || $acc->place)) {
+                $madinahHotel = (object)[
+                    'hotel_name' => $acc->package_a_hotel ?? $acc->place,
+                    'room_number' => $person->room_number ?? null
+                ];
+            }
+        }
+
         return view('pilgrim.badge', compact('person', 'booking', 'makkahHotel', 'aziziaHotel', 'madinahHotel'));
     }
 
@@ -125,7 +171,7 @@ class PilgrimPassController extends Controller
         $booking = Booking::with([
             'client',
             'company',
-            'package',
+            'package.accommodations',
             'persons',
             'hotels',
             'transports',
@@ -149,6 +195,49 @@ class PilgrimPassController extends Controller
             $name = strtolower($h->hotel_name ?? '');
             return str_contains($loc, 'madinah') || str_contains($loc, 'medina') || str_contains($name, 'madinah') || str_contains($name, 'medina');
         });
+
+        // Fallback to package accommodations if booking hotel rows are not assigned
+        if (!$makkahHotel && $booking->package && $booking->package->accommodations) {
+            $acc = $booking->package->accommodations->first(function ($a) {
+                $p = strtolower($a->place ?? '');
+                $h = strtolower($a->package_a_hotel ?? '');
+                return str_contains($p, 'makkah') || str_contains($h, 'makkah');
+            }) ?? $booking->package->accommodations->first();
+            if ($acc && ($acc->package_a_hotel || $acc->place)) {
+                $makkahHotel = (object)[
+                    'hotel_name' => $acc->package_a_hotel ?? $acc->place,
+                    'room_number' => null
+                ];
+            }
+        }
+
+        if (!$aziziaHotel && $booking->package && $booking->package->accommodations) {
+            $acc = $booking->package->accommodations->first(function ($a) {
+                $p = strtolower($a->place ?? '');
+                $h = strtolower($a->package_a_hotel ?? '');
+                return str_contains($p, 'azizia') || str_contains($h, 'azizia') || str_contains($p, 'aziziya');
+            });
+            if ($acc && ($acc->package_a_hotel || $acc->place)) {
+                $aziziaHotel = (object)[
+                    'hotel_name' => $acc->package_a_hotel ?? $acc->place,
+                    'room_number' => null
+                ];
+            }
+        }
+
+        if (!$madinahHotel && $booking->package && $booking->package->accommodations) {
+            $acc = $booking->package->accommodations->first(function ($a) {
+                $p = strtolower($a->place ?? '');
+                $h = strtolower($a->package_a_hotel ?? '');
+                return str_contains($p, 'madinah') || str_contains($h, 'madinah') || str_contains($p, 'medina');
+            });
+            if ($acc && ($acc->package_a_hotel || $acc->place)) {
+                $madinahHotel = (object)[
+                    'hotel_name' => $acc->package_a_hotel ?? $acc->place,
+                    'room_number' => null
+                ];
+            }
+        }
 
         return view('pilgrim.bulk_badges', compact('booking', 'makkahHotel', 'aziziaHotel', 'madinahHotel'));
     }

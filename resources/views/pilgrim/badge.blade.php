@@ -274,11 +274,12 @@
 
         /* ── Body Section ── */
         .badge-body {
-            padding: 2.5mm 3.2mm;
+            padding: 2.8mm 3.2mm;
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            gap: 1.5mm;
             position: relative;
             z-index: 5;
         }
@@ -288,7 +289,6 @@
             display: flex;
             gap: 2.8mm;
             align-items: center;
-            margin-bottom: 1.5mm;
         }
 
         .photo-container {
@@ -306,10 +306,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
-            font-weight: 900;
-            color: #0c1a2e;
             box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .photo-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            color: #64748b;
         }
 
         .verified-stamp {
@@ -610,8 +616,9 @@
                     @if($pilgrimPhoto)
                         <img src="{{ $pilgrimPhoto }}" alt="{{ $person->full_name }}" class="photo-box">
                     @else
-                        <div class="photo-box">
-                            {{ strtoupper(substr($person->full_name, 0, 1) ?: 'P') }}
+                        <div class="photo-box photo-placeholder">
+                            <i class="mdi mdi-account-circle" style="font-size: 30px; color: #94a3b8; line-height: 1;"></i>
+                            <span style="font-size: 8px; font-weight: 800; color: #0c1a2e; margin-top: 2px;">HAJJI</span>
                         </div>
                     @endif
                     <div class="verified-stamp" title="Verified Pilgrim">
@@ -638,12 +645,17 @@
             </div>
 
             <!-- Accommodation Box -->
+            @if($makkahHotel || $aziziaHotel || $madinahHotel)
             <div class="hotel-summary-box">
                 @if($makkahHotel)
                 <div class="hotel-row">
                     <span class="hotel-loc-tag" style="color:#92400e;"><i class="mdi mdi-kaaba"></i> Makkah:</span>
                     <span class="hotel-name-trunc">{{ $makkahHotel->hotel_name ?? 'Designated Hotel' }}</span>
-                    <span class="room-badge">Rm: {{ $makkahHotel->room_number ?? ($person->room_number ?? '—') }}</span>
+                    @if(!empty($makkahHotel->room_number ?? $person->room_number))
+                        <span class="room-badge">Rm: {{ $makkahHotel->room_number ?? $person->room_number }}</span>
+                    @else
+                        <span class="room-badge" style="background:#f1f5f9; color:#475569; border-color:#cbd5e1;">Reserved</span>
+                    @endif
                 </div>
                 @endif
 
@@ -651,7 +663,11 @@
                 <div class="hotel-row">
                     <span class="hotel-loc-tag" style="color:#0284c7;"><i class="mdi mdi-home-city"></i> Azizia:</span>
                     <span class="hotel-name-trunc">{{ $aziziaHotel->hotel_name ?? 'Azizia Stay' }}</span>
-                    <span class="room-badge">Rm: {{ $aziziaHotel->room_number ?? ($person->room_number ?? '—') }}</span>
+                    @if(!empty($aziziaHotel->room_number ?? $person->room_number))
+                        <span class="room-badge">Rm: {{ $aziziaHotel->room_number ?? $person->room_number }}</span>
+                    @else
+                        <span class="room-badge" style="background:#f1f5f9; color:#475569; border-color:#cbd5e1;">Reserved</span>
+                    @endif
                 </div>
                 @endif
 
@@ -659,10 +675,23 @@
                 <div class="hotel-row">
                     <span class="hotel-loc-tag" style="color:#166534;"><i class="mdi mdi-mosque"></i> Madinah:</span>
                     <span class="hotel-name-trunc">{{ $madinahHotel->hotel_name ?? 'Designated Hotel' }}</span>
-                    <span class="room-badge">Rm: {{ $madinahHotel->room_number ?? ($person->room_number ?? '—') }}</span>
+                    @if(!empty($madinahHotel->room_number ?? $person->room_number))
+                        <span class="room-badge">Rm: {{ $madinahHotel->room_number ?? $person->room_number }}</span>
+                    @else
+                        <span class="room-badge" style="background:#f1f5f9; color:#475569; border-color:#cbd5e1;">Reserved</span>
+                    @endif
                 </div>
                 @endif
             </div>
+            @elseif($booking->package)
+            <div class="hotel-summary-box">
+                <div class="hotel-row">
+                    <span class="hotel-loc-tag" style="color:#92400e;"><i class="mdi mdi-package-variant-closed"></i> Package:</span>
+                    <span class="hotel-name-trunc">{{ $booking->package->package_title ?? $booking->package->name ?? 'Hajj VIP Package' }} ({{ $booking->package->code ?? '—' }})</span>
+                    <span class="room-badge">{{ $booking->camp ?? 'Maktab C' }}</span>
+                </div>
+            </div>
+            @endif
 
             <!-- QR Code & Emergency Help -->
             <div class="qr-emergency-row">

@@ -97,28 +97,18 @@
                         <div class="tab-pane fade show active card-body" id="tab-package">
                             <h5 class="section-subhead">📋 Package Basic Info & Duration</h5>
                             <div class="row g-3 mb-4">
-                                <div class="col-md-3">
-                                    <label class="form-label fw-bold">Referral</label>
-                                    <select name="company_id" class="form-select">
-                                        <option value="">-- Select Referral --</option>
-                                        @foreach ($companies as $company)
-                                            <option value="{{ $company->id }}" {{ old('company_id', $package->company_id) == $company->id ? 'selected' : '' }}>
-                                                {{ $company->company_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label fw-bold">Package #</label>
                                     <input type="text" name="package_number" class="form-control" placeholder="e.g. PKG-2027-01" value="{{ old('package_number', $package->package_number) }}">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label fw-bold">Package Title</label>
                                     <input type="text" name="package_title" class="form-control" placeholder="e.g. HAJJ PACKAGE 1448 - 2027" value="{{ old('package_title', $package->package_title ?? 'HAJJ PACKAGE 1448 - 2027') }}">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label fw-bold">Package Code</label>
-                                    <input type="text" name="code" class="form-control" placeholder="e.g. HJ-27-LS" value="{{ old('code', $package->code) }}">
+                                    <input type="text" name="code" id="package_code_input" class="form-control text-uppercase" placeholder="e.g. ECU01" value="{{ old('code', $package->code) }}">
+                                    <small class="text-muted" style="font-size: 11px;">Type prefix (e.g. ECU) to auto-generate code sequence (ECU01)</small>
                                 </div>
 
                                 <div class="col-md-3">
@@ -191,74 +181,25 @@
 
                             <div class="row g-4 mb-4">
                                 {{-- Maktab C Rates --}}
-                                <div class="col-md-6">
+                                <div class="col-12">
                                     <div class="p-3 border rounded bg-light">
-                                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">📍 MAKTAB C (ZONE 5) RATES</h6>
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Quad / Sharing (PKR)</label>
+                                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">📍 MAKTAB C RATES (PKR)</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-3">
+                                                <label class="form-label small fw-bold">Sharing (PKR)</label>
+                                                <input type="number" name="price_sharing" class="form-control" placeholder="0" value="{{ old('price_sharing', $package->price_sharing ?? '') }}">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label small fw-bold">Quad (PKR)</label>
                                                 <input type="number" name="maktab_c_quad_pkr" class="form-control" placeholder="0" value="{{ old('maktab_c_quad_pkr', $package->maktab_c_quad_pkr ?? ($package->adult_pkr ?? '')) }}">
                                             </div>
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Quad / Sharing (USD $)</label>
-                                                <input type="number" name="maktab_c_quad_usd" class="form-control" placeholder="0" value="{{ old('maktab_c_quad_usd', $package->maktab_c_quad_usd ?? ($package->adult_usd ?? '')) }}">
-                                            </div>
-                                        </div>
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
+                                            <div class="col-md-3">
                                                 <label class="form-label small fw-bold">Triple (PKR)</label>
                                                 <input type="number" name="maktab_c_triple_pkr" class="form-control" placeholder="0" value="{{ old('maktab_c_triple_pkr', $package->maktab_c_triple_pkr ?? '') }}">
                                             </div>
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Triple (USD $)</label>
-                                                <input type="number" name="maktab_c_triple_usd" class="form-control" placeholder="0" value="{{ old('maktab_c_triple_usd', $package->maktab_c_triple_usd ?? '') }}">
-                                            </div>
-                                        </div>
-                                        <div class="row g-2">
-                                            <div class="col-6">
+                                            <div class="col-md-3">
                                                 <label class="form-label small fw-bold">Double (PKR)</label>
                                                 <input type="number" name="maktab_c_double_pkr" class="form-control" placeholder="0" value="{{ old('maktab_c_double_pkr', $package->maktab_c_double_pkr ?? '') }}">
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Double (USD $)</label>
-                                                <input type="number" name="maktab_c_double_usd" class="form-control" placeholder="0" value="{{ old('maktab_c_double_usd', $package->maktab_c_double_usd ?? '') }}">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Maktab A Rates (Optional Comparison) --}}
-                                <div class="col-md-6">
-                                    <div class="p-3 border rounded bg-light">
-                                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">📍 MAKTAB A (ZONE 1 OR 2) RATES (Optional)</h6>
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Quad / Sharing (PKR)</label>
-                                                <input type="number" name="maktab_a_quad_pkr" class="form-control" placeholder="0" value="{{ old('maktab_a_quad_pkr', $package->maktab_a_quad_pkr ?? '') }}">
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Quad / Sharing (USD $)</label>
-                                                <input type="number" name="maktab_a_quad_usd" class="form-control" placeholder="0" value="{{ old('maktab_a_quad_usd', $package->maktab_a_quad_usd ?? '') }}">
-                                            </div>
-                                        </div>
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Triple (PKR)</label>
-                                                <input type="number" name="maktab_a_triple_pkr" class="form-control" placeholder="0" value="{{ old('maktab_a_triple_pkr', $package->maktab_a_triple_pkr ?? '') }}">
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Triple (USD $)</label>
-                                                <input type="number" name="maktab_a_triple_usd" class="form-control" placeholder="0" value="{{ old('maktab_a_triple_usd', $package->maktab_a_triple_usd ?? '') }}">
-                                            </div>
-                                        </div>
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Double (PKR)</label>
-                                                <input type="number" name="maktab_a_double_pkr" class="form-control" placeholder="0" value="{{ old('maktab_a_double_pkr', $package->maktab_a_double_pkr ?? '') }}">
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label small fw-bold">Double (USD $)</label>
-                                                <input type="number" name="maktab_a_double_usd" class="form-control" placeholder="0" value="{{ old('maktab_a_double_usd', $package->maktab_a_double_usd ?? '') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -266,31 +207,19 @@
                             </div>
 
                             {{-- Azizia Separate Room Addon --}}
-                            <h5 class="section-subhead">🏢 Azizia Separate Room Add-On Rates</h5>
+                            <h5 class="section-subhead">🏢 Azizia Separate Room Add-On Rates (PKR)</h5>
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Quad / Sharing (PKR / USD)</label>
-                                    <div class="input-group">
-                                        <input type="number" name="azizia_quad_pkr" class="form-control" placeholder="PKR" value="{{ old('azizia_quad_pkr', $package->azizia_quad_pkr ?? '') }}">
-                                        <span class="input-group-text">$</span>
-                                        <input type="number" name="azizia_quad_usd" class="form-control" placeholder="USD" value="{{ old('azizia_quad_usd', $package->azizia_quad_usd ?? '') }}">
-                                    </div>
+                                    <label class="form-label fw-bold">Quad / Sharing (PKR)</label>
+                                    <input type="number" name="azizia_quad_pkr" class="form-control" placeholder="PKR" value="{{ old('azizia_quad_pkr', $package->azizia_quad_pkr ?? '') }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Triple (PKR / USD)</label>
-                                    <div class="input-group">
-                                        <input type="number" name="azizia_triple_pkr" class="form-control" placeholder="PKR" value="{{ old('azizia_triple_pkr', $package->azizia_triple_pkr ?? '') }}">
-                                        <span class="input-group-text">$</span>
-                                        <input type="number" name="azizia_triple_usd" class="form-control" placeholder="USD" value="{{ old('azizia_triple_usd', $package->azizia_triple_usd ?? '') }}">
-                                    </div>
+                                    <label class="form-label fw-bold">Triple (PKR)</label>
+                                    <input type="number" name="azizia_triple_pkr" class="form-control" placeholder="PKR" value="{{ old('azizia_triple_pkr', $package->azizia_triple_pkr ?? '') }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Double (PKR / USD)</label>
-                                    <div class="input-group">
-                                        <input type="number" name="azizia_double_pkr" class="form-control" placeholder="PKR" value="{{ old('azizia_double_pkr', $package->azizia_double_pkr ?? '') }}">
-                                        <span class="input-group-text">$</span>
-                                        <input type="number" name="azizia_double_usd" class="form-control" placeholder="USD" value="{{ old('azizia_double_usd', $package->azizia_double_usd ?? '') }}">
-                                    </div>
+                                    <label class="form-label fw-bold">Double (PKR)</label>
+                                    <input type="number" name="azizia_double_pkr" class="form-control" placeholder="PKR" value="{{ old('azizia_double_pkr', $package->azizia_double_pkr ?? '') }}">
                                 </div>
                             </div>
 
@@ -739,6 +668,55 @@
             });
         }
 
+        function gregorianToHijri(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length !== 3) return '';
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                const dt = new Date(Date.UTC(y, m, d, 12, 0, 0));
+                if (isNaN(dt.getTime())) return '';
+
+                if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
+                    const fmt = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                    const formattedParts = fmt.formatToParts(dt);
+                    let dayVal = '', monthVal = '', yearVal = '';
+                    for (const p of formattedParts) {
+                        if (p.type === 'day') dayVal = p.value;
+                        if (p.type === 'month') monthVal = p.value;
+                        if (p.type === 'year') yearVal = p.value;
+                    }
+
+                    const mNorm = monthVal.replace(/[ʻ'’]/g, '').trim();
+                    const map = {
+                        'Muharram': 'Muharram',
+                        'Safar': 'Safar',
+                        'Rabi I': 'Rabi-ul-Awwal',
+                        'Rabi II': 'Rabi-us-Sani',
+                        'Jumada I': 'Jamadi-ul-Awwal',
+                        'Jumada II': 'Jamadi-us-Sani',
+                        'Rajab': 'Rajab',
+                        'Shaban': 'Shaban',
+                        'Ramadan': 'Ramadan',
+                        'Shawwal': 'Shawwal',
+                        'Dhul-Qidah': 'Zil Qadh',
+                        'Dhul-Hijjah': 'Zil Hajj'
+                    };
+                    const monthClean = map[mNorm] || mNorm;
+                    return `${dayVal} ${monthClean} ${yearVal}`.trim();
+                }
+                return '';
+            } catch (e) {
+                return '';
+            }
+        }
+
         function bindAccommodationRowEvents(rowEl) {
             const placeSel = rowEl.querySelector('.acc-place-select');
             const placeInput = rowEl.querySelector('.acc-place-input');
@@ -764,6 +742,38 @@
                         hotelInput.value = this.value;
                     }
                 });
+            }
+
+            // Auto Hijri Date Calculation for Arrival & Departure in Stay Schedule
+            const checkInEl = rowEl.querySelector('input[type="date"][name*="[check_in]"]');
+            const arrivalHijriEl = rowEl.querySelector('input[type="text"][name*="[note]"]');
+            const checkOutEl = rowEl.querySelector('input[type="date"][name*="[check_out]"]');
+            const departureHijriEl = rowEl.querySelector('input[type="text"][name*="[sharing]"]');
+
+            if (checkInEl && arrivalHijriEl) {
+                const autoFillArrivalHijri = function() {
+                    if (checkInEl.value) {
+                        const h = gregorianToHijri(checkInEl.value);
+                        if (h) {
+                            arrivalHijriEl.value = h;
+                        }
+                    }
+                };
+                checkInEl.addEventListener('change', autoFillArrivalHijri);
+                checkInEl.addEventListener('input', autoFillArrivalHijri);
+            }
+
+            if (checkOutEl && departureHijriEl) {
+                const autoFillDepartureHijri = function() {
+                    if (checkOutEl.value) {
+                        const h = gregorianToHijri(checkOutEl.value);
+                        if (h) {
+                            departureHijriEl.value = h;
+                        }
+                    }
+                };
+                checkOutEl.addEventListener('change', autoFillDepartureHijri);
+                checkOutEl.addEventListener('input', autoFillDepartureHijri);
             }
 
             // Initial filter if place is preset
@@ -960,5 +970,48 @@
                 }
             }
         });
+
+        // ── AUTO SEQUENCE FOR PACKAGE CODE (e.g. ECU -> ECU01) ──
+        const pkgCodeInput = document.getElementById('package_code_input') || document.querySelector('input[name="code"]');
+        if (pkgCodeInput) {
+            let codeDebounce = null;
+
+            function fetchNextPackageCode(prefixVal) {
+                if (!prefixVal) return;
+                const cleanPrefix = prefixVal.trim().toUpperCase();
+                fetch(`{{ route('package.next-code') }}?prefix=${encodeURIComponent(cleanPrefix)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.code) {
+                            const current = pkgCodeInput.value.trim().toUpperCase();
+                            if (current === cleanPrefix || current === cleanPrefix.replace(/\d+$/, '')) {
+                                pkgCodeInput.value = data.code;
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        if (!/\d+$/.test(cleanPrefix)) {
+                            pkgCodeInput.value = cleanPrefix + '01';
+                        }
+                    });
+            }
+
+            pkgCodeInput.addEventListener('blur', function() {
+                const val = this.value.trim().toUpperCase();
+                if (val && !/\d+$/.test(val)) {
+                    fetchNextPackageCode(val);
+                }
+            });
+
+            pkgCodeInput.addEventListener('input', function() {
+                clearTimeout(codeDebounce);
+                const val = this.value.trim().toUpperCase();
+                if (val && !/\d+$/.test(val) && val.length >= 2) {
+                    codeDebounce = setTimeout(() => {
+                        fetchNextPackageCode(val);
+                    }, 500);
+                }
+            });
+        }
     </script>
 @endsection

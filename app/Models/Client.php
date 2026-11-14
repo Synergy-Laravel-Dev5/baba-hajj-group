@@ -11,6 +11,7 @@ class Client extends Model
 
     protected $fillable = [
         'name',
+        'company_id',
         'company_name',
         'passport_number',
         'cnic',
@@ -20,6 +21,16 @@ class Client extends Model
         'status',
         'package_id'
     ];
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
+
+    public function referral()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
 
     public function bookings()
     {

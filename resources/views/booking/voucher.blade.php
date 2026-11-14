@@ -842,18 +842,9 @@
                         @endforeach
                     @else
                         <tr>
-                            <td class="text-center">
-                                <span class="badge bg-secondary-subtle text-secondary border px-2 py-1" style="font-size:10px; font-weight:700;">
-                                    <i class="bi bi-bus-front me-1"></i>Transfer
-                                </span>
+                            <td colspan="5" class="text-center py-2 text-muted" style="font-size:10px;">
+                                <em>No dedicated transportation scheduled for this booking (Self / Private arrangement).</em>
                             </td>
-                            <td class="text-center">Complete</td>
-                            <td>
-                                <div class="fw-bold text-dark">JEDDAH - MAKKAH - MADINAH - AIRPORT TRANSFERS & ZIYARAT</div>
-                                <div class="text-muted" style="font-size:9.5px;">Complete ground transport as per package itinerary</div>
-                            </td>
-                            <td class="text-center text-muted">—</td>
-                            <td class="text-center"><span class="badge-confirm">Confirmed</span></td>
                         </tr>
                     @endif
                 </tbody>

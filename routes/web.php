@@ -145,6 +145,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('trash',        'trash')->name('booking.trash');
                 Route::get('restore/{id}', 'restore')->name('booking.restore');
                 Route::get('voucher/{booking}', 'voucher')->name('booking.voucher');
+                Route::get('invoice/{booking}', 'invoice')->name('booking.invoice');
                 Route::delete('{booking}/person/{person}', 'deletePerson')->name('booking.person.delete');
             });
 
@@ -328,6 +329,7 @@ Route::middleware('auth')->group(function () {
         Route::controller(PackageController::class)
             ->prefix('package')->group(function () {
                 Route::get('/', 'index')->name('package.index');
+                Route::get('next-code', 'getNextCode')->name('package.next-code');
                 Route::get('create', 'create')->name('package.create');
                 Route::post('store', 'store')->name('package.store');
                 Route::get('edit/{id}', 'edit')->name('package.edit');

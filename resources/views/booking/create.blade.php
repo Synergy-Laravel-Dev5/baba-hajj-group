@@ -112,30 +112,15 @@
                             <div class="row g-3">
 
                                 {{-- BOOKING FOR TOGGLE --}}
-                                <div class="col-md-12 mb-2">
-                                    <label class="form-label d-block">Booking For <span
-                                            class="text-danger">*</span></label>
-                                    <div class="d-flex gap-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="booking_for"
-                                                id="for_client" value="client" checked>
-                                            <label class="form-check-label" for="for_client">Client</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="booking_for"
-                                                id="for_company" value="company">
-                                            <label class="form-check-label" for="for_company">Referral</label>
-                                        </div>
-                                    </div>
-                                </div>
+                                <input type="hidden" name="booking_for" id="for_client" value="client">
 
                                 {{-- CLIENT BLOCK --}}
-                                <div class="col-md-6" id="clientBlock">
-                                    <label class="form-label">Client <span class="text-danger">*</span></label>
+                                <div class="col-md-4" id="clientBlock">
+                                    <label class="form-label fw-bold">Client <span class="text-danger">*</span></label>
                                     <select name="client_id" id="clientSelect" class="form-select" data-placeholder="-- Search & Select Client --" required>
                                         <option value="">-- Search & Select Client --</option>
                                         @foreach ($clients as $c)
-                                            <option value="{{ $c->id }}">
+                                            <option value="{{ $c->id }}" data-company-id="{{ $c->company_id }}">
                                                 {{ $c->name }}{{ $c->company_name ? ' (' . $c->company_name . ')' : '' }}{{ $c->phone ? ' - ' . $c->phone : '' }}
                                             </option>
                                         @endforeach
@@ -143,23 +128,24 @@
                                 </div>
 
                                 {{-- COMPANY / REFERRAL BLOCK --}}
-                                <div class="col-md-6 d-none" id="companyBlock">
-                                    <label class="form-label">Referral <span class="text-danger">*</span></label>
+                                <div class="col-md-4" id="companyBlock">
+                                    <label class="form-label fw-bold">Referral</label>
                                     <select name="company_id" id="companySelect" class="form-select" data-placeholder="-- Search & Select Referral --">
                                         <option value="">-- Search & Select Referral --</option>
                                         @foreach ($companies as $co)
                                             <option value="{{ $co->id }}">{{ $co->company_name }}</option>
                                         @endforeach
                                     </select>
+                                    {{-- <small class="text-muted" style="font-size:11px;">Auto-selected from Client's Referral (can be changed manually)</small> --}}
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label">No of Pax <span class="text-danger">*</span></label>
                                     <input type="number" name="no_of_pax" id="no_of_pax" class="form-control"
                                         value="1" min="1" required>
-                                    <small class="text-muted">Auto-calculated from Room Sharing Pax</small>
+                                    {{-- <small class="text-muted">Auto-calculated from Room Sharing Pax</small> --}}
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label">Care Of</label>
                                     <input type="text" name="care_of" class="form-control"
                                         placeholder="Guardian / Agent">
@@ -182,8 +168,8 @@
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label">Emergency Phone</label>
-                                    <input type="text" name="emergency_phone" class="form-control"
+                                    <label class="form-label">Payment Contact</label>
+                                    <input type="text" name="Payment_Contact" class="form-control"
                                         placeholder="+92 300 0000000">
                                 </div>
                                 <div class="col-md-4">
@@ -191,10 +177,10 @@
                                     <input type="text" name="voucher_number" class="form-control"
                                         placeholder="VCH-XXXX">
                                 </div>
-                                <div class="col-md-4">
+                                {{-- <div class="col-md-4">
                                     <label class="form-label">Card Number</label>
                                     <input type="text" name="card_number" class="form-control">
-                                </div>
+                                </div> --}}
                                 <div class="col-md-12">
                                     <label class="form-label">Remarks / Special Notes</label>
                                     <textarea name="remarks" class="form-control" rows="2" placeholder="Special requests, instructions, booking remarks...">{{ old('remarks') }}</textarea>
@@ -991,6 +977,12 @@
                                     <input type="number" name="other_charges" id="other_charges"
                                         class="form-control calc" placeholder="Enter other charges" step="0.01" value="{{ old('other_charges', 0) }}">
                                 </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold text-info"><i class="mdi mdi-handshake me-1"></i>Commission</label>
+                                    <input type="number" name="commission" id="commission"
+                                        class="form-control calc fw-bold text-info" placeholder="0.00" step="0.01" value="{{ old('commission', 0) }}">
+                                    <small class="text-muted">Referral Commission</small>
+                                </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold text-danger"><i class="mdi mdi-tag-minus me-1"></i>Discount (Minus)</label>
                                     <input type="number" name="discount" id="discount"
@@ -1009,6 +1001,7 @@
                                                     <th>Flight</th>
                                                     <th>Qurbani</th>
                                                     <th>Other</th>
+                                                    <th class="text-info">Commission</th>
                                                     <th class="text-danger">Discount (-)</th>
                                                     <th class="text-success">Total</th>
                                                 </tr>
@@ -1021,6 +1014,7 @@
                                                     <td id="sum_flight">0.00</td>
                                                     <td id="sum_qurbani">0.00</td>
                                                     <td id="sum_other">0.00</td>
+                                                    <td class="text-info fw-bold" id="sum_commission">0.00</td>
                                                     <td class="text-danger fw-bold" id="sum_discount">0.00</td>
                                                     <td class="text-success fw-bold" id="sum_total">0.00</td>
                                                 </tr>
@@ -1216,44 +1210,13 @@
         // ═══════════════════════════════════════
         // BOOKING FOR TOGGLE (client / company)
         // ═══════════════════════════════════════
-        const forClient = document.getElementById('for_client');
-        const forCompany = document.getElementById('for_company');
-        const clientBlock = document.getElementById('clientBlock');
-        const companyBlock = document.getElementById('companyBlock');
         const clientSelect = document.getElementById('clientSelect');
         const companySelect = document.getElementById('companySelect');
         const personsNote = document.getElementById('personsBookingForNote');
 
         function isCompanyMode() {
-            return forCompany.checked;
+            return false;
         }
-
-        function toggleBookingFor() {
-            if (forClient.checked) {
-                clientBlock.classList.remove('d-none');
-                companyBlock.classList.add('d-none');
-                clientSelect.setAttribute('required', 'required');
-                companySelect.removeAttribute('required');
-                companySelect.value = '';
-                $(companySelect).val('').trigger('change.select2');
-                personsNote.classList.add('d-none');
-            } else {
-                companyBlock.classList.remove('d-none');
-                clientBlock.classList.add('d-none');
-                companySelect.setAttribute('required', 'required');
-                clientSelect.removeAttribute('required');
-                clientSelect.value = '';
-                $(clientSelect).val('').trigger('change.select2');
-                document.getElementById('fill_passport').value = '';
-                document.getElementById('fill_cnic').value = '';
-                document.getElementById('fill_phone').value = '';
-                personsNote.classList.remove('d-none');
-            }
-            rebuildPersons();
-        }
-
-        forClient.addEventListener('change', toggleBookingFor);
-        forCompany.addEventListener('change', toggleBookingFor);
 
         // ═══════════════════════════════════════
         // TAB NAVIGATION
@@ -1279,7 +1242,7 @@
         });
 
         // ═══════════════════════════════════════
-        // CLIENT SELECT → AUTO FILL
+        // CLIENT SELECT → AUTO FILL & AUTO REFERRAL
         // ═══════════════════════════════════════
         function handleClientChange() {
             const id = parseInt(clientSelect.value);
@@ -1288,6 +1251,12 @@
                 document.getElementById('fill_passport').value = client.passport_number || '';
                 document.getElementById('fill_cnic').value = client.cnic || '';
                 document.getElementById('fill_phone').value = client.phone || '';
+
+                // Auto-select Client's Referral
+                if (client.company_id && companySelect) {
+                    companySelect.value = client.company_id;
+                    $(companySelect).val(client.company_id).trigger('change.select2');
+                }
             } else {
                 document.getElementById('fill_passport').value = '';
                 document.getElementById('fill_cnic').value = '';
@@ -1664,11 +1633,71 @@
         }
 
         // ═══════════════════════════════════════
+        // HIJRI DATE CONVERSION HELPER
+        // ═══════════════════════════════════════
+        function gregorianToHijri(dateStr) {
+            if (!dateStr) return '';
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length !== 3) return '';
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                const dt = new Date(Date.UTC(y, m, d, 12, 0, 0));
+                if (isNaN(dt.getTime())) return '';
+
+                if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
+                    const fmt = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                    const formattedParts = fmt.formatToParts(dt);
+                    let dayVal = '', monthVal = '', yearVal = '';
+                    for (const p of formattedParts) {
+                        if (p.type === 'day') dayVal = p.value;
+                        if (p.type === 'month') monthVal = p.value;
+                        if (p.type === 'year') yearVal = p.value;
+                    }
+
+                    const mNorm = monthVal.replace(/[ʻ'’]/g, '').trim();
+                    const map = {
+                        'Muharram': 'Muharram',
+                        'Safar': 'Safar',
+                        'Rabi I': 'Rabi-ul-Awwal',
+                        'Rabi II': 'Rabi-us-Sani',
+                        'Jumada I': 'Jamadi-ul-Awwal',
+                        'Jumada II': 'Jamadi-us-Sani',
+                        'Rajab': 'Rajab',
+                        'Shaban': 'Shaban',
+                        'Ramadan': 'Ramadan',
+                        'Shawwal': 'Shawwal',
+                        'Dhul-Qidah': 'Zil Qadh',
+                        'Dhul-Hijjah': 'Zil Hajj'
+                    };
+                    const monthClean = map[mNorm] || mNorm;
+                    return `${dayVal} ${monthClean} ${yearVal}`.trim();
+                }
+                return '';
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function isHotelMatch(hName, selectedHotel) {
+            if (!hName || !selectedHotel) return false;
+            const cleanH = hName.replace(/\(.*?\)/g, '').trim().toLowerCase();
+            const cleanSel = selectedHotel.replace(/\(.*?\)/g, '').trim().toLowerCase();
+            return cleanH === cleanSel || cleanH.includes(cleanSel) || cleanSel.includes(cleanH);
+        }
+
+        // ═══════════════════════════════════════
         // DYNAMIC HOTEL CRUD SELECTION & FILTER
         // ═══════════════════════════════════════
         function buildHotelOptions(placeFilter = '', selectedHotel = '') {
             let opts = `<option value="">-- Select from Hotel CRUD --</option>`;
             const filter = (placeFilter || '').toLowerCase().trim();
+            let hasMatch = false;
             hotelsData.forEach(h => {
                 const hPlace = (h.place || '').toLowerCase();
                 let match = true;
@@ -1678,11 +1707,15 @@
                     else if (filter === 'azizia') match = hPlace.includes('azizia');
                     else if (filter === 'mina') match = hPlace.includes('mina') || hPlace.includes('arafat') || hPlace.includes('hajj');
                 }
-                const selected = (selectedHotel && (h.name.toLowerCase() === selectedHotel.toLowerCase())) ? 'selected' : '';
-                opts += `<option value="${escapeHtml(h.name)}" data-place="${escapeHtml(hPlace)}" ${selected} ${match ? '' : 'style="display:none;"'}>
+                const isSelected = (!hasMatch && isHotelMatch(h.name, selectedHotel));
+                if (isSelected) hasMatch = true;
+                opts += `<option value="${escapeHtml(h.name)}" data-place="${escapeHtml(hPlace)}" ${isSelected ? 'selected' : ''} ${match ? '' : 'style="display:none;"'}>
                     ${escapeHtml(h.name)} (${escapeHtml(h.place || 'Hotel')})
                 </option>`;
             });
+            if (selectedHotel && !hasMatch) {
+                opts += `<option value="${escapeHtml(selectedHotel)}" selected>${escapeHtml(selectedHotel)}</option>`;
+            }
             return opts;
         }
 
@@ -1829,7 +1862,7 @@
                 list.innerHTML = '';
                 pkg.accommodations.forEach((acc, idx) => {
                     const place = acc.place || '';
-                    const hotelName = acc.package_a_hotel || acc.hotel || acc.package_b_hotel || place || '';
+                    const hotelName = acc.package_a_hotel || acc.hotel || acc.package_b_hotel || '';
 
                     // Determine location enum
                     let loc = 'other';
@@ -1846,6 +1879,9 @@
 
                     const checkIn = acc.check_in ? acc.check_in.substring(0, 10) : '';
                     const checkOut = acc.check_out ? acc.check_out.substring(0, 10) : '';
+                    const hijriIn = acc.note || (checkIn ? gregorianToHijri(checkIn) : '');
+                    const hijriOut = acc.sharing || (checkOut ? gregorianToHijri(checkOut) : '');
+                    const mealPlan = acc.package_a_food_package || acc.food_package || acc.meal_plan || '';
 
                     let nights = 1;
                     if (checkIn && checkOut) {
@@ -1859,7 +1895,7 @@
                     }
 
                     const segmentTitle = place || (loc === 'makkah' ? 'Makkah Hotel' : (loc === 'madinah' ? 'Madinah Hotel' : 'Hotel / Stay'));
-                    const extraNotes = [acc.note, acc.sharing, acc.food_package, acc.sharing_type].filter(Boolean).join(' · ');
+                    const extraNotes = [hijriIn, hijriOut, mealPlan, acc.sharing_type].filter(Boolean).join(' · ');
 
                     const html = `
                     <div class="hotel-block border rounded p-3 mb-3 bg-light-subtle">
@@ -1912,7 +1948,7 @@
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold" style="font-size:12px;">Meal Plan</label>
                                 <select name="hotels[${idx}][meal_plan]" class="form-select form-select-sm">
-                                    ${getMealPlanOptionsHtml(h.food_package || h.meal_plan || '')}
+                                    ${getMealPlanOptionsHtml(mealPlan)}
                                 </select>
                             </div>
                             <div class="col-md-2">
@@ -1937,13 +1973,13 @@
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold" style="font-size:12px;">Check In (Gregorian & Hijri)</label>
-                                <input type="text" name="hotels[${idx}][hijri_check_in]" class="form-control form-control-sm mb-1 text-primary fw-semibold" placeholder="Hijri e.g. 22-ZILQAIDA">
+                                <input type="text" name="hotels[${idx}][hijri_check_in]" class="form-control form-control-sm mb-1 text-primary fw-semibold hijri-input" placeholder="Hijri e.g. 22-ZILQAIDA" value="${escapeHtml(hijriIn)}">
                                 <input type="date" name="hotels[${idx}][check_in]" class="form-control form-control-sm"
                                        value="${checkIn}">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold" style="font-size:12px;">Check Out (Gregorian & Hijri)</label>
-                                <input type="text" name="hotels[${idx}][hijri_check_out]" class="form-control form-control-sm mb-1 text-primary fw-semibold" placeholder="Hijri e.g. 01-ZILHAJJ">
+                                <input type="text" name="hotels[${idx}][hijri_check_out]" class="form-control form-control-sm mb-1 text-primary fw-semibold hijri-input" placeholder="Hijri e.g. 01-ZILHAJJ" value="${escapeHtml(hijriOut)}">
                                 <input type="date" name="hotels[${idx}][check_out]" class="form-control form-control-sm"
                                        value="${checkOut}">
                             </div>
@@ -2058,6 +2094,9 @@
                 });
                 routeIdx = transports.length;
                 initSearchableSelects('#routesList');
+            } else {
+                list.innerHTML = '';
+                routeIdx = 0;
             }
         }
 
@@ -2086,9 +2125,37 @@
                 document.getElementById('preview_pkg_sectors').textContent = (pkg.departure_sector || 'KHI') + ' ➔ ' + (pkg.arrival_sector || 'JED/MED');
                 document.getElementById('preview_pkg_qurbani').textContent = pkg.qurbani_status || 'Not Included (Nusuk Masar)';
 
-                if (pkg.qurbani_status && pkg.qurbani_status.toLowerCase().includes('included')) {
-                    qurbaniOption.value = 'included';
-                    $(qurbaniOption).trigger('change.select2');
+                // Auto select camp
+                if (campSelect) {
+                    let chosenCamp = 'Maktab C (Zone 5)';
+                    const pkgMaktab = (pkg.maktab || pkg.camp_category || '').toLowerCase();
+                    const pkgZone = (pkg.camp_zone || '').toLowerCase();
+                    if (pkgMaktab.includes('a') && pkgMaktab.includes('c')) {
+                        chosenCamp = 'Maktab A & C (Combo)';
+                    } else if (pkgMaktab.includes('a') || pkgZone.includes('zone 1') || pkgZone.includes('zone 2')) {
+                        chosenCamp = 'Maktab A (Zone 1/2)';
+                    } else if (pkgMaktab.includes('c') || pkgZone.includes('zone 5') || pkg.maktab_c_quad_pkr) {
+                        chosenCamp = 'Maktab C (Zone 5)';
+                    } else if (pkgMaktab.includes('vip')) {
+                        chosenCamp = 'VIP Mina Camp';
+                    } else if (pkgMaktab.includes('standard')) {
+                        chosenCamp = 'Standard Camp';
+                    }
+                    campSelect.value = chosenCamp;
+                    $(campSelect).val(chosenCamp).trigger('change');
+                    syncCampCategoryPreview();
+                }
+
+                if (qurbaniOption) {
+                    let chosenQurbani = 'not_included';
+                    const qs = (pkg.qurbani_status || '').toLowerCase();
+                    if (qs.includes('included') && !qs.includes('not')) {
+                        chosenQurbani = 'included';
+                    } else if (qs.includes('separate') || qs.includes('add-on')) {
+                        chosenQurbani = 'separate_request';
+                    }
+                    qurbaniOption.value = chosenQurbani;
+                    $(qurbaniOption).val(chosenQurbani).trigger('change');
                 }
 
                 if (pkg.qurbani_charges && Number(pkg.qurbani_charges) > 0) {
@@ -2786,6 +2853,7 @@
             const flight = parseFloat(document.getElementById('flight_charges').value) || 0;
             const qurbani = parseFloat(document.getElementById('qurbani_charges')?.value) || 0;
             const other = parseFloat(document.getElementById('other_charges').value) || 0;
+            const commission = parseFloat(document.getElementById('commission')?.value) || 0;
             const discount = parseFloat(document.getElementById('discount')?.value) || 0;
             const received = parseFloat(document.getElementById('total_received').value) || 0;
 
@@ -2812,6 +2880,7 @@
             if (document.getElementById('sum_flight')) document.getElementById('sum_flight').textContent = flight.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('sum_qurbani')) document.getElementById('sum_qurbani').textContent = qurbani.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('sum_other')) document.getElementById('sum_other').textContent = other.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            if (document.getElementById('sum_commission')) document.getElementById('sum_commission').textContent = commission.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('sum_discount')) document.getElementById('sum_discount').textContent = discount > 0 ? ('-' + discount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})) : '0.00';
             if (document.getElementById('sum_total')) document.getElementById('sum_total').textContent = total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
@@ -3137,9 +3206,45 @@
             });
         }
 
+        // Live auto-calculation of Hijri dates and nights on Gregorian date change
+        $(document).on('input change', 'input[type="date"][name*="[check_in]"]', function() {
+            const block = $(this).closest('.hotel-block, .row');
+            const hijriIn = block.find('input[name*="[hijri_check_in]"]');
+            if (hijriIn.length && this.value) {
+                hijriIn.val(gregorianToHijri(this.value));
+            }
+            const checkOutVal = block.find('input[type="date"][name*="[check_out]"]').val();
+            if (this.value && checkOutVal) {
+                const diffTime = Math.abs(new Date(checkOutVal) - new Date(this.value));
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 0) {
+                    block.find('input[name*="[no_of_nights]"]').val(diffDays);
+                }
+            }
+        });
+
+        $(document).on('input change', 'input[type="date"][name*="[check_out]"]', function() {
+            const block = $(this).closest('.hotel-block, .row');
+            const hijriOut = block.find('input[name*="[hijri_check_out]"]');
+            if (hijriOut.length && this.value) {
+                hijriOut.val(gregorianToHijri(this.value));
+            }
+            const checkInVal = block.find('input[type="date"][name*="[check_in]"]').val();
+            if (checkInVal && this.value) {
+                const diffTime = Math.abs(new Date(this.value) - new Date(checkInVal));
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 0) {
+                    block.find('input[name*="[no_of_nights]"]').val(diffDays);
+                }
+            }
+        });
+
         // Initialize searchable Select2 dropdowns on entire form
         $(document).ready(function() {
             initSearchableSelects('#bookingForm');
+            if (packageSelect && packageSelect.value) {
+                $(packageSelect).trigger('change');
+            }
         });
 
         // Auto-focus search input when Select2 dropdown opens

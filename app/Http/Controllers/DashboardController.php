@@ -27,14 +27,10 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        $package = strtolower($request->get('package', session('dashboard_package', 'hajj')));
-        if (!in_array($package, ['hajj', 'umrah'])) {
-            $package = 'hajj';
-        }
-
+        $package = 'hajj';
         $year = (int) $request->get('year', session('dashboard_year', Carbon::now()->year));
 
-        session(['dashboard_package' => $package]);
+        session(['dashboard_package' => 'hajj']);
         session(['dashboard_year'    => $year]);
 
         $bookingYears = Booking::where('package_type', $package)

@@ -68,6 +68,7 @@ class Booking extends Model
         'flight_charges',
         'other_charges',
         'discount',
+        'commission',
         'total_amount',
         'total_received',
         'balance',
@@ -136,5 +137,10 @@ class Booking extends Model
     public function documents()
     {
         return $this->hasMany(PersonDocument::class, 'booking_id');
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'booking_id');
     }
 }

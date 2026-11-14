@@ -108,10 +108,11 @@
         }
 
         .bar-logo-img {
-            height: 62px;
+            height: 46px;
             width: auto;
-            max-width: 200px;
+            max-width: 160px;
             object-fit: contain;
+            border-radius: 6px;
         }
 
         .bar-brand-text h2 {
@@ -149,6 +150,19 @@
             border: 1px solid transparent;
             transition: all 0.18s ease;
             white-space: nowrap;
+        }
+
+        .btn-primary-luxury {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            color: #ffffff;
+            border: 1px solid #60a5fa;
+            box-shadow: 0 3px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-primary-luxury:hover {
+            filter: brightness(1.15);
+            transform: translateY(-1px);
+            color: #ffffff;
         }
 
         .btn-gold-luxury {
@@ -194,7 +208,7 @@
         .hero-banner {
             background: linear-gradient(135deg, #070e19 0%, #0f1e36 60%, #172b4d 100%);
             color: #ffffff;
-            padding: 28px 32px 30px;
+            padding: 24px 32px 26px;
             position: relative;
             overflow: hidden;
             border-bottom: 3.5px solid var(--gold);
@@ -215,7 +229,7 @@
         .hero-flex {
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
             position: relative;
             z-index: 2;
             flex-wrap: wrap;
@@ -226,6 +240,99 @@
             display: flex;
             align-items: center;
             gap: 16px;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .hero-summary-card {
+            background: rgba(15, 30, 54, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(201, 168, 76, 0.45);
+            border-radius: 12px;
+            padding: 14px 18px;
+            min-width: 290px;
+            max-width: 340px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .hero-card-tag {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--gold-light);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .hero-card-code {
+            font-size: 10.5px;
+            font-weight: 900;
+            color: #ffffff;
+            background: rgba(201, 168, 76, 0.25);
+            padding: 1px 7px;
+            border-radius: 4px;
+            border: 1px solid rgba(201, 168, 76, 0.4);
+        }
+
+        .hero-card-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .hero-meta-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .hero-meta-item .meta-label {
+            display: block;
+            font-size: 9.5px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .hero-meta-item .meta-val {
+            font-size: 11.5px;
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+
+        .hero-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 6px;
+        }
+
+        .hero-card-footer .footer-lbl {
+            display: block;
+            font-size: 9.5px;
+            color: #94a3b8;
+            text-transform: uppercase;
+        }
+
+        .hero-card-footer .footer-val {
+            font-size: 13.5px;
+            color: var(--gold-light);
+            font-weight: 800;
         }
 
         .client-avatar {
@@ -810,6 +917,11 @@
         </div>
 
         <div class="bar-btn-group">
+            <!-- 0. Official Client Invoice -->
+            <a href="{{ route('booking.invoice', $booking->id) }}" target="_blank" class="action-btn btn-primary-luxury" title="Open printable Client Invoice & Statement">
+                <i class="mdi mdi-receipt-text-outline"></i> Client Invoice
+            </a>
+
             <!-- 1. Bulk Badges Sheet (VIP Executive Feature) -->
             <a href="{{ route('pilgrim.bulk-badges', $booking->id) }}" target="_blank" class="action-btn btn-gold-luxury" title="Open printable A4 sheet of lanyard badges">
                 <i class="mdi mdi-badge-account-horizontal"></i> Hajji ID Card
@@ -858,7 +970,11 @@
                 <div class="client-info">
                     <h1>{{ $booking->client->name ?? 'Guest Client' }}</h1>
                     <div class="client-subtitle">
-                        @if ($booking->client->company_name ?? false)
+                        @if ($booking->company ?? $booking->client?->referral)
+                            @php $ref = $booking->company ?? $booking->client?->referral; @endphp
+                            <span><i class="mdi mdi-account-tie me-1"></i>Referral: {{ $ref->company_name }}</span>
+                            <span>·</span>
+                        @elseif ($booking->client->company_name ?? false)
                             <span><i class="mdi mdi-office-building me-1"></i>{{ $booking->client->company_name }}</span>
                             <span>·</span>
                         @endif
@@ -918,6 +1034,44 @@
                         <!-- Pax Count -->
                         <span class="pill-badge" style="background: rgba(201, 168, 76, 0.25); color: #fef08a; border: 1px solid rgba(201, 168, 76, 0.5);">
                             <i class="mdi mdi-account-group"></i> {{ $booking->persons->count() ?: ($booking->no_of_pax ?? 1) }} Pax
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: VIP Booking Quick Summary Card -->
+            @php
+                $percentPaidHeader = $booking->total_amount > 0 ? min(100, ($booking->total_received / $booking->total_amount) * 100) : 0;
+            @endphp
+            <div class="hero-summary-card d-none d-md-block">
+                <div class="hero-card-header">
+                    <span class="hero-card-tag"><i class="mdi mdi-shield-check"></i> VIP MANIFEST</span>
+                    <span class="hero-card-code">{{ $booking->package->code ?? $booking->package->package_number ?? 'HAJJ' }}</span>
+                </div>
+                <div class="hero-card-body">
+                    <div class="hero-card-title">
+                        {{ $booking->package->package_title ?? $booking->package->name ?? 'Executive Hajj Package' }}
+                    </div>
+                    <div class="hero-meta-row">
+                        <div class="hero-meta-item">
+                            <span class="meta-label">Route</span>
+                            <span class="meta-val">{{ $booking->package->departure_sector ?? 'KHI' }} ➔ {{ $booking->package->arrival_sector ?? 'JED/MED' }}</span>
+                        </div>
+                        <div class="hero-meta-item">
+                            <span class="meta-label">Duration</span>
+                            <span class="meta-val">{{ $booking->package->stay_duration ?? ($booking->package->days ? $booking->package->days . ' Days' : '30 Days') }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-card-footer">
+                    <div>
+                        <span class="footer-lbl">Total Invoice</span>
+                        <strong class="footer-val">PKR {{ number_format($booking->total_amount, 0) }}</strong>
+                    </div>
+                    <div class="text-end">
+                        <span class="footer-lbl">Balance</span>
+                        <span class="badge {{ $booking->balance <= 0 ? 'bg-success' : 'bg-warning text-dark' }}" style="font-size:10.5px; font-weight:800;">
+                            {{ $booking->balance <= 0 ? 'Fully Paid' : 'PKR ' . number_format($booking->balance, 0) }}
                         </span>
                     </div>
                 </div>
@@ -1452,6 +1606,13 @@
                     <td>Other Charges</td>
                     <td>Additional Services</td>
                     <td>PKR {{ number_format($booking->other_charges, 0) }}</td>
+                </tr>
+                @endif
+                @if (($booking->commission ?? 0) > 0)
+                <tr>
+                    <td>Commission</td>
+                    <td>Agent / Referral Commission</td>
+                    <td class="text-info fw-bold">PKR {{ number_format($booking->commission, 0) }}</td>
                 </tr>
                 @endif
                 @if (($booking->discount ?? 0) > 0)

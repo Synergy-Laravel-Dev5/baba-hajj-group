@@ -25,10 +25,10 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>#</th>
-                                        <th>Name</th>
-                                        <th>Company</th>
-                                        <th>Type</th>
-                                        <th>Phone</th>
+                                        <th>Client Name</th>
+                                        <th>CNIC</th>
+                                        <th>Contact No</th>
+                                        <th>Referral</th>
                                         <th>Deleted At</th>
                                         <th>Action</th>
                                     </tr>
@@ -38,13 +38,17 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td><strong>{{ $client->name }}</strong></td>
-                                            <td>{{ $client->company_name ?? '—' }}</td>
-                                            <td>
-                                                @php $types=['client'=>'bg-primary','vendor'=>'bg-info','customer'=>'bg-secondary']; @endphp
-                                                <span
-                                                    class="badge {{ $types[$client->type] ?? 'bg-secondary' }}">{{ ucfirst($client->type) }}</span>
-                                            </td>
+                                            <td>{{ $client->cnic ?? '—' }}</td>
                                             <td>{{ $client->phone ?? '—' }}</td>
+                                            <td>
+                                                @if ($client->company)
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                        {{ $client->company->company_name ?? $client->company->name }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $client->deleted_at->format('d M Y, h:i A') }}</td>
                                             <td>
                                                 @can('client_restore')

@@ -111,6 +111,14 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'room_type_trash_view', 'guard_name' => 'web', 'group_name' => 'Room Type'],
             ['name' => 'room_type_restore', 'guard_name' => 'web', 'group_name' => 'Room Type'],
 
+            // ── 11b. MEAL PLANS ─────────────────────────────────
+            ['name' => 'meal_plan_view', 'guard_name' => 'web', 'group_name' => 'Meal Plan'],
+            ['name' => 'meal_plan_create', 'guard_name' => 'web', 'group_name' => 'Meal Plan'],
+            ['name' => 'meal_plan_edit', 'guard_name' => 'web', 'group_name' => 'Meal Plan'],
+            ['name' => 'meal_plan_trash', 'guard_name' => 'web', 'group_name' => 'Meal Plan'],
+            ['name' => 'meal_plan_trash_view', 'guard_name' => 'web', 'group_name' => 'Meal Plan'],
+            ['name' => 'meal_plan_restore', 'guard_name' => 'web', 'group_name' => 'Meal Plan'],
+
             // ── 12. FLIGHTS ─────────────────────────────────────
             ['name' => 'flight_view', 'guard_name' => 'web', 'group_name' => 'Flight'],
             ['name' => 'flight_create', 'guard_name' => 'web', 'group_name' => 'Flight'],

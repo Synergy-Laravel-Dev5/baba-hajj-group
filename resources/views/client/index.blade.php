@@ -7,7 +7,7 @@
             <div class="container-fluid">
 
                 <div class="py-3 d-flex align-items-center justify-content-between">
-                    <h4 class="fs-18 fw-semibold m-0">Clients / Vendors</h4>
+                    <h4 class="fs-18 fw-semibold m-0">Clients</h4>
                     <div class="d-flex gap-2">
                         @can('client_create')
                             <a href="{{ route('client.create') }}" class="btn btn-primary btn-sm">
@@ -41,14 +41,10 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>#</th>
-                                        <th>Name</th>
-                                        <th>Company</th>
-                                        <th>Package</th>
-                                        <th>Type</th>
-                                        <th>Passport #</th>
+                                        <th>Client Name</th>
                                         <th>CNIC</th>
-                                        <th>Phone</th>
-                                        <th>Status</th>
+                                        <th>Contact No</th>
+                                        <th>Referral</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -57,31 +53,16 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td><strong>{{ $client->name }}</strong></td>
-                                            <td>{{ $client->company_name ?? '—' }}</td>
-                                            <td>{{ $client->package->name ?? '—' }} @if ($client->package)
-                                                    ({{ $client->package->code }})
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @php
-                                                    $types = [
-                                                        'client' => 'bg-primary',
-                                                        'vendor' => 'bg-info',
-                                                        'customer' => 'bg-secondary',
-                                                    ];
-                                                @endphp
-                                                <span class="badge {{ $types[$client->type] ?? 'bg-secondary' }}">
-                                                    {{ ucfirst($client->type) }}
-                                                </span>
-                                            </td>
-                                            <td>{{ $client->passport_number ?? '—' }}</td>
                                             <td>{{ $client->cnic ?? '—' }}</td>
                                             <td>{{ $client->phone ?? '—' }}</td>
                                             <td>
-                                                <span
-                                                    class="badge {{ $client->status == 'active' ? 'bg-success' : 'bg-danger' }}">
-                                                    {{ ucfirst($client->status) }}
-                                                </span>
+                                                @if ($client->company)
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                        <i class="mdi mdi-domain me-1"></i>{{ $client->company->company_name ?? $client->company->name }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-1">
@@ -111,7 +92,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="10" class="text-center text-muted py-4">No clients found.</td>
+                                            <td colspan="6" class="text-center text-muted py-4">No clients found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

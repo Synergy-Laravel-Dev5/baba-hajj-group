@@ -739,23 +739,17 @@
                     </div>
 
                     <div class="header-controls">
-                        {{-- Segmented Cycle Switcher --}}
+                        {{-- Hajj Operations Tag --}}
                         <div class="cycle-segmented-control">
-                            <a href="{{ route('dashboard', ['package' => 'hajj', 'year' => $year]) }}"
-                               class="{{ $package === 'hajj' ? 'active' : '' }}">
+                            <span class="active" style="display:inline-flex;align-items:center;gap:6px;cursor:default;">
                                 <i class="ri-government-line"></i>
-                                <span>Hajj</span>
-                            </a>
-                            <a href="{{ route('dashboard', ['package' => 'umrah', 'year' => $year]) }}"
-                               class="{{ $package === 'umrah' ? 'active' : '' }}">
-                                <i class="ri-building-line"></i>
-                                <span>Umrah</span>
-                            </a>
+                                <span>Hajj Operations</span>
+                            </span>
                         </div>
 
                         {{-- Year Selector --}}
                         <form method="GET" action="{{ route('dashboard') }}" id="yearForm" class="m-0">
-                            <input type="hidden" name="package" value="{{ $package }}">
+                            <input type="hidden" name="package" value="hajj">
                             <div class="dash-select-wrap">
                                 <i class="ri-calendar-line text-muted me-1"></i>
                                 <select name="year" onchange="document.getElementById('yearForm').submit()">
