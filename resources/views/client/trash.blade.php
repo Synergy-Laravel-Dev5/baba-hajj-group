@@ -38,8 +38,47 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td><strong>{{ $client->name }}</strong></td>
-                                            <td>{{ $client->cnic ?? '—' }}</td>
-                                            <td>{{ $client->phone ?? '—' }}</td>
+                                            <td>
+                                                @if (!empty($client->cnic))
+                                                    @php
+                                                        $rawCnic = preg_replace('/\D/', '', $client->cnic);
+                                                        $formattedCnic = (strlen($rawCnic) === 13)
+                                                            ? substr($rawCnic, 0, 5) . '-' . substr($rawCnic, 5, 7) . '-' . substr($rawCnic, 12, 1)
+                                                            : $client->cnic;
+                                                    @endphp
+                                                    <span class="font-monospace">{{ $formattedCnic }}</span>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (!empty($client->phone))
+                                                    @php
+                                                        $rawDigits = preg_replace('/\D/', '', $client->phone);
+                                                        if (str_starts_with($rawDigits, '0')) {
+                                                            $waNumber = '92' . substr($rawDigits, 1);
+                                                        } elseif (str_starts_with($rawDigits, '92')) {
+                                                            $waNumber = $rawDigits;
+                                                        } elseif (strlen($rawDigits) === 10 && str_starts_with($rawDigits, '3')) {
+                                                            $waNumber = '92' . $rawDigits;
+                                                        } else {
+                                                            $waNumber = $rawDigits;
+                                                        }
+                                                    @endphp
+                                                    @if (!empty($waNumber))
+                                                        <a href="https://wa.me/{{ $waNumber }}" target="_blank" rel="noopener noreferrer"
+                                                           class="d-inline-flex align-items-center gap-1 text-decoration-none text-dark fw-medium"
+                                                           title="Open WhatsApp chat with {{ $client->name }}">
+                                                            <i class="mdi mdi-whatsapp text-success fs-16"></i>
+                                                            <span>{{ $client->phone }}</span>
+                                                        </a>
+                                                    @else
+                                                        {{ $client->phone }}
+                                                    @endif
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if ($client->company)
                                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">

@@ -46,6 +46,17 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $this->authorize('client_create');
+
+        if ($request->filled('phone')) {
+            $digits = preg_replace('/\D/', '', $request->phone);
+            if ($digits === '92' || empty($digits)) {
+                $request->merge(['phone' => null]);
+            }
+        }
+        if ($request->filled('cnic') && empty(preg_replace('/\D/', '', $request->cnic))) {
+            $request->merge(['cnic' => null]);
+        }
+
         $request->validate([
             'name'       => 'required|string|max:255',
             'cnic'       => 'nullable|string|max:50|unique:clients,cnic',
@@ -83,6 +94,16 @@ class ClientController extends Controller
     {
         $this->authorize('client_edit');
         $client = Client::findOrFail($id);
+
+        if ($request->filled('phone')) {
+            $digits = preg_replace('/\D/', '', $request->phone);
+            if ($digits === '92' || empty($digits)) {
+                $request->merge(['phone' => null]);
+            }
+        }
+        if ($request->filled('cnic') && empty(preg_replace('/\D/', '', $request->cnic))) {
+            $request->merge(['cnic' => null]);
+        }
 
         $request->validate([
             'name'       => 'required|string|max:255',

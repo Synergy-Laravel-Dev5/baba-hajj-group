@@ -46,9 +46,9 @@
                                         <div class="col-lg-6">
                                             <div class="mb-3">
                                                 <label class="form-label">CNIC</label>
-                                                <input type="text" name="cnic"
+                                                <input type="text" name="cnic" id="client_cnic"
                                                     value="{{ old('cnic', $client->cnic) }}" class="form-control"
-                                                    placeholder="XXXXX-XXXXXXX-X">
+                                                    placeholder="42101-2285325-7" maxlength="15">
                                                 @error('cnic')
                                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
@@ -57,9 +57,9 @@
                                         <div class="col-lg-6">
                                             <div class="mb-3">
                                                 <label class="form-label">Contact No</label>
-                                                <input type="text" name="phone"
+                                                <input type="text" name="phone" id="client_phone"
                                                     value="{{ old('phone', $client->phone) }}" class="form-control"
-                                                    placeholder="e.g. 0300-1234567">
+                                                    placeholder="+92 334 5409691" maxlength="16">
                                                 @error('phone')
                                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
@@ -102,3 +102,120 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+(function() {
+    function initClientFormatting() {
+        // --- CNIC Auto Formatting (XXXXX-XXXXXXX-X) ---
+        const cnicInput = document.getElementById('client_cnic');
+        function formatCNIC(val) {
+            if (!val) return '';
+            let digits = val.replace(/\D/g, '').substring(0, 13);
+            let res = '';
+            if (digits.length > 0) {
+                res = digits.substring(0, 5);
+                if (digits.length > 5) {
+                    res += '-' + digits.substring(5, 12);
+                    if (digits.length > 12) {
+                        res += '-' + digits.substring(12, 13);
+                    }
+                }
+            }
+            return res;
+        }
+
+        if (cnicInput) {
+            if (cnicInput.value) {
+                cnicInput.value = formatCNIC(cnicInput.value);
+            }
+
+            cnicInput.addEventListener('input', function() {
+                this.value = formatCNIC(this.value);
+            });
+
+            cnicInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && (this.selectionStart === 6 || this.selectionStart === 14) && this.selectionStart === this.selectionEnd) {
+                    const pos = this.selectionStart;
+                    this.value = this.value.substring(0, pos - 1) + this.value.substring(pos);
+                    this.value = formatCNIC(this.value);
+                    this.setSelectionRange(pos - 1, pos - 1);
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // --- Contact No Auto Formatting (+92 3XX XXXXXXX) ---
+        const phoneInput = document.getElementById('client_phone');
+        function formatPhone(val) {
+            if (!val) return '';
+            let digits = val.replace(/\D/g, '');
+
+            if (digits.startsWith('92')) {
+                digits = digits.substring(2);
+            } else if (digits.startsWith('0')) {
+                digits = digits.substring(1);
+            }
+
+            digits = digits.substring(0, 10);
+
+            if (digits.length === 0) {
+                return val.includes('+') ? '+92 ' : '';
+            }
+
+            let res = '+92 ' + digits.substring(0, 3);
+            if (digits.length > 3) {
+                res += ' ' + digits.substring(3, 10);
+            }
+            return res;
+        }
+
+        if (phoneInput) {
+            if (phoneInput.value) {
+                phoneInput.value = formatPhone(phoneInput.value);
+            }
+
+            phoneInput.addEventListener('focus', function() {
+                if (!this.value.trim()) {
+                    this.value = '+92 ';
+                }
+            });
+
+            phoneInput.addEventListener('input', function() {
+                this.value = formatPhone(this.value);
+            });
+
+            phoneInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && (this.value === '+92 ' || this.value === '+92' || this.value === '+9')) {
+                    e.preventDefault();
+                    this.value = '';
+                }
+            });
+
+            phoneInput.addEventListener('blur', function() {
+                let digits = this.value.replace(/\D/g, '');
+                if (digits === '92' || digits === '') {
+                    this.value = '';
+                }
+            });
+
+            const form = phoneInput.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    let digits = phoneInput.value.replace(/\D/g, '');
+                    if (digits === '92' || digits === '') {
+                        phoneInput.value = '';
+                    }
+                });
+            }
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initClientFormatting);
+    } else {
+        initClientFormatting();
+    }
+})();
+</script>
+@endpush
