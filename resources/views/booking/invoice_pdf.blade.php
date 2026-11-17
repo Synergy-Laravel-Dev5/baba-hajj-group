@@ -237,9 +237,30 @@
 <body>
 
     @php
+        $invCompany = $booking->company ?? ($booking->client?->referral ?? \App\Models\Company::first());
+        $invCompanyName = $invCompany?->company_name ?: ($invCompany?->name ?: 'BABA HAJJ GROUP');
+
+        $logoPath = null;
+        if (!empty($invCompany?->company_logo)) {
+            if (file_exists(public_path('storage/' . $invCompany->company_logo))) {
+                $logoPath = public_path('storage/' . $invCompany->company_logo);
+            } elseif (file_exists(public_path($invCompany->company_logo))) {
+                $logoPath = public_path($invCompany->company_logo);
+            }
+        }
+        if (!$logoPath) {
+            if (file_exists(public_path('assets/images/logo_clean_transparent.png'))) {
+                $logoPath = public_path('assets/images/logo_clean_transparent.png');
+            } elseif (file_exists(public_path('assets/images/baba_hajj_logo_gold.png'))) {
+                $logoPath = public_path('assets/images/baba_hajj_logo_gold.png');
+            } elseif (file_exists(public_path('assets/images/logo.png'))) {
+                $logoPath = public_path('assets/images/logo.png');
+            }
+        }
+
+        $logoBase64 = $logoPath ? base64_encode(file_get_contents($logoPath)) : '';
         $hasGd = extension_loaded('gd');
-        $logoPath = public_path('assets/images/logo.png');
-        $logoBase64 = ($hasGd && file_exists($logoPath)) ? base64_encode(file_get_contents($logoPath)) : '';
+
         $balance = (float)$booking->balance;
         $received = (float)$booking->total_received;
         $total = (float)$booking->total_amount;
@@ -252,22 +273,26 @@
     <!-- HEADER TABLE -->
     <table class="header-table">
         <tr>
-            <td style="width: 60%; vertical-align: middle;">
+            <td style="width: 58%; vertical-align: middle;">
                 <table style="width: 100%;">
                     <tr>
                         @if($hasGd && $logoBase64)
-                            <td style="width: 65px; vertical-align: middle;">
-                                <img src="data:image/png;base64,{{ $logoBase64 }}" style="height: 52px; width: auto; background:#ffffff; padding:2px; border-radius:4px;">
+                            <td style="width: 180px; vertical-align: middle;">
+                                <img src="data:image/png;base64,{{ $logoBase64 }}" style="height: 52px; width: auto; max-width: 175px;">
                             </td>
                         @else
-                            <td style="width: 48px; vertical-align: middle;">
-                                <div style="width: 44px; height: 44px; background: #c9a84c; border-radius: 6px; text-align: center; line-height: 44px; color: #091322; font-weight: bold; font-size: 18px; font-family: serif;">BHG</div>
+                            <td style="width: 160px; vertical-align: middle;">
+                                <div style="font-size: 15px; font-weight: bold; color: #fef08a; letter-spacing: 0.5px;">BABA GROUP</div>
+                                <div style="font-size: 8.5px; color: #cbd5e1; letter-spacing: 1px; text-transform: uppercase;">HAJJ & UMRAH</div>
                             </td>
                         @endif
-                        <td style="vertical-align: middle; padding-left: 8px;">
-                            <div class="company-name">BABA HAJJ GROUP</div>
-                            <div class="company-sub">VIP Hajj & Umrah Tour Management System</div>
-                            <div class="company-meta">Approved Tour Operator · KSA Munazzam Portal</div>
+                        <td style="vertical-align: middle; padding-left: 10px; border-left: 1px solid #c9a84c;">
+                            <div class="company-sub" style="font-size: 8px; color: #fef08a; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">VIP Hajj & Umrah Tour Management</div>
+                            <div class="company-meta" style="font-size: 7.5px; color: #cbd5e1; margin-top: 2px; line-height: 1.3;">
+                                Approved Tour Operator · KSA Munazzam Portal
+                                @if(!empty($invCompany?->munazzam_no))<br>Munazzam #: <strong>{{ $invCompany->munazzam_no }}</strong>@endif
+                                @if(!empty($invCompany?->dts_no)) | DTS #: <strong>{{ $invCompany->dts_no }}</strong>@endif
+                            </div>
                         </td>
                     </tr>
                 </table>

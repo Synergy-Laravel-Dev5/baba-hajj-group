@@ -105,9 +105,9 @@
 
         /* Invoice Header */
         .invoice-header {
-            background: linear-gradient(135deg, #070e19 0%, #0f1e36 60%, #172b4d 100%);
+            background: linear-gradient(135deg, #071018 0%, #091a22 45%, #0e2330 100%);
             color: #ffffff;
-            padding: 28px 36px;
+            padding: 24px 36px;
             border-bottom: 4px solid var(--gold);
             position: relative;
         }
@@ -115,7 +115,7 @@
         .invoice-header-flex {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             gap: 20px;
             flex-wrap: wrap;
         }
@@ -123,16 +123,43 @@
         .company-branding {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 20px;
         }
 
-        .company-logo {
-            height: 64px;
+        .company-brand-logo {
+            height: 72px;
             width: auto;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            max-width: 270px;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.35));
+        }
+
+        .company-brand-subinfo {
+            border-left: 2px solid rgba(201, 168, 76, 0.4);
+            padding-left: 16px;
+        }
+
+        .company-sub-tag {
+            font-size: 11px;
+            color: var(--gold-light);
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .company-badges {
+            font-size: 11px;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge-sep {
+            color: rgba(201, 168, 76, 0.5);
         }
 
         .company-name {
@@ -412,15 +439,51 @@
     <div class="invoice-sheet" id="invoiceSheet">
 
         <!-- HEADER -->
+        @php
+            $invCompany = $booking->company ?? ($booking->client?->referral ?? \App\Models\Company::first());
+            $invCompanyName = $invCompany?->company_name ?: ($invCompany?->name ?: 'BABA HAJJ GROUP');
+
+            $invLogoUrl = null;
+            if (!empty($invCompany?->company_logo)) {
+                if (file_exists(public_path('storage/' . $invCompany->company_logo))) {
+                    $invLogoUrl = asset('storage/' . $invCompany->company_logo);
+                } elseif (file_exists(public_path($invCompany->company_logo))) {
+                    $invLogoUrl = asset($invCompany->company_logo);
+                }
+            }
+            if (!$invLogoUrl) {
+                if (file_exists(public_path('assets/images/logo_clean_transparent.png'))) {
+                    $invLogoUrl = asset('assets/images/logo_clean_transparent.png');
+                } elseif (file_exists(public_path('assets/images/baba_hajj_logo_gold.png'))) {
+                    $invLogoUrl = asset('assets/images/baba_hajj_logo_gold.png');
+                } elseif (file_exists(public_path('assets/images/logo.png'))) {
+                    $invLogoUrl = asset('assets/images/logo.png');
+                }
+            }
+        @endphp
+
         <div class="invoice-header">
             <div class="invoice-header-flex">
                 <div class="company-branding">
-                    <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Baba Hajj Group" class="company-logo">
-                    <div>
-                        <div class="company-name">BABA HAJJ GROUP</div>
-                        <div class="company-sub">VIP Hajj & Umrah Tour Management System</div>
-                        <div style="font-size:11px; color:#cbd5e1; margin-top:3px;">
-                            <i class="bi bi-shield-check text-warning me-1"></i>Approved Tour Operator · KSA Munazzam Portal
+                    @if($invLogoUrl)
+                        <img src="{{ $invLogoUrl }}?v={{ time() }}" alt="{{ $invCompanyName }}" class="company-brand-logo">
+                    @else
+                        <div class="company-name">{{ $invCompanyName }}</div>
+                    @endif
+                    <div class="company-brand-subinfo">
+                        <div class="company-sub-tag">VIP Hajj & Umrah Tour Management</div>
+                        <div class="company-badges">
+                            <span><i class="bi bi-shield-check text-warning me-1"></i>Approved Tour Operator</span>
+                            <span class="badge-sep">·</span>
+                            <span>KSA Munazzam Portal</span>
+                            @if(!empty($invCompany?->munazzam_no))
+                                <span class="badge-sep">·</span>
+                                <span>Munazzam # <strong>{{ $invCompany->munazzam_no }}</strong></span>
+                            @endif
+                            @if(!empty($invCompany?->dts_no))
+                                <span class="badge-sep">·</span>
+                                <span>DTS # <strong>{{ $invCompany->dts_no }}</strong></span>
+                            @endif
                         </div>
                     </div>
                 </div>
