@@ -382,7 +382,7 @@
                         </div>
                     </div>
 
-                    {{-- Referral Details (A-Z: name, code, currency, established, quota, website, statuses) --}}
+                    {{-- Referral Details (name, code, currency, quota) --}}
                     <div class="cs-card">
                         <div class="cs-card-head"><span class="cs-title"><span class="cs-ico"><i
                                         class="fa fa-building"></i></span> Referral Details</span></div>
@@ -398,157 +398,8 @@
                                     {{ is_object($company->currency_type) ? $company->currency_type->value ?? $company->currency_type->name : $company->currency_type ?? 'Not set' }}
                                 </div>
                             </div>
-                            <div class="cs-row"><label>Established On</label>
-                                <div class="val">{{ optional($company->established_on)->format('d-M-Y') ?? '-' }}</div>
-                            </div>
                             <div class="cs-row"><label>Quota</label>
                                 <div class="val">{{ $company->quota ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row">
-                                <label>Website</label>
-                                <div class="val">
-                                    @if ($company->website)
-                                        <a href="{{ $company->website }}" target="_blank">{{ $company->website }}</a>
-                                    @else
-                                        -
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="cs-row"><label>Status on Establishment</label>
-                                <div class="val">{{ $company->company_status_on_establishment ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>Current Referral Status</label>
-                                <div class="val">{{ $company->current_company_status ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Referral Images (Logo, Stamp, Letter Head Header/Footer, Signature) --}}
-                    <div class="cs-card">
-                        <div class="cs-card-head"><span class="cs-title"><span class="cs-ico"><i
-                                        class="fa fa-images"></i></span> Referral Images</span></div>
-                        <div class="cs-card-body">
-                            <div class="cs-thumb-row">
-                                <div class="cs-thumb-box">
-                                    <label>Referral Logo</label>
-                                    @if ($company->company_logo)
-                                        <img src="{{ asset('storage/' . $company->company_logo) }}" class="cs-thumb">
-                                    @else
-                                        <div class="cs-thumb-empty">No image</div>
-                                    @endif
-                                </div>
-                                <div class="cs-thumb-box">
-                                    <label>Referral Stamp</label>
-                                    @if ($company->company_stamp)
-                                        <img src="{{ asset('storage/' . $company->company_stamp) }}" class="cs-thumb">
-                                    @else
-                                        <div class="cs-thumb-empty">No image</div>
-                                    @endif
-                                </div>
-                                <div class="cs-thumb-box">
-                                    <label>Referral Signature</label>
-                                    @if ($company->company_signature)
-                                        <img src="{{ asset('storage/' . $company->company_signature) }}" class="cs-thumb">
-                                    @else
-                                        <div class="cs-thumb-empty">No image</div>
-                                    @endif
-                                </div>
-                                <div class="cs-thumb-box">
-                                    <label>Letter Head Header</label>
-                                    @if ($company->letter_head_header)
-                                        <img src="{{ asset('storage/' . $company->letter_head_header) }}" class="cs-thumb">
-                                    @else
-                                        <div class="cs-thumb-empty">No image</div>
-                                    @endif
-                                </div>
-                                <div class="cs-thumb-box">
-                                    <label>Letter Head Footer</label>
-                                    @if ($company->letter_head_footer)
-                                        <img src="{{ asset('storage/' . $company->letter_head_footer) }}" class="cs-thumb">
-                                    @else
-                                        <div class="cs-thumb-empty">No image</div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Company Registrations (Mohra, Munazzam, Cluster, DTS, IATA, NTN) --}}
-                    <div class="cs-card">
-                        <div class="cs-card-head"><span class="cs-title"><span class="cs-ico"><i
-                                        class="fa fa-id-card"></i></span> Company Registrations</span></div>
-                        <div class="cs-card-body">
-                            <div class="cs-row"><label>Mohra Enrollment No</label>
-                                <div class="val">{{ $company->mohra_enrollment_no ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>Munazzam No</label>
-                                <div class="val">{{ $company->munazzam_no ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>Cluster Enrollment No</label>
-                                <div class="val">{{ $company->cluster_enrollment_no ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>DTS No</label>
-                                <div class="val">{{ $company->dts_no ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>DTS Expiry</label>
-                                <div class="val">{{ optional($company->dts_expiry)->format('d-M-Y') ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>IATA No</label>
-                                <div class="val">{{ $company->iata_no ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>IATA Expiry</label>
-                                <div class="val">{{ optional($company->iata_expiry)->format('d-M-Y') ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>NTN</label>
-                                <div class="val">{{ $company->ntn ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Director Details (Name, CNIC, CNIC Expiry, Photo, Detail) --}}
-                    <div class="cs-card">
-                        <div class="cs-card-head"><span class="cs-title"><span class="cs-ico"><i
-                                        class="fa fa-user"></i></span> Director Details</span></div>
-                        <div class="cs-card-body">
-                            <div class="cs-director-photo">
-                                @if ($company->director_photo)
-                                    <img src="{{ asset('storage/' . $company->director_photo) }}" class="cs-avatar">
-                                @else
-                                    <div class="cs-avatar-empty"><i class="fa fa-user"></i></div>
-                                @endif
-                            </div>
-                            <div class="cs-row"><label>Director Name</label>
-                                <div class="val">{{ $company->director_name ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>Director CNIC</label>
-                                <div class="val">{{ $company->director_cnic ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>Director CNIC Expiry</label>
-                                <div class="val">{{ optional($company->director_cnic_expiry)->format('d-M-Y') ?? '-' }}
-                                </div>
-                            </div>
-                            <div class="cs-row block"><label>Director Detail</label>
-                                <div class="val">{{ $company->director_detail ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Bank Details --}}
-                    <div class="cs-card">
-                        <div class="cs-card-head"><span class="cs-title"><span class="cs-ico"><i
-                                        class="fa fa-university"></i></span> Bank Details</span></div>
-                        <div class="cs-card-body">
-                            <div class="cs-row"><label>Bank Name</label>
-                                <div class="val">{{ $company->bank_name ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>Account Title</label>
-                                <div class="val">{{ $company->account_title ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>Branch</label>
-                                <div class="val">{{ $company->branch ?? '-' }}</div>
-                            </div>
-                            <div class="cs-row"><label>Account Number</label>
-                                <div class="val">{{ $company->account_number ?? '-' }}</div>
                             </div>
                         </div>
                     </div>
@@ -668,56 +519,6 @@
                                 </div>
                             @else
                                 <div class="cs-empty-state"><i class="fa fa-envelope"></i>No emails added.</div>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Licenses --}}
-                    <div class="cs-card">
-                        <div class="cs-card-head"><span class="cs-title"><span class="cs-ico"><i
-                                        class="fa fa-certificate"></i></span> Licenses</span></div>
-                        <div class="p-0">
-                            @if ($company->licenses && $company->licenses->count())
-                                <div class="table-responsive">
-                                    <table class="cs-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Type</th>
-                                                <th>License No</th>
-                                                <th>Place of Issue</th>
-                                                <th>Date of Issue</th>
-                                                <th>Valid Upto</th>
-                                                <th>Preferred</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($company->licenses as $lic)
-                                                @php $expired = $lic->valid_upto && \Carbon\Carbon::parse($lic->valid_upto)->isPast(); @endphp
-                                                <tr>
-                                                    <td>{{ $lic->license_type ?: '-' }}</td>
-                                                    <td>{{ $lic->license_no ?: '-' }}</td>
-                                                    <td>{{ $lic->place_of_issue ?: '-' }}</td>
-                                                    <td>{{ $lic->date_of_issue ? \Carbon\Carbon::parse($lic->date_of_issue)->format('d-M-Y') : '-' }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $lic->valid_upto ? \Carbon\Carbon::parse($lic->valid_upto)->format('d-M-Y') : '-' }}
-                                                        @if ($expired)
-                                                            <span class="cs-pill expired">Expired</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if ($lic->is_preferred)
-                                                        <span class="cs-pill yes">Yes</span>@else<span
-                                                                class="cs-pill no">No</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="cs-empty-state"><i class="fa fa-certificate"></i>No licenses added.</div>
                             @endif
                         </div>
                     </div>

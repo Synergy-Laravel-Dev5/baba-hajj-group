@@ -46,10 +46,39 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $this->authorize('client_create');
+
+        $phone = $request->phone ? trim($request->phone) : null;
+        if ($phone === '+92' || $phone === '+92 ') {
+            $phone = null;
+        } elseif ($phone) {
+            $digits = preg_replace('/\D/', '', $phone);
+            if (str_starts_with($digits, '0') && strlen($digits) === 11) {
+                $digits = '92' . substr($digits, 1);
+            } elseif (!str_starts_with($digits, '92') && strlen($digits) === 10) {
+                $digits = '92' . $digits;
+            }
+            if (str_starts_with($digits, '92') && strlen($digits) === 12) {
+                $phone = '+92 ' . substr($digits, 2, 3) . ' ' . substr($digits, 5);
+            }
+        }
+
+        $cnic = $request->cnic ? trim($request->cnic) : null;
+        if ($cnic) {
+            $cnicDigits = preg_replace('/\D/', '', $cnic);
+            if (strlen($cnicDigits) === 13) {
+                $cnic = substr($cnicDigits, 0, 5) . '-' . substr($cnicDigits, 5, 7) . '-' . substr($cnicDigits, 12, 1);
+            }
+        }
+
+        $request->merge([
+            'phone' => $phone,
+            'cnic'  => $cnic,
+        ]);
+
         $request->validate([
             'name'       => 'required|string|max:255',
             'cnic'       => 'nullable|string|max:50|unique:clients,cnic',
-            'phone'      => 'nullable|string|max:20',
+            'phone'      => 'nullable|string|max:30',
             'company_id' => 'nullable|exists:companies,id',
         ], [
             'name.required'     => 'Client name is required.',
@@ -84,10 +113,38 @@ class ClientController extends Controller
         $this->authorize('client_edit');
         $client = Client::findOrFail($id);
 
+        $phone = $request->phone ? trim($request->phone) : null;
+        if ($phone === '+92' || $phone === '+92 ') {
+            $phone = null;
+        } elseif ($phone) {
+            $digits = preg_replace('/\D/', '', $phone);
+            if (str_starts_with($digits, '0') && strlen($digits) === 11) {
+                $digits = '92' . substr($digits, 1);
+            } elseif (!str_starts_with($digits, '92') && strlen($digits) === 10) {
+                $digits = '92' . $digits;
+            }
+            if (str_starts_with($digits, '92') && strlen($digits) === 12) {
+                $phone = '+92 ' . substr($digits, 2, 3) . ' ' . substr($digits, 5);
+            }
+        }
+
+        $cnic = $request->cnic ? trim($request->cnic) : null;
+        if ($cnic) {
+            $cnicDigits = preg_replace('/\D/', '', $cnic);
+            if (strlen($cnicDigits) === 13) {
+                $cnic = substr($cnicDigits, 0, 5) . '-' . substr($cnicDigits, 5, 7) . '-' . substr($cnicDigits, 12, 1);
+            }
+        }
+
+        $request->merge([
+            'phone' => $phone,
+            'cnic'  => $cnic,
+        ]);
+
         $request->validate([
             'name'       => 'required|string|max:255',
             'cnic'       => ['nullable', 'string', 'max:50', Rule::unique('clients', 'cnic')->ignore($client->id)],
-            'phone'      => 'nullable|string|max:20',
+            'phone'      => 'nullable|string|max:30',
             'company_id' => 'nullable|exists:companies,id',
         ], [
             'name.required'     => 'Client name is required.',

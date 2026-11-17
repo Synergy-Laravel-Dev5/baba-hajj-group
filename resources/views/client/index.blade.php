@@ -53,8 +53,21 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td><strong>{{ $client->name }}</strong></td>
-                                            <td>{{ $client->cnic ?? '—' }}</td>
-                                            <td>{{ $client->phone ?? '—' }}</td>
+                                            <td><span class="font-monospace">{{ $client->formatted_cnic ?? '—' }}</span></td>
+                                            <td>
+                                                @if ($client->whatsapp_url)
+                                                    <a href="{{ $client->whatsapp_url }}" target="_blank" rel="noopener noreferrer"
+                                                        class="text-decoration-none d-inline-flex align-items-center gap-1 text-dark client-wa-link"
+                                                        title="Click to chat on WhatsApp (+{{ preg_replace('/\D/', '', $client->whatsapp_url) }})">
+                                                        <span class="badge bg-success-subtle text-success border border-success-subtle p-1 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                                            <i class="mdi mdi-whatsapp fs-14"></i>
+                                                        </span>
+                                                        <span class="fw-semibold client-phone-text">{{ $client->formatted_phone }}</span>
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if ($client->company)
                                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
@@ -106,3 +119,20 @@
     </div>
 
 @endsection
+
+@push('scripts')
+<style>
+    .client-wa-link {
+        transition: all 0.15s ease-in-out;
+    }
+    .client-wa-link:hover .client-phone-text {
+        color: #25D366 !important;
+        text-decoration: underline !important;
+    }
+    .client-wa-link:hover .badge {
+        background-color: #25D366 !important;
+        color: #ffffff !important;
+        border-color: #25D366 !important;
+    }
+</style>
+@endpush

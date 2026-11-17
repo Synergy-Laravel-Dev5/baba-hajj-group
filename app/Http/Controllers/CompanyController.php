@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -22,137 +23,67 @@ class CompanyController extends Controller
         $trashcount = Company::onlyTrashed()->count();
         return view('companies.index', compact('companies', 'trashcount'));
     }
+
     public function create()
     {
         $this->authorize('company_create');
         $company = null;
-        return view('companies.create', compact('company'));
+        $nextCode = Company::generateCompanyCode();
+        return view('companies.create', compact('company', 'nextCode'));
     }
+
     public function store(Request $request)
     {
         $this->authorize('company_create');
 
+        if (!$request->filled('company_code')) {
+            $request->merge([
+                'company_code' => Company::generateCompanyCode(),
+            ]);
+        }
+
         $request->validate([
-            // Company Details
-            'company_name' => 'nullable|string|max:255',
-            'company_code' => 'nullable|string|max:255|unique:companies,company_code',
+            // Referral Details
+            'company_name'  => 'required|string|max:255',
+            'company_code'  => 'nullable|string|max:255|unique:companies,company_code',
+            'quota'         => 'nullable|integer|min:0',
             'currency_type' => ['nullable', new Enum(CurrencyType::class)],
-            'established_on' => 'nullable|date',
-            'quota' => 'nullable|integer|min:0',
-            'website' => 'nullable|url|max:255',
-            'company_status_on_establishment' => 'nullable|string|max:255',
-            'current_company_status' => 'nullable|string|max:255',
-
-            // Files
-            'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'company_stamp' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'letter_head_header' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'letter_head_footer' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'company_signature' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-
-            // Registration
-            'mohra_enrollment_no' => 'nullable|string|max:255',
-            'munazzam_no' => 'nullable|string|max:255',
-            'cluster_enrollment_no' => 'nullable|string|max:255',
-            'dts_no' => 'nullable|string|max:255',
-            'dts_expiry' => 'nullable|date',
-            'iata_no' => 'nullable|string|max:255',
-            'iata_expiry' => 'nullable|date',
-            'ntn' => 'nullable|string|max:255',
-
-            // Director
-            'director_name' => 'nullable|string|max:255',
-            'director_cnic' => 'nullable|string|max:255',
-            'director_cnic_expiry' => 'nullable|date',
-            'director_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'director_detail' => 'nullable|string',
-
-            // Bank
-            'bank_name' => 'nullable|string|max:255',
-            'account_title' => 'nullable|string|max:255',
-            'branch' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255',
 
             // Address
-            'address' => 'nullable|array',
-            'address.*.address_of' => 'nullable|string|max:255',
-            'address.*.address' => 'nullable|string',
-            'address.*.country' => 'nullable|string|max:255',
-            'address.*.city' => 'nullable|string|max:255',
-            'address.*.po_box' => 'nullable|string|max:255',
-            'address.*.zip_code' => 'nullable|string|max:255',
+            'address'                => 'nullable|array',
+            'address.*.address_of'   => 'nullable|string|max:255',
+            'address.*.address'      => 'nullable|string',
+            'address.*.country'      => 'nullable|string|max:255',
+            'address.*.city'         => 'nullable|string|max:255',
+            'address.*.po_box'       => 'nullable|string|max:255',
+            'address.*.zip_code'     => 'nullable|string|max:255',
             'address.*.is_preferred' => 'nullable|in:Yes,No',
 
             // Contact
-            'contact' => 'nullable|array',
+            'contact'                => 'nullable|array',
             'contact.*.contact_type' => 'nullable|string|max:255',
-            'contact.*.contact' => 'nullable|string|max:255',
+            'contact.*.contact'      => 'nullable|string|max:255',
             'contact.*.is_preferred' => 'nullable|in:Yes,No',
 
             // Email
-            'email' => 'nullable|array',
-            'email.*.email_type' => 'nullable|string|max:255',
-            'email.*.email' => 'nullable|email|max:255',
-            'email.*.is_preferred' => 'nullable|in:Yes,No',
-
-            // License
-            'license' => 'nullable|array',
-            'license.*.license_type' => 'nullable|string|max:255',
-            'license.*.license_no' => 'nullable|string|max:255',
-            'license.*.place_of_issue' => 'nullable|string|max:255',
-            'license.*.date_of_issue' => 'nullable|date',
-            'license.*.valid_upto' => 'nullable|date',
-            'license.*.is_preferred' => 'nullable|in:Yes,No',
+            'email'                  => 'nullable|array',
+            'email.*.email_type'     => 'nullable|string|max:255',
+            'email.*.email'          => 'nullable|email|max:255',
+            'email.*.is_preferred'   => 'nullable|in:Yes,No',
+        ], [
+            'company_name.required' => 'Referral name is required.',
+            'company_code.unique'   => 'This referral code has already been taken.',
         ]);
 
         DB::beginTransaction();
 
         try {
-
-            $data = $request->except([
-                'company_logo',
-                'company_stamp',
-                'letter_head_header',
-                'letter_head_footer',
-                'company_signature',
-                'director_photo',
-                'address',
-                'contact',
-                'email',
-                'license',
+            $company = Company::create([
+                'company_name'  => $request->company_name,
+                'company_code'  => $request->company_code,
+                'quota'         => $request->quota,
+                'currency_type' => $request->currency_type,
             ]);
-
-            if ($request->hasFile('company_logo')) {
-                $data['company_logo'] = $request->file('company_logo')
-                    ->store('companies/logo', 'public');
-            }
-
-            if ($request->hasFile('company_stamp')) {
-                $data['company_stamp'] = $request->file('company_stamp')
-                    ->store('companies/stamp', 'public');
-            }
-
-            if ($request->hasFile('letter_head_header')) {
-                $data['letter_head_header'] = $request->file('letter_head_header')
-                    ->store('companies/letter_head/header', 'public');
-            }
-
-            if ($request->hasFile('letter_head_footer')) {
-                $data['letter_head_footer'] = $request->file('letter_head_footer')
-                    ->store('companies/letter_head/footer', 'public');
-            }
-
-            if ($request->hasFile('company_signature')) {
-                $data['company_signature'] = $request->file('company_signature')
-                    ->store('companies/signature', 'public');
-            }
-
-            if ($request->hasFile('director_photo')) {
-                $data['director_photo'] = $request->file('director_photo')
-                    ->store('companies/director', 'public');
-            }
-
-            $company = Company::create($data);
 
             // ADDRESS
             foreach ($request->input('address', []) as $addr) {
@@ -197,46 +128,13 @@ class CompanyController extends Controller
                 ]);
             }
 
-            // LICENSE
-            foreach ($request->input('license', []) as $lic) {
-                if (empty($lic['license_type']) && empty($lic['license_no'])) {
-                    continue;
-                }
-
-                $company->licenses()->create([
-                    'license_type'   => $lic['license_type'] ?? '',
-                    'license_no'     => $lic['license_no'] ?? '',
-                    'place_of_issue' => $lic['place_of_issue'] ?? '',
-                    'date_of_issue'  => $lic['date_of_issue'] ?? null,
-                    'valid_upto'     => $lic['valid_upto'] ?? null,
-                    'is_preferred'   => ($lic['is_preferred'] ?? 'No') === 'Yes',
-                ]);
-            }
-
             DB::commit();
 
             return redirect()
                 ->route('company.index')
                 ->with('success', 'Referral created successfully.');
         } catch (Exception $e) {
-
             DB::rollBack();
-
-            foreach (
-                [
-                    'company_logo',
-                    'company_stamp',
-                    'letter_head_header',
-                    'letter_head_footer',
-                    'company_signature',
-                    'director_photo'
-                ] as $file
-            ) {
-
-                if (isset($data[$file]) && Storage::disk('public')->exists($data[$file])) {
-                    Storage::disk('public')->delete($data[$file]);
-                }
-            }
 
             return redirect()
                 ->back()
@@ -248,8 +146,9 @@ class CompanyController extends Controller
     public function edit($id)
     {
         $this->authorize('company_edit');
-        $company = Company::findOrFail($id);
-        return view('companies.create', compact('company'));
+        $company = Company::with(['addresses', 'contactNumbers', 'emails'])->findOrFail($id);
+        $nextCode = $company->company_code ?: Company::generateCompanyCode();
+        return view('companies.create', compact('company', 'nextCode'));
     }
 
     public function update(Request $request, $id)
@@ -257,141 +156,61 @@ class CompanyController extends Controller
         $this->authorize('company_edit');
         $company = Company::findOrFail($id);
 
+        if (!$request->filled('company_code')) {
+            $request->merge([
+                'company_code' => $company->company_code ?: Company::generateCompanyCode(),
+            ]);
+        }
+
         $request->validate([
-            // Company Details
-            'company_name' => 'nullable|string|max:255',
-            'company_code' => 'nullable|string|max:255|unique:companies,company_code,' . $company->id,
+            // Referral Details
+            'company_name'  => 'required|string|max:255',
+            'company_code'  => ['nullable', 'string', 'max:255', Rule::unique('companies', 'company_code')->ignore($company->id)],
+            'quota'         => 'nullable|integer|min:0',
             'currency_type' => ['nullable', new Enum(CurrencyType::class)],
-            'established_on' => 'nullable|date',
-            'quota' => 'nullable|integer|min:0',
-            'website' => 'nullable|url|max:255',
-            'company_status_on_establishment' => 'nullable|string|max:255',
-            'current_company_status' => 'nullable|string|max:255',
-
-            // Files
-            'company_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'company_stamp' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'letter_head_header' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'letter_head_footer' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'company_signature' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-
-            // Registration
-            'mohra_enrollment_no' => 'nullable|string|max:255',
-            'munazzam_no' => 'nullable|string|max:255',
-            'cluster_enrollment_no' => 'nullable|string|max:255',
-            'dts_no' => 'nullable|string|max:255',
-            'dts_expiry' => 'nullable|date',
-            'iata_no' => 'nullable|string|max:255',
-            'iata_expiry' => 'nullable|date',
-            'ntn' => 'nullable|string|max:255',
-
-            // Director
-            'director_name' => 'nullable|string|max:255',
-            'director_cnic' => 'nullable|string|max:255',
-            'director_cnic_expiry' => 'nullable|date',
-            'director_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'director_detail' => 'nullable|string',
-
-            // Bank
-            'bank_name' => 'nullable|string|max:255',
-            'account_title' => 'nullable|string|max:255',
-            'branch' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:255',
 
             // Address
-            'address' => 'nullable|array',
-            'address.*.address_of' => 'nullable|string|max:255',
-            'address.*.address' => 'nullable|string',
-            'address.*.country' => 'nullable|string|max:255',
-            'address.*.city' => 'nullable|string|max:255',
-            'address.*.po_box' => 'nullable|string|max:255',
-            'address.*.zip_code' => 'nullable|string|max:255',
+            'address'                => 'nullable|array',
+            'address.*.address_of'   => 'nullable|string|max:255',
+            'address.*.address'      => 'nullable|string',
+            'address.*.country'      => 'nullable|string|max:255',
+            'address.*.city'         => 'nullable|string|max:255',
+            'address.*.po_box'       => 'nullable|string|max:255',
+            'address.*.zip_code'     => 'nullable|string|max:255',
             'address.*.is_preferred' => 'nullable|in:Yes,No',
 
             // Contact
-            'contact' => 'nullable|array',
+            'contact'                => 'nullable|array',
             'contact.*.contact_type' => 'nullable|string|max:255',
-            'contact.*.contact' => 'nullable|string|max:255',
+            'contact.*.contact'      => 'nullable|string|max:255',
             'contact.*.is_preferred' => 'nullable|in:Yes,No',
 
             // Email
-            'email' => 'nullable|array',
-            'email.*.email_type' => 'nullable|string|max:255',
-            'email.*.email' => 'nullable|email|max:255',
-            'email.*.is_preferred' => 'nullable|in:Yes,No',
-
-            // License
-            'license' => 'nullable|array',
-            'license.*.license_type' => 'nullable|string|max:255',
-            'license.*.license_no' => 'nullable|string|max:255',
-            'license.*.place_of_issue' => 'nullable|string|max:255',
-            'license.*.date_of_issue' => 'nullable|date',
-            'license.*.valid_upto' => 'nullable|date',
-            'license.*.is_preferred' => 'nullable|in:Yes,No',
+            'email'                  => 'nullable|array',
+            'email.*.email_type'     => 'nullable|string|max:255',
+            'email.*.email'          => 'nullable|email|max:255',
+            'email.*.is_preferred'   => 'nullable|in:Yes,No',
+        ], [
+            'company_name.required' => 'Referral name is required.',
+            'company_code.unique'   => 'This referral code has already been taken.',
         ]);
 
         DB::beginTransaction();
 
-        $newFiles = [];
-
         try {
-
-            $data = $request->except([
-                'company_logo',
-                'company_stamp',
-                'letter_head_header',
-                'letter_head_footer',
-                'company_signature',
-                'director_photo',
-                'address',
-                'contact',
-                'email',
-                'license',
-                '_token',
-                '_method',
+            $company->update([
+                'company_name'  => $request->company_name,
+                'company_code'  => $request->company_code,
+                'quota'         => $request->quota,
+                'currency_type' => $request->currency_type,
             ]);
-
-            $fileFields = [
-                'company_logo' => 'companies/logo',
-                'company_stamp' => 'companies/stamp',
-                'letter_head_header' => 'companies/letter_head/header',
-                'letter_head_footer' => 'companies/letter_head/footer',
-                'company_signature' => 'companies/signature',
-                'director_photo' => 'companies/director',
-            ];
-
-            $oldFilesToDelete = [];
-
-            foreach ($fileFields as $field => $path) {
-
-                if ($request->hasFile($field)) {
-
-                    $data[$field] = $request->file($field)->store($path, 'public');
-
-                    $newFiles[] = $data[$field];
-
-                    if ($company->$field) {
-                        $oldFilesToDelete[] = $company->$field;
-                    }
-                }
-            }
-
-            $company->update($data);
-
-            /*
-        |--------------------------------------------------------------------------
-        | Child Tables
-        |--------------------------------------------------------------------------
-        */
 
             $company->addresses()->delete();
             $company->contactNumbers()->delete();
             $company->emails()->delete();
-            $company->licenses()->delete();
 
             // ADDRESS
             foreach ($request->input('address', []) as $addr) {
-
                 if (empty($addr['address_of']) && empty($addr['address'])) {
                     continue;
                 }
@@ -409,7 +228,6 @@ class CompanyController extends Controller
 
             // CONTACT
             foreach ($request->input('contact', []) as $con) {
-
                 if (empty($con['contact_type']) && empty($con['contact'])) {
                     continue;
                 }
@@ -423,7 +241,6 @@ class CompanyController extends Controller
 
             // EMAIL
             foreach ($request->input('email', []) as $em) {
-
                 if (empty($em['email_type']) && empty($em['email'])) {
                     continue;
                 }
@@ -435,44 +252,13 @@ class CompanyController extends Controller
                 ]);
             }
 
-            // LICENSE
-            foreach ($request->input('license', []) as $lic) {
-
-                if (empty($lic['license_type']) && empty($lic['license_no'])) {
-                    continue;
-                }
-
-                $company->licenses()->create([
-                    'license_type'   => $lic['license_type'] ?? '',
-                    'license_no'     => $lic['license_no'] ?? '',
-                    'place_of_issue' => $lic['place_of_issue'] ?? '',
-                    'date_of_issue'  => $lic['date_of_issue'] ?? null,
-                    'valid_upto'     => $lic['valid_upto'] ?? null,
-                    'is_preferred'   => ($lic['is_preferred'] ?? 'No') === 'Yes',
-                ]);
-            }
-
-            foreach ($oldFilesToDelete as $oldFile) {
-                if (Storage::disk('public')->exists($oldFile)) {
-                    Storage::disk('public')->delete($oldFile);
-                }
-            }
-
             DB::commit();
 
             return redirect()
                 ->route('company.index')
                 ->with('success', 'Referral updated successfully.');
         } catch (Exception $e) {
-
-
             DB::rollBack();
-
-            foreach ($newFiles as $file) {
-                if (Storage::disk('public')->exists($file)) {
-                    Storage::disk('public')->delete($file);
-                }
-            }
 
             return redirect()
                 ->back()
@@ -527,7 +313,7 @@ class CompanyController extends Controller
     public function show($id)
     {
         $this->authorize('company_show');
-        $company = Company::with(['addresses', 'contactNumbers', 'emails', 'licenses'])
+        $company = Company::with(['addresses', 'contactNumbers', 'emails'])
             ->findOrFail($id);
 
         return view('companies.show', compact('company'));

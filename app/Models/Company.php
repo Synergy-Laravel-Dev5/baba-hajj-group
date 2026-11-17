@@ -52,4 +52,29 @@ class Company extends Model
     {
         return $this->hasMany(CompanyLicense::class);
     }
+
+    /**
+     * Auto-generate sequential referral code like REF-001
+     */
+    public static function generateCompanyCode(): string
+    {
+        $last = self::withTrashed()
+            ->whereNotNull('company_code')
+            ->where('company_code', 'like', 'REF-%')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $nextSeq = 1;
+        if ($last && preg_match('/REF-(\d+)$/', $last->company_code, $matches)) {
+            $nextSeq = intval($matches[1]) + 1;
+        }
+
+        do {
+            $code = 'REF-' . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+            $exists = self::withTrashed()->where('company_code', $code)->exists();
+            $nextSeq++;
+        } while ($exists);
+
+        return $code;
+    }
 }

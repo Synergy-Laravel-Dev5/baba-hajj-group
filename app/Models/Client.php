@@ -51,4 +51,47 @@ class Client extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function getFormattedCnicAttribute(): ?string
+    {
+        if (empty($this->cnic)) {
+            return null;
+        }
+        $digits = preg_replace('/\D/', '', $this->cnic);
+        if (strlen($digits) === 13) {
+            return substr($digits, 0, 5) . '-' . substr($digits, 5, 7) . '-' . substr($digits, 12, 1);
+        }
+        return $this->cnic;
+    }
+
+    public function getFormattedPhoneAttribute(): ?string
+    {
+        if (empty($this->phone)) {
+            return null;
+        }
+        $digits = preg_replace('/\D/', '', $this->phone);
+        if (str_starts_with($digits, '0') && strlen($digits) === 11) {
+            $digits = '92' . substr($digits, 1);
+        } elseif (!str_starts_with($digits, '92') && strlen($digits) === 10) {
+            $digits = '92' . $digits;
+        }
+        if (str_starts_with($digits, '92') && strlen($digits) === 12) {
+            return '+92 ' . substr($digits, 2, 3) . ' ' . substr($digits, 5);
+        }
+        return $this->phone;
+    }
+
+    public function getWhatsappUrlAttribute(): ?string
+    {
+        if (empty($this->phone)) {
+            return null;
+        }
+        $digits = preg_replace('/\D/', '', $this->phone);
+        if (str_starts_with($digits, '0')) {
+            $digits = '92' . substr($digits, 1);
+        } elseif (!str_starts_with($digits, '92') && strlen($digits) === 10) {
+            $digits = '92' . $digits;
+        }
+        return !empty($digits) ? 'https://wa.me/' . $digits : null;
+    }
 }

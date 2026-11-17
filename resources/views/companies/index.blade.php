@@ -37,10 +37,11 @@
                             <table id="datatable" class="table table-bordered dt-responsive nowrap align-middle">
                                 <thead class="text-center">
                                     <tr>
-                                        <th>S:NO</th>
-                                        <th>Referral Name</th>
+                                        <th>#</th>
+                                        <th class="text-start">Referral Name</th>
                                         <th>Referral Code</th>
-                                        <th>Established Date</th>
+                                        <th>Quota</th>
+                                        <th>Currency</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -48,21 +49,26 @@
                                     @foreach ($companies as $company)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $company->company_name ?? 'N/A' }}</td>
-                                            <td>{{ $company->company_code ?? 'N/A' }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($company->established_on)->format('d-M-Y') }}</td>
-                                            <td class="text-center text-center">
-                                                <div class="d-inline-flex gap-2">
+                                            <td class="text-start"><strong>{{ $company->company_name ?? '—' }}</strong></td>
+                                            <td><span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">{{ $company->company_code ?? '—' }}</span></td>
+                                            <td><span class="fw-semibold">{{ $company->quota ?? '—' }}</span></td>
+                                            <td>
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                    {{ is_object($company->currency_type) ? ($company->currency_type->value ?? $company->currency_type->name) : ($company->currency_type ?? 'PKR') }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-inline-flex gap-1">
                                                     @can('company_show')
                                                     <a href="{{ route('company.show', $company->id) }}"
-                                                        class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center">
-                                                        Show
+                                                        class="btn btn-outline-primary btn-sm" title="View Details">
+                                                        <i class="mdi mdi-eye"></i>
                                                     </a>
                                                     @endcan
                                                     @can('company_edit')
                                                     <a href="{{ route('company.edit', $company->id) }}"
-                                                        class="btn btn-outline-success btn-sm d-flex align-items-center justify-content-center">
-                                                        Edit
+                                                        class="btn btn-outline-success btn-sm" title="Edit">
+                                                        <i class="mdi mdi-pencil"></i>
                                                     </a>
                                                     @endcan
                                                     @can('company_trash')
@@ -72,8 +78,8 @@
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit"
-                                                            class="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center">
-                                                            Delete
+                                                            class="btn btn-outline-danger btn-sm" title="Delete">
+                                                            <i class="mdi mdi-delete"></i>
                                                         </button>
                                                     </form>
                                                     @endcan
