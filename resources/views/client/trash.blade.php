@@ -1,14 +1,16 @@
 @extends('layout.master')
-@section('title', 'Client Trash')
+@section('title', 'Trash Clients')
 @section('content')
 
     <div class="content-page">
         <div class="content">
             <div class="container-fluid">
 
-                <div class="py-3 d-flex justify-content-between align-items-center">
-                    <h4 class="fs-18 fw-semibold m-0">Client Trash</h4>
-                    <a href="{{ route('client.index') }}" class="btn btn-secondary btn-sm">← Back</a>
+                <div class="py-3 d-flex align-items-center justify-content-between">
+                    <h4 class="fs-18 fw-semibold m-0">Trash Clients</h4>
+                    <a href="{{ route('client.index') }}" class="btn btn-secondary btn-sm">
+                        Back to Clients
+                    </a>
                 </div>
 
                 @if (session('success'))
@@ -38,17 +40,45 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td><strong>{{ $client->name }}</strong></td>
-                                            <td><span class="font-monospace">{{ $client->formatted_cnic ?? '—' }}</span></td>
                                             <td>
-                                                @if ($client->whatsapp_url)
-                                                    <a href="{{ $client->whatsapp_url }}" target="_blank" rel="noopener noreferrer"
-                                                        class="text-decoration-none d-inline-flex align-items-center gap-1 text-dark"
-                                                        title="Click to chat on WhatsApp">
-                                                        <span class="badge bg-success-subtle text-success border border-success-subtle p-1 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px;">
-                                                            <i class="mdi mdi-whatsapp fs-12"></i>
-                                                        </span>
-                                                        <span class="fw-semibold">{{ $client->formatted_phone }}</span>
-                                                    </a>
+                                                @if (!empty($client->cnic))
+                                                    @php
+                                                        $rawCnic = preg_replace('/\D/', '', $client->cnic);
+                                                        $formattedCnic = (strlen($rawCnic) === 13)
+                                                            ? substr($rawCnic, 0, 5) . '-' . substr($rawCnic, 5, 7) . '-' . substr($rawCnic, 12, 1)
+                                                            : $client->cnic;
+                                                    @endphp
+                                                    <span class="font-monospace">{{ $formattedCnic }}</span>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (!empty($client->phone))
+                                                    @php
+                                                        $rawDigits = preg_replace('/\D/', '', $client->phone);
+                                                        if (str_starts_with($rawDigits, '0')) {
+                                                            $waNumber = '92' . substr($rawDigits, 1);
+                                                        } elseif (str_starts_with($rawDigits, '92')) {
+                                                            $waNumber = $rawDigits;
+                                                        } elseif (strlen($rawDigits) === 10 && str_starts_with($rawDigits, '3')) {
+                                                            $waNumber = '92' . $rawDigits;
+                                                        } else {
+                                                            $waNumber = $rawDigits;
+                                                        }
+                                                    @endphp
+                                                    @if (!empty($waNumber))
+                                                        <a href="https://wa.me/{{ $waNumber }}" target="_blank" rel="noopener noreferrer"
+                                                           class="d-inline-flex align-items-center gap-1 text-decoration-none text-dark fw-medium"
+                                                           title="Open WhatsApp chat with {{ $client->name }}">
+                                                            <span class="badge bg-success-subtle text-success border border-success-subtle p-1 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px;">
+                                                                <i class="mdi mdi-whatsapp fs-12"></i>
+                                                            </span>
+                                                            <span>{{ $client->formatted_phone ?? $client->phone }}</span>
+                                                        </a>
+                                                    @else
+                                                        {{ $client->phone }}
+                                                    @endif
                                                 @else
                                                     <span class="text-muted">—</span>
                                                 @endif
@@ -74,7 +104,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center text-muted py-4">Trash is empty.</td>
+                                            <td colspan="7" class="text-center text-muted py-4">No trashed clients found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

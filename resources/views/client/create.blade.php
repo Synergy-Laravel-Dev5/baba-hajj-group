@@ -46,6 +46,7 @@
                                                     <input type="text" name="cnic" id="client_cnic" value="{{ old('cnic') }}"
                                                         class="form-control" placeholder="42101-2285325-7" maxlength="15" autocomplete="off">
                                                 </div>
+                                                <small class="text-muted fs-11">Format: 42101-2285325-7 (Dashes are added automatically)</small>
                                                 @error('cnic')
                                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
@@ -59,6 +60,7 @@
                                                     <input type="text" name="phone" id="client_phone" value="{{ old('phone') }}"
                                                         class="form-control" placeholder="+92 334 5409691" maxlength="16" autocomplete="off">
                                                 </div>
+                                                <small class="text-muted fs-11">Format: +92 3XX XXXXXXX (Starts automatically with +92)</small>
                                                 @error('phone')
                                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
@@ -103,146 +105,126 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const cnicInput = document.getElementById('client_cnic');
-    const phoneInput = document.getElementById('client_phone');
+(function() {
+    function initClientFormatting() {
+        const cnicInput = document.getElementById('client_cnic');
+        const phoneInput = document.getElementById('client_phone');
 
-    // ==========================================
-    // CNIC Auto Formatter: XXXXX-XXXXXXX-X
-    // ==========================================
-    function formatCnic(val) {
-        if (!val) return '';
-        const digits = val.replace(/\D/g, '').slice(0, 13);
-        let res = '';
-        if (digits.length > 0) {
-            res += digits.slice(0, Math.min(5, digits.length));
-        }
-        if (digits.length > 5) {
-            res += '-' + digits.slice(5, Math.min(12, digits.length));
-        }
-        if (digits.length > 12) {
-            res += '-' + digits.slice(12, 13);
-        }
-        return res;
-    }
-
-    if (cnicInput) {
-        if (cnicInput.value) {
-            cnicInput.value = formatCnic(cnicInput.value);
-        }
-
-        cnicInput.addEventListener('input', function () {
-            this.value = formatCnic(this.value);
-        });
-
-        cnicInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Backspace') {
-                const pos = this.selectionStart;
-                if (pos === this.selectionEnd && (pos === 6 || pos === 14)) {
-                    e.preventDefault();
-                    const val = this.value;
-                    const newVal = val.slice(0, pos - 2) + val.slice(pos);
-                    this.value = formatCnic(newVal);
-                    const newPos = Math.max(0, pos - 2);
-                    this.setSelectionRange(newPos, newPos);
+        // --- CNIC Auto Formatting (XXXXX-XXXXXXX-X) ---
+        function formatCNIC(val) {
+            if (!val) return '';
+            let digits = val.replace(/\D/g, '').substring(0, 13);
+            let res = '';
+            if (digits.length > 0) {
+                res = digits.substring(0, Math.min(5, digits.length));
+                if (digits.length > 5) {
+                    res += '-' + digits.substring(5, Math.min(12, digits.length));
+                    if (digits.length > 12) {
+                        res += '-' + digits.substring(12, 13);
+                    }
                 }
             }
-        });
-    }
-
-    // ==========================================
-    // Phone Auto Formatter: +92 3XX XXXXXXX
-    // ==========================================
-    function formatPhone(val) {
-        if (!val) return '';
-        let digits = val.replace(/\D/g, '');
-
-        if (digits.startsWith('92')) {
-            digits = digits.substring(2);
-        }
-        if (digits.startsWith('0')) {
-            digits = digits.substring(1);
+            return res;
         }
 
-        digits = digits.substring(0, 10);
-
-        if (digits.length === 0) {
-            return val.includes('+92') ? '+92 ' : '';
-        }
-
-        let res = '+92 ';
-        if (digits.length <= 3) {
-            res += digits;
-        } else {
-            res += digits.substring(0, 3) + ' ' + digits.substring(3);
-        }
-        return res;
-    }
-
-    if (phoneInput) {
-        if (phoneInput.value && phoneInput.value.trim() !== '') {
-            const pureDigits = phoneInput.value.replace(/\D/g, '').replace(/^92/, '');
-            phoneInput.value = pureDigits.length > 0 ? formatPhone(phoneInput.value) : '';
-        }
-
-        phoneInput.addEventListener('focus', function () {
-            if (!this.value.trim()) {
-                this.value = '+92 ';
-            }
-        });
-
-        phoneInput.addEventListener('blur', function () {
-            const pureDigits = this.value.replace(/\D/g, '').replace(/^92/, '');
-            if (pureDigits.length === 0) {
-                this.value = '';
-            }
-        });
-
-        phoneInput.addEventListener('input', function () {
-            const oldVal = this.value;
-            const pureDigits = oldVal.replace(/\D/g, '').replace(/^92/, '');
-
-            if (oldVal === '' || oldVal === '+' || oldVal === '+9') {
-                this.value = '';
-                return;
+        if (cnicInput) {
+            if (cnicInput.value) {
+                cnicInput.value = formatCNIC(cnicInput.value);
             }
 
-            if (pureDigits.length === 0 && (oldVal === '+92' || oldVal === '+92 ')) {
-                this.value = '+92 ';
-                return;
-            }
+            cnicInput.addEventListener('input', function() {
+                this.value = formatCNIC(this.value);
+            });
 
-            this.value = formatPhone(oldVal);
-        });
-
-        phoneInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Backspace') {
-                const pos = this.selectionStart;
-                const pureDigits = this.value.replace(/\D/g, '').replace(/^92/, '');
-
-                if (pureDigits.length === 0) {
+            cnicInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && (this.selectionStart === 6 || this.selectionStart === 14) && this.selectionStart === this.selectionEnd) {
+                    const pos = this.selectionStart;
+                    this.value = this.value.substring(0, pos - 1) + this.value.substring(pos);
+                    this.value = formatCNIC(this.value);
+                    this.setSelectionRange(pos - 1, pos - 1);
                     e.preventDefault();
-                    this.value = '';
-                } else if (pos === this.selectionEnd && pos === 9 && this.value.charAt(8) === ' ') {
-                    e.preventDefault();
-                    const val = this.value;
-                    const newVal = val.slice(0, 7) + val.slice(9);
-                    this.value = formatPhone(newVal);
-                    this.setSelectionRange(7, 7);
-                }
-            }
-        });
-
-        const parentForm = phoneInput.closest('form');
-        if (parentForm) {
-            parentForm.addEventListener('submit', function () {
-                const pureDigits = phoneInput.value.replace(/\D/g, '').replace(/^92/, '');
-                if (pureDigits.length === 0) {
-                    phoneInput.value = '';
                 }
             });
         }
+
+        // --- Contact No Auto Formatting (+92 3XX XXXXXXX) ---
+        function formatPhone(val) {
+            if (!val) return '';
+            let digits = val.replace(/\D/g, '');
+
+            if (digits.startsWith('92')) {
+                digits = digits.substring(2);
+            } else if (digits.startsWith('0')) {
+                digits = digits.substring(1);
+            }
+
+            digits = digits.substring(0, 10);
+
+            if (digits.length === 0) {
+                return val.includes('+') ? '+92 ' : '';
+            }
+
+            let res = '+92 ' + digits.substring(0, Math.min(3, digits.length));
+            if (digits.length > 3) {
+                res += ' ' + digits.substring(3, 10);
+            }
+            return res;
+        }
+
+        if (phoneInput) {
+            if (phoneInput.value) {
+                phoneInput.value = formatPhone(phoneInput.value);
+            }
+
+            phoneInput.addEventListener('focus', function() {
+                if (!this.value.trim()) {
+                    this.value = '+92 ';
+                }
+            });
+
+            phoneInput.addEventListener('input', function() {
+                this.value = formatPhone(this.value);
+            });
+
+            phoneInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace') {
+                    if (this.value === '+92 ' || this.value === '+92' || this.value === '+9') {
+                        e.preventDefault();
+                        this.value = '';
+                    } else if (this.selectionStart === 9 && this.selectionStart === this.selectionEnd && this.value.charAt(8) === ' ') {
+                        e.preventDefault();
+                        const val = this.value;
+                        const newVal = val.slice(0, 7) + val.slice(9);
+                        this.value = formatPhone(newVal);
+                        this.setSelectionRange(7, 7);
+                    }
+                }
+            });
+
+            phoneInput.addEventListener('blur', function() {
+                let digits = this.value.replace(/\D/g, '');
+                if (digits === '92' || digits === '') {
+                    this.value = '';
+                }
+            });
+
+            const form = phoneInput.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    let digits = phoneInput.value.replace(/\D/g, '');
+                    if (digits === '92' || digits === '') {
+                        phoneInput.value = '';
+                    }
+                });
+            }
+        }
     }
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initClientFormatting);
+    } else {
+        initClientFormatting();
+    }
+})();
 </script>
 @endpush

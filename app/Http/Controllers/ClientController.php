@@ -52,12 +52,14 @@ class ClientController extends Controller
             $phone = null;
         } elseif ($phone) {
             $digits = preg_replace('/\D/', '', $phone);
-            if (str_starts_with($digits, '0') && strlen($digits) === 11) {
+            if ($digits === '92' || empty($digits)) {
+                $phone = null;
+            } elseif (str_starts_with($digits, '0') && strlen($digits) === 11) {
                 $digits = '92' . substr($digits, 1);
             } elseif (!str_starts_with($digits, '92') && strlen($digits) === 10) {
                 $digits = '92' . $digits;
             }
-            if (str_starts_with($digits, '92') && strlen($digits) === 12) {
+            if ($digits && str_starts_with($digits, '92') && strlen($digits) === 12) {
                 $phone = '+92 ' . substr($digits, 2, 3) . ' ' . substr($digits, 5);
             }
         }
@@ -65,7 +67,9 @@ class ClientController extends Controller
         $cnic = $request->cnic ? trim($request->cnic) : null;
         if ($cnic) {
             $cnicDigits = preg_replace('/\D/', '', $cnic);
-            if (strlen($cnicDigits) === 13) {
+            if (empty($cnicDigits)) {
+                $cnic = null;
+            } elseif (strlen($cnicDigits) === 13) {
                 $cnic = substr($cnicDigits, 0, 5) . '-' . substr($cnicDigits, 5, 7) . '-' . substr($cnicDigits, 12, 1);
             }
         }
@@ -74,7 +78,6 @@ class ClientController extends Controller
             'phone' => $phone,
             'cnic'  => $cnic,
         ]);
-
         $request->validate([
             'name'       => 'required|string|max:255',
             'cnic'       => 'nullable|string|max:50|unique:clients,cnic',
@@ -118,12 +121,14 @@ class ClientController extends Controller
             $phone = null;
         } elseif ($phone) {
             $digits = preg_replace('/\D/', '', $phone);
-            if (str_starts_with($digits, '0') && strlen($digits) === 11) {
+            if ($digits === '92' || empty($digits)) {
+                $phone = null;
+            } elseif (str_starts_with($digits, '0') && strlen($digits) === 11) {
                 $digits = '92' . substr($digits, 1);
             } elseif (!str_starts_with($digits, '92') && strlen($digits) === 10) {
                 $digits = '92' . $digits;
             }
-            if (str_starts_with($digits, '92') && strlen($digits) === 12) {
+            if ($digits && str_starts_with($digits, '92') && strlen($digits) === 12) {
                 $phone = '+92 ' . substr($digits, 2, 3) . ' ' . substr($digits, 5);
             }
         }
@@ -131,7 +136,9 @@ class ClientController extends Controller
         $cnic = $request->cnic ? trim($request->cnic) : null;
         if ($cnic) {
             $cnicDigits = preg_replace('/\D/', '', $cnic);
-            if (strlen($cnicDigits) === 13) {
+            if (empty($cnicDigits)) {
+                $cnic = null;
+            } elseif (strlen($cnicDigits) === 13) {
                 $cnic = substr($cnicDigits, 0, 5) . '-' . substr($cnicDigits, 5, 7) . '-' . substr($cnicDigits, 12, 1);
             }
         }
@@ -140,7 +147,6 @@ class ClientController extends Controller
             'phone' => $phone,
             'cnic'  => $cnic,
         ]);
-
         $request->validate([
             'name'       => 'required|string|max:255',
             'cnic'       => ['nullable', 'string', 'max:50', Rule::unique('clients', 'cnic')->ignore($client->id)],

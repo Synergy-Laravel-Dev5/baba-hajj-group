@@ -53,17 +53,45 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td><strong>{{ $client->name }}</strong></td>
-                                            <td><span class="font-monospace">{{ $client->formatted_cnic ?? '—' }}</span></td>
                                             <td>
-                                                @if ($client->whatsapp_url)
-                                                    <a href="{{ $client->whatsapp_url }}" target="_blank" rel="noopener noreferrer"
-                                                        class="text-decoration-none d-inline-flex align-items-center gap-1 text-dark client-wa-link"
-                                                        title="Click to chat on WhatsApp (+{{ preg_replace('/\D/', '', $client->whatsapp_url) }})">
-                                                        <span class="badge bg-success-subtle text-success border border-success-subtle p-1 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
-                                                            <i class="mdi mdi-whatsapp fs-14"></i>
-                                                        </span>
-                                                        <span class="fw-semibold client-phone-text">{{ $client->formatted_phone }}</span>
-                                                    </a>
+                                                @if (!empty($client->cnic))
+                                                    @php
+                                                        $rawCnic = preg_replace('/\D/', '', $client->cnic);
+                                                        $formattedCnic = (strlen($rawCnic) === 13)
+                                                            ? substr($rawCnic, 0, 5) . '-' . substr($rawCnic, 5, 7) . '-' . substr($rawCnic, 12, 1)
+                                                            : $client->cnic;
+                                                    @endphp
+                                                    <span class="font-monospace">{{ $formattedCnic }}</span>
+                                                @else
+                                                    <span class="text-muted">—</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (!empty($client->phone))
+                                                    @php
+                                                        $rawDigits = preg_replace('/\D/', '', $client->phone);
+                                                        if (str_starts_with($rawDigits, '0')) {
+                                                            $waNumber = '92' . substr($rawDigits, 1);
+                                                        } elseif (str_starts_with($rawDigits, '92')) {
+                                                            $waNumber = $rawDigits;
+                                                        } elseif (strlen($rawDigits) === 10 && str_starts_with($rawDigits, '3')) {
+                                                            $waNumber = '92' . $rawDigits;
+                                                        } else {
+                                                            $waNumber = $rawDigits;
+                                                        }
+                                                    @endphp
+                                                    @if (!empty($waNumber))
+                                                        <a href="https://wa.me/{{ $waNumber }}" target="_blank" rel="noopener noreferrer"
+                                                           class="d-inline-flex align-items-center gap-1 text-decoration-none text-dark fw-medium client-wa-link"
+                                                           title="Open WhatsApp chat with {{ $client->name }}">
+                                                            <span class="badge bg-success-subtle text-success border border-success-subtle p-1 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                                                <i class="mdi mdi-whatsapp fs-14"></i>
+                                                            </span>
+                                                            <span class="fw-semibold client-phone-text">{{ $client->formatted_phone ?? $client->phone }}</span>
+                                                        </a>
+                                                    @else
+                                                        {{ $client->phone }}
+                                                    @endif
                                                 @else
                                                     <span class="text-muted">—</span>
                                                 @endif
