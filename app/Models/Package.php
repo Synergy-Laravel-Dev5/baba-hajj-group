@@ -193,6 +193,42 @@ class Package extends Model
         return asset('storage/' . ltrim($this->banner_image, '/'));
     }
 
+    public function getMaktabAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        $category = $this->camp_category ?: ($this->category ?: null);
+        if (!empty($category)) {
+            $formatted = (stripos($category, 'maktab') === false && strlen(trim($category)) <= 5)
+                ? 'Maktab ' . strtoupper(trim($category))
+                : trim($category);
+
+            if (!empty($this->camp_zone)) {
+                $zone = (stripos($this->camp_zone, 'zone') === false)
+                    ? 'Zone ' . trim($this->camp_zone)
+                    : trim($this->camp_zone);
+                return $formatted . ' (' . $zone . ')';
+            }
+
+            return $formatted;
+        }
+
+        $hasC = ($this->maktab_c_quad_pkr > 0 || $this->maktab_c_triple_pkr > 0 || $this->maktab_c_double_pkr > 0);
+        $hasA = ($this->maktab_a_quad_pkr > 0 || $this->maktab_a_triple_pkr > 0 || $this->maktab_a_double_pkr > 0);
+
+        if ($hasC && $hasA) {
+            return 'Maktab A & C';
+        } elseif ($hasA) {
+            return 'Maktab A';
+        } elseif ($hasC) {
+            return 'Maktab C';
+        }
+
+        return null;
+    }
+
     // Scopes
     public function scopeUmrah($query)
     {

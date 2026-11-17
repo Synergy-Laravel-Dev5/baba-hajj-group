@@ -59,7 +59,7 @@
                                                 <strong>{{ $package->package_title ? $package->package_title . ($package->name ? ' - ' . $package->name : '') : $package->name }}</strong>
                                             </td>
                                             <td>{{ $package->code }}</td>
-                                            <td>{{ $package->maktab }}</td>
+                                            <td>{{ $package->maktab ?: '-' }}</td>
                                             <td>{{ $package->days }}</td>
                                             <td>{{ $package->created_at->format('d M, Y') }}</td>
                                             <td>

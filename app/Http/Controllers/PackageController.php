@@ -112,6 +112,18 @@ class PackageController extends Controller
             if (empty($package->package_type)) {
                 $package->package_type = 'hajj';
             }
+            if (empty($package->maktab) && !empty($package->camp_category)) {
+                $cat = (stripos($package->camp_category, 'maktab') === false && strlen(trim($package->camp_category)) <= 5)
+                    ? 'Maktab ' . strtoupper(trim($package->camp_category))
+                    : trim($package->camp_category);
+                if (!empty($package->camp_zone)) {
+                    $zone = (stripos($package->camp_zone, 'zone') === false)
+                        ? 'Zone ' . trim($package->camp_zone)
+                        : trim($package->camp_zone);
+                    $cat .= ' (' . $zone . ')';
+                }
+                $package->maktab = $cat;
+            }
             $package->save();
 
             $this->saveRelations($request, $package, $data);
@@ -180,6 +192,18 @@ class PackageController extends Controller
             $package->fill($data['package']);
             if (empty($package->package_type)) {
                 $package->package_type = 'hajj';
+            }
+            if (empty($package->maktab) && !empty($package->camp_category)) {
+                $cat = (stripos($package->camp_category, 'maktab') === false && strlen(trim($package->camp_category)) <= 5)
+                    ? 'Maktab ' . strtoupper(trim($package->camp_category))
+                    : trim($package->camp_category);
+                if (!empty($package->camp_zone)) {
+                    $zone = (stripos($package->camp_zone, 'zone') === false)
+                        ? 'Zone ' . trim($package->camp_zone)
+                        : trim($package->camp_zone);
+                    $cat .= ' (' . $zone . ')';
+                }
+                $package->maktab = $cat;
             }
             $package->save();
 
