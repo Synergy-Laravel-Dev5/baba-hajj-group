@@ -318,6 +318,14 @@
                             </a>
                         </li>
                     @endcan
+                    @canany(['booking_view', 'booking_create', 'booking_edit'])
+                        <li class="{{ request()->routeIs('documents.*') ? 'active' : '' }}">
+                            <a href="{{ route('documents.index', ['package_type' => session('dashboard_package', 'hajj')]) }}">
+                                <i data-feather="upload-cloud"></i>
+                                <span>Upload Documents</span>
+                            </a>
+                        </li>
+                    @endcanany
                     @can('person_report_view')
                     <li>
                         <a href="{{ route('report.person') }}">

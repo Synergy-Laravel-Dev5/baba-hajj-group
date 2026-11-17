@@ -1139,6 +1139,9 @@
                         <i class="mdi mdi-badge-account-outline text-primary"></i> Pilgrim Identity Manifest & ID Badges
                     </div>
                     <div class="d-flex align-items-center gap-2">
+                        <a href="{{ route('documents.index', ['booking_id' => $booking->id]) }}" class="btn-table-icon" style="background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe;" title="Upload & manage pilgrim documents">
+                            <i class="mdi mdi-folder-upload-outline"></i> Upload Documents
+                        </a>
                         <a href="{{ route('pilgrim.bulk-badges', $booking->id) }}" target="_blank" class="btn-table-icon btn-table-badge" title="Print all badges on A4 sheet">
                             <i class="mdi mdi-printer"></i> Hajji ID Card (All)
                         </a>

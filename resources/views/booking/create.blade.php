@@ -2367,9 +2367,21 @@
                             <option value="without_ticket">Without Ticket</option>
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-file-document-outline text-success me-1"></i>Passport Upload (Scan/PDF)</label>
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-file-document-outline text-info me-1"></i>Passport Upload (Scan/PDF)</label>
                         <input type="file" name="persons[${idx}][passport_image]" id="person_passport_image_${idx}" class="form-control form-control-sm" accept="image/*,.pdf">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-hospital-box-outline text-warning me-1"></i>Medical Report (Scan/PDF)</label>
+                        <input type="file" name="persons[${idx}][medical_document]" id="person_medical_document_${idx}" class="form-control form-control-sm" accept="image/*,.pdf">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-card-account-details-outline text-purple me-1"></i>ID (CNIC) Scan/PDF</label>
+                        <input type="file" name="persons[${idx}][id_document]" id="person_id_document_${idx}" class="form-control form-control-sm" accept="image/*,.pdf">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-lock-outline text-danger me-1"></i>Portal / Nusuk Password</label>
+                        <input type="text" name="persons[${idx}][portal_password]" id="person_portal_password_${idx}" class="form-control form-control-sm font-monospace" placeholder="e.g. Nusuk@123">
                     </div>
                 </div>
             </div>`;

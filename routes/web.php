@@ -42,6 +42,7 @@ use App\Http\Controllers\RoomingListController;
 use App\Http\Controllers\HotelPersonReportController;
 use App\Http\Controllers\BusAssignmentController;
 use App\Http\Controllers\PilgrimPassController;
+use App\Http\Controllers\PilgrimDocumentController;
 use App\Http\Controllers\HotelSaleController;
 use App\Http\Controllers\MobileOps\GalleryController;
 use App\Http\Controllers\MobileOps\HajjBookController;
@@ -154,6 +155,19 @@ Route::middleware('auth')->group(function () {
             Route::get('pilgrim/badge/{id}', 'badge')->name('pilgrim.badge');
             Route::get('booking/{booking}/badges', 'bulkBadges')->name('pilgrim.bulk-badges');
         });
+
+        Route::controller(PilgrimDocumentController::class)
+            ->prefix('documents')
+            ->name('documents.')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('booking/{id}', 'fetchBooking')->name('booking');
+                Route::post('person/{id}/upload', 'upload')->name('upload');
+                Route::post('person/{id}/password', 'updatePassword')->name('password');
+                Route::post('person/{id}/update-all', 'updateAll')->name('update-all');
+                Route::delete('person/{id}/delete/{type}', 'deleteDocument')->name('delete');
+                Route::get('booking/{id}/zip', 'downloadZip')->name('zip');
+            });
 
         Route::controller(ArrivalGroupController::class)
             ->prefix('arrival-group')

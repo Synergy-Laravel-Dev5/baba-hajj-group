@@ -187,6 +187,13 @@
                                                                 </a>
                                                             @endcan
 
+                                                            <!-- UPLOAD DOCUMENTS -->
+                                                            <a href="{{ route('documents.index', ['booking_id' => $booking->id]) }}"
+                                                                class="btn btn-sm btn-outline-primary"
+                                                                title="Upload Documents & Passwords">
+                                                                <i class="mdi mdi-folder-upload-outline"></i>
+                                                            </a>
+
                                                             <!-- CLIENT INVOICE -->
                                                             <a href="{{ route('booking.invoice', $booking->id) }}"
                                                                 target="_blank" class="btn btn-sm btn-outline-info"

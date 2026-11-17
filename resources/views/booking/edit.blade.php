@@ -675,17 +675,45 @@
                                                     <option value="without_ticket" {{ ($person->ticket_status ?? '') === 'without_ticket' ? 'selected' : '' }}>Without Ticket</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" style="font-size:12px;"><i class="mdi mdi-file-document-outline text-success me-1"></i>Passport Upload (Scan/PDF)</label>
-                                                <div class="d-flex align-items-center gap-2">
+                                            <div class="col-md-3">
+                                                <label class="form-label" style="font-size:12px;"><i class="mdi mdi-file-document-outline text-info me-1"></i>Passport Upload</label>
+                                                <div class="d-flex align-items-center gap-1">
                                                     <input type="file" name="persons[{{ $i }}][passport_image]" id="person_passport_image_{{ $i }}" class="form-control form-control-sm" accept="image/*,.pdf">
                                                     @if(!empty($person->passport_image))
                                                         <input type="hidden" name="persons[{{ $i }}][existing_passport_image]" value="{{ $person->passport_image }}">
-                                                        <a href="{{ asset($person->passport_image) }}" target="_blank" class="btn btn-sm btn-outline-info flex-shrink-0" title="View Uploaded Passport">
+                                                        <a href="{{ asset($person->passport_image) }}" target="_blank" class="btn btn-sm btn-outline-info flex-shrink-0 py-1 px-2" title="View Uploaded Passport">
                                                             <i class="mdi mdi-file-eye"></i>
                                                         </a>
                                                     @endif
                                                 </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label" style="font-size:12px;"><i class="mdi mdi-hospital-box-outline text-warning me-1"></i>Medical Report</label>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <input type="file" name="persons[{{ $i }}][medical_document]" id="person_medical_document_{{ $i }}" class="form-control form-control-sm" accept="image/*,.pdf">
+                                                    @if(!empty($person->medical_document))
+                                                        <input type="hidden" name="persons[{{ $i }}][existing_medical_document]" value="{{ $person->medical_document }}">
+                                                        <a href="{{ asset($person->medical_document) }}" target="_blank" class="btn btn-sm btn-outline-warning text-dark flex-shrink-0 py-1 px-2" title="View Medical Report">
+                                                            <i class="mdi mdi-file-eye"></i>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label" style="font-size:12px;"><i class="mdi mdi-card-account-details-outline text-purple me-1"></i>ID (CNIC) Upload</label>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <input type="file" name="persons[{{ $i }}][id_document]" id="person_id_document_{{ $i }}" class="form-control form-control-sm" accept="image/*,.pdf">
+                                                    @if(!empty($person->id_document))
+                                                        <input type="hidden" name="persons[{{ $i }}][existing_id_document]" value="{{ $person->id_document }}">
+                                                        <a href="{{ asset($person->id_document) }}" target="_blank" class="btn btn-sm btn-outline-secondary flex-shrink-0 py-1 px-2" style="color:#8b5cf6;" title="View ID Document">
+                                                            <i class="mdi mdi-file-eye"></i>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label" style="font-size:12px;"><i class="mdi mdi-lock-outline text-danger me-1"></i>Portal / Nusuk Password</label>
+                                                <input type="text" name="persons[{{ $i }}][portal_password]" id="person_portal_password_{{ $i }}" class="form-control form-control-sm font-monospace" placeholder="Password..." value="{{ old("persons.{$i}.portal_password", $person->portal_password) }}">
                                             </div>
                                         </div>
                                     </div>
@@ -2969,9 +2997,21 @@
                             <option value="without_ticket">Without Ticket</option>
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-file-document-outline text-success me-1"></i>Passport Upload (Scan/PDF)</label>
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-file-document-outline text-info me-1"></i>Passport Upload (Scan/PDF)</label>
                         <input type="file" name="persons[${idx}][passport_image]" id="person_passport_image_${idx}" class="form-control form-control-sm" accept="image/*,.pdf">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-hospital-box-outline text-warning me-1"></i>Medical Report (Scan/PDF)</label>
+                        <input type="file" name="persons[${idx}][medical_document]" id="person_medical_document_${idx}" class="form-control form-control-sm" accept="image/*,.pdf">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-card-account-details-outline text-purple me-1"></i>ID (CNIC) Scan/PDF</label>
+                        <input type="file" name="persons[${idx}][id_document]" id="person_id_document_${idx}" class="form-control form-control-sm" accept="image/*,.pdf">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" style="font-size:12px;"><i class="mdi mdi-lock-outline text-danger me-1"></i>Portal / Nusuk Password</label>
+                        <input type="text" name="persons[${idx}][portal_password]" id="person_portal_password_${idx}" class="form-control form-control-sm font-monospace" placeholder="e.g. Nusuk@123">
                     </div>
                 </div>
             </div>`;

@@ -304,8 +304,46 @@ class BookingController extends Controller
                             }
                         }
 
-                        unset($personData['existing_photo'], $personData['existing_passport_image'], $personData['father_name']);
-                        $booking->persons()->create($personData);
+                        if ($request->hasFile("persons.{$index}.medical_document")) {
+                            try {
+                                $mFile = $request->file("persons.{$index}.medical_document");
+                                $mFilename = 'med_' . time() . '_' . $index . '_' . uniqid() . '.' . $mFile->getClientOriginalExtension();
+                                $mFile->move($uploadDir, $mFilename);
+                                $personData['medical_document'] = 'uploads/booking_persons/' . $mFilename;
+                            } catch (\Throwable $me) {
+                                Log::warning('Person medical doc upload skipped: ' . $me->getMessage());
+                            }
+                        }
+
+                        if ($request->hasFile("persons.{$index}.id_document")) {
+                            try {
+                                $idFile = $request->file("persons.{$index}.id_document");
+                                $idFilename = 'id_' . time() . '_' . $index . '_' . uniqid() . '.' . $idFile->getClientOriginalExtension();
+                                $idFile->move($uploadDir, $idFilename);
+                                $personData['id_document'] = 'uploads/booking_persons/' . $idFilename;
+                            } catch (\Throwable $ie) {
+                                Log::warning('Person id doc upload skipped: ' . $ie->getMessage());
+                            }
+                        }
+
+                        if (!empty($person['portal_password'])) {
+                            $personData['portal_password'] = $person['portal_password'];
+                        }
+
+                        unset($personData['existing_photo'], $personData['existing_passport_image'], $personData['existing_medical_document'], $personData['existing_id_document'], $personData['father_name']);
+                        $createdPerson = $booking->persons()->create($personData);
+
+                        \App\Models\PersonDocument::updateOrCreate(
+                            ['person_id' => $createdPerson->id],
+                            [
+                                'booking_id' => $booking->id,
+                                'passport' => $createdPerson->passport_image,
+                                'medical' => $createdPerson->medical_document,
+                                'id_document' => $createdPerson->id_document,
+                                'nic_front' => $createdPerson->id_document,
+                                'password' => $createdPerson->portal_password,
+                            ]
+                        );
                     }
                 }
             }
@@ -659,8 +697,52 @@ class BookingController extends Controller
                             $pData['passport_image'] = $p['existing_passport_image'];
                         }
 
-                        unset($pData['existing_photo'], $pData['existing_passport_image']);
-                        $booking->persons()->create($pData);
+                        if ($request->hasFile("persons.{$index}.medical_document")) {
+                            try {
+                                $mFile = $request->file("persons.{$index}.medical_document");
+                                $mFilename = 'med_' . time() . '_' . $index . '_' . uniqid() . '.' . $mFile->getClientOriginalExtension();
+                                $mFile->move($uploadDir, $mFilename);
+                                $pData['medical_document'] = 'uploads/booking_persons/' . $mFilename;
+                            } catch (\Throwable $me) {
+                                Log::warning('Person medical doc upload skipped on update: ' . $me->getMessage());
+                            }
+                        } elseif (!empty($p['existing_medical_document'])) {
+                            $pData['medical_document'] = $p['existing_medical_document'];
+                        }
+
+                        if ($request->hasFile("persons.{$index}.id_document")) {
+                            try {
+                                $idFile = $request->file("persons.{$index}.id_document");
+                                $idFilename = 'id_' . time() . '_' . $index . '_' . uniqid() . '.' . $idFile->getClientOriginalExtension();
+                                $idFile->move($uploadDir, $idFilename);
+                                $pData['id_document'] = 'uploads/booking_persons/' . $idFilename;
+                            } catch (\Throwable $ie) {
+                                Log::warning('Person id doc upload skipped on update: ' . $ie->getMessage());
+                            }
+                        } elseif (!empty($p['existing_id_document'])) {
+                            $pData['id_document'] = $p['existing_id_document'];
+                        }
+
+                        if (!empty($p['portal_password'])) {
+                            $pData['portal_password'] = $p['portal_password'];
+                        } elseif (!empty($p['existing_portal_password'])) {
+                            $pData['portal_password'] = $p['existing_portal_password'];
+                        }
+
+                        unset($pData['existing_photo'], $pData['existing_passport_image'], $pData['existing_medical_document'], $pData['existing_id_document'], $pData['existing_portal_password']);
+                        $createdPerson = $booking->persons()->create($pData);
+
+                        \App\Models\PersonDocument::updateOrCreate(
+                            ['person_id' => $createdPerson->id],
+                            [
+                                'booking_id' => $booking->id,
+                                'passport' => $createdPerson->passport_image,
+                                'medical' => $createdPerson->medical_document,
+                                'id_document' => $createdPerson->id_document,
+                                'nic_front' => $createdPerson->id_document,
+                                'password' => $createdPerson->portal_password,
+                            ]
+                        );
                     }
                 }
             }
