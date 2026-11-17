@@ -27,8 +27,10 @@
             }
         }
         if (!$badgeLogoPath) {
-            if (file_exists(public_path('assets/images/baba_hajj_logo_crisp.png'))) {
-                $badgeLogoPath = public_path('assets/images/baba_hajj_logo_crisp.png');
+            if (file_exists(public_path('assets/images/emblem_gold_hd.png'))) {
+                $badgeLogoPath = public_path('assets/images/emblem_gold_hd.png');
+            } elseif (file_exists(public_path('assets/images/favicon-emblem.png'))) {
+                $badgeLogoPath = public_path('assets/images/favicon-emblem.png');
             } elseif (file_exists(public_path('assets/images/logo_clean_transparent.png'))) {
                 $badgeLogoPath = public_path('assets/images/logo_clean_transparent.png');
             }
@@ -208,18 +210,18 @@
 
         .badge-brand-plate {
             background: #ffffff;
-            padding: 3.5mm 3.2mm 2.6mm;
+            padding: 3mm 3.2mm 2.5mm;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 9px;
-            border-bottom: 1px solid #f1f5f9;
+            gap: 12px;
+            border-bottom: 1.5px solid #e2e8f0;
         }
 
         .badge-logo-img {
-            height: 44px;
+            height: 48px;
             width: auto;
-            max-width: 80px;
+            max-width: 60px;
             object-fit: contain;
             display: block;
         }
@@ -233,7 +235,7 @@
 
         .badge-brand-title {
             font-family: 'Cinzel', serif;
-            font-size: 11.5px;
+            font-size: 13.5px;
             font-weight: 900;
             letter-spacing: 0.6px;
             text-transform: uppercase;
@@ -242,12 +244,12 @@
         }
 
         .badge-brand-sub {
-            font-size: 6.8px;
+            font-size: 7.2px;
             font-weight: 800;
             color: #92400e;
-            letter-spacing: 0.7px;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
-            margin-top: 1px;
+            margin-top: 1.5px;
         }
 
         .badge-vip-ribbon {
