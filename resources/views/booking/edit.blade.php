@@ -148,43 +148,28 @@
                                     {{-- <small class="text-muted">Auto-calculated from Room Sharing Pax</small> --}}
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Care Of</label>
-                                    <input type="text" name="care_of" class="form-control"
-                                        value="{{ old('care_of', $booking->care_of) }}" placeholder="Guardian / Agent">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Passport Number</label>
-                                    <input type="text" name="passport_number" id="fill_passport" class="form-control"
-                                        value="{{ old('passport_number', $booking->passport_number) }}">
+                                    <label class="form-label fw-bold">Care Of <span class="text-danger">*</span></label>
+                                    <input type="text" name="care_of" id="care_of" class="form-control"
+                                        value="{{ old('care_of', $booking->care_of) }}" placeholder="Guardian / Agent" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">CNIC Number</label>
                                     <input type="text" name="cnic" id="fill_cnic" class="form-control"
-                                        value="{{ old('cnic', $booking->cnic) }}">
+                                        value="{{ old('cnic', $booking->cnic) }}" placeholder="Auto-filled from client">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Phone Number</label>
                                     <input type="text" name="phone" id="fill_phone" class="form-control"
-                                        value="{{ old('phone', $booking->phone) }}">
+                                        value="{{ old('phone', $booking->phone) }}" placeholder="Auto-filled from client">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Payment Contact</label>
                                     <input type="text" name="Payment-Contact" class="form-control"
-                                        value="{{ old('emergency_phone', $booking->emergency_phone) }}">
+                                        value="{{ old('emergency_phone', $booking->emergency_phone) }}" placeholder="+92 300 0000000">
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Voucher Number</label>
-                                    <input type="text" name="voucher_number" class="form-control"
-                                        value="{{ old('voucher_number', $booking->voucher_number) }}">
-                                </div>
-                                {{-- <div class="col-md-4">
-                                    <label class="form-label">Card Number</label>
-                                    <input type="text" name="card_number" class="form-control"
-                                        value="{{ old('card_number', $booking->card_number) }}">
-                                </div> --}}
-                                <div class="col-md-12">
+                                <div class="col-md-8">
                                     <label class="form-label">Remarks / Special Notes</label>
-                                    <textarea name="remarks" class="form-control" rows="2" placeholder="Special requests, instructions, booking remarks...">{{ old('remarks', $booking->remarks) }}</textarea>
+                                    <textarea name="remarks" class="form-control" rows="1" placeholder="Special requests, instructions, booking remarks...">{{ old('remarks', $booking->remarks) }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -251,8 +236,9 @@
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold text-primary"><i class="mdi mdi-barcode me-1"></i>Package Code</label>
                                     <input type="text" id="package_code_display" class="form-control bg-light fw-bold text-dark"
-                                        value="{{ $booking->package ? ($booking->package->code ?? $booking->package->package_number ?? '') : '' }}"
-                                        placeholder="e.g. PW001" readonly>
+                                        value="{{ $bookingHbNumber ?? ($booking->package ? ($booking->package->next_booking_code ?? $booking->package->code ?? '') : 'AZ 01') }}"
+                                        placeholder="e.g. AZ 01" readonly>
+                                    <input type="hidden" name="booking_code" id="booking_code_input" value="{{ $bookingHbNumber ?? '' }}">
                                 </div>
 
                                 <div class="col-md-9">
@@ -345,7 +331,7 @@
                                     <div class="row g-3">
 
                                         {{-- Maktab C Card --}}
-                                        <div class="col-lg-6" id="maktabCCard">
+                                        <div class="col-12" id="maktabCCard">
                                             <div class="pkg-pricing-card h-100">
                                                 <div class="pkg-pricing-header d-flex">
                                                     <div class="pkg-maktab-badge d-flex flex-column align-items-center justify-content-center">
@@ -407,63 +393,6 @@
                                                                     <button class="btn btn-outline-secondary btn-step-minus" type="button" data-target="c_double_pax">-</button>
                                                                     <input type="number" name="room_breakdown[c_double_pax]" id="c_double_pax" class="form-control text-center room-pax-input" value="{{ $rb['c_double_pax'] ?? 0 }}" min="0">
                                                                     <button class="btn btn-outline-secondary btn-step-plus" type="button" data-target="c_double_pax">+</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {{-- Maktab A Card --}}
-                                        <div class="col-lg-6" id="maktabACard">
-                                            <div class="pkg-pricing-card h-100">
-                                                <div class="pkg-pricing-header d-flex">
-                                                    <div class="pkg-maktab-badge d-flex flex-column align-items-center justify-content-center">
-                                                        <span class="maktab-letter">A</span>
-                                                        <span class="maktab-text">MAKTAB</span>
-                                                        <span class="maktab-zone" id="lbl_maktab_a_zone">ZONE 1 OR 2</span>
-                                                    </div>
-                                                    <div class="pkg-pricing-cols d-flex flex-grow-1">
-                                                        {{-- Quad --}}
-                                                        <div class="pkg-col flex-1 text-center p-2 border-end">
-                                                            <div class="pkg-col-title">QUAD</div>
-                                                            <div class="pkg-col-pkr" id="disp_a_quad_pkr">0.00</div>
-                                                            <div class="pkg-col-usd" id="disp_a_quad_usd">$ 0.00</div>
-                                                            <div class="pax-stepper mt-2">
-                                                                <label class="small text-muted d-block" style="font-size:11px;">Pax in Quad</label>
-                                                                <div class="input-group input-group-sm">
-                                                                    <button class="btn btn-outline-secondary btn-step-minus" type="button" data-target="a_quad_pax">-</button>
-                                                                    <input type="number" name="room_breakdown[a_quad_pax]" id="a_quad_pax" class="form-control text-center room-pax-input" value="{{ $rb['a_quad_pax'] ?? 0 }}" min="0">
-                                                                    <button class="btn btn-outline-secondary btn-step-plus" type="button" data-target="a_quad_pax">+</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        {{-- Triple --}}
-                                                        <div class="pkg-col flex-1 text-center p-2 border-end">
-                                                            <div class="pkg-col-title">TRIPLE</div>
-                                                            <div class="pkg-col-pkr" id="disp_a_triple_pkr">0.00</div>
-                                                            <div class="pkg-col-usd" id="disp_a_triple_usd">$ 0.00</div>
-                                                            <div class="pax-stepper mt-2">
-                                                                <label class="small text-muted d-block" style="font-size:11px;">Pax in Triple</label>
-                                                                <div class="input-group input-group-sm">
-                                                                    <button class="btn btn-outline-secondary btn-step-minus" type="button" data-target="a_triple_pax">-</button>
-                                                                    <input type="number" name="room_breakdown[a_triple_pax]" id="a_triple_pax" class="form-control text-center room-pax-input" value="{{ $rb['a_triple_pax'] ?? 0 }}" min="0">
-                                                                    <button class="btn btn-outline-secondary btn-step-plus" type="button" data-target="a_triple_pax">+</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        {{-- Double --}}
-                                                        <div class="pkg-col flex-1 text-center p-2">
-                                                            <div class="pkg-col-title">DOUBLE</div>
-                                                            <div class="pkg-col-pkr" id="disp_a_double_pkr">0.00</div>
-                                                            <div class="pkg-col-usd" id="disp_a_double_usd">$ 0.00</div>
-                                                            <div class="pax-stepper mt-2">
-                                                                <label class="small text-muted d-block" style="font-size:11px;">Pax in Double</label>
-                                                                <div class="input-group input-group-sm">
-                                                                    <button class="btn btn-outline-secondary btn-step-minus" type="button" data-target="a_double_pax">-</button>
-                                                                    <input type="number" name="room_breakdown[a_double_pax]" id="a_double_pax" class="form-control text-center room-pax-input" value="{{ $rb['a_double_pax'] ?? 0 }}" min="0">
-                                                                    <button class="btn btn-outline-secondary btn-step-plus" type="button" data-target="a_double_pax">+</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -701,25 +630,21 @@
                                                     class="form-control form-control-sm" placeholder="XXXXX-XXXXXXX-X"
                                                     value="{{ $person->cnic ?? '' }}">
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-3">
                                                 <label class="form-label" style="font-size:12px;">Gender</label>
                                                 <select name="persons[{{ $i }}][gender]" id="person_gender_{{ $i }}" class="form-select form-select-sm">
                                                     <option value="Male" {{ strtolower($person->gender ?? 'male') === 'male' ? 'selected' : '' }}>Male</option>
                                                     <option value="Female" {{ strtolower($person->gender ?? '') === 'female' ? 'selected' : '' }}>Female</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-2">
+                                            <div class="col-md-3">
                                                 <label class="form-label" style="font-size:12px;">Hajj ID</label>
                                                 <input type="text" name="persons[{{ $i }}][hajj_id]" id="person_hajj_id_{{ $i }}"
-                                                    class="form-control form-control-sm" placeholder="e.g. PW27001"
+                                                    class="form-control form-control-sm" placeholder="e.g. BG001"
                                                     value="{{ $person->hajj_id ?? '' }}">
                                             </div>
-                                            <div class="col-md-2">
-                                                <label class="form-label" style="font-size:12px;">HB #</label>
-                                                <input type="text" name="persons[{{ $i }}][hb_number]" id="person_hb_number_{{ $i }}"
-                                                    class="form-control form-control-sm person-hb-input" placeholder="e.g. HB0001"
-                                                    value="{{ $bookingHbNumber ?? ($person->hb_number ?? '') }}" oninput="syncAllHbNumbers(this.value)">
-                                            </div>
+                                            <input type="hidden" name="persons[{{ $i }}][hb_number]" id="person_hb_number_{{ $i }}"
+                                                class="person-hb-input" value="{{ $bookingHbNumber ?? ($person->hb_number ?? '') }}">
                                             <div class="col-md-3">
                                                 <label class="form-label" style="font-size:12px;">Phone</label>
                                                 <input type="text" name="persons[{{ $i }}][phone]" id="person_phone_{{ $i }}"
@@ -750,7 +675,7 @@
                                                     <option value="without_ticket" {{ ($person->ticket_status ?? '') === 'without_ticket' ? 'selected' : '' }}>Without Ticket</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-6">
                                                 <label class="form-label" style="font-size:12px;"><i class="mdi mdi-file-document-outline text-success me-1"></i>Passport Upload (Scan/PDF)</label>
                                                 <div class="d-flex align-items-center gap-2">
                                                     <input type="file" name="persons[{{ $i }}][passport_image]" id="person_passport_image_{{ $i }}" class="form-control form-control-sm" accept="image/*,.pdf">
@@ -1895,9 +1820,9 @@
         function handleClientChange() {
             const opt = clientSelectEl.options[clientSelectEl.selectedIndex];
             if (opt) {
-                document.getElementById('fill_passport').value = opt.dataset.passport || '';
-                document.getElementById('fill_cnic').value = opt.dataset.cnic || '';
-                document.getElementById('fill_phone').value = opt.dataset.phone || '';
+                if (document.getElementById('fill_passport')) document.getElementById('fill_passport').value = opt.dataset.passport || '';
+                if (document.getElementById('fill_cnic')) document.getElementById('fill_cnic').value = opt.dataset.cnic || '';
+                if (document.getElementById('fill_phone')) document.getElementById('fill_phone').value = opt.dataset.phone || '';
 
                 // Auto-select Client's Referral
                 const companyId = opt.dataset.companyId;
@@ -1906,9 +1831,9 @@
                     $(companySelectEl).val(companyId).trigger('change.select2');
                 }
             } else {
-                document.getElementById('fill_passport').value = '';
-                document.getElementById('fill_cnic').value = '';
-                document.getElementById('fill_phone').value = '';
+                if (document.getElementById('fill_passport')) document.getElementById('fill_passport').value = '';
+                if (document.getElementById('fill_cnic')) document.getElementById('fill_cnic').value = '';
+                if (document.getElementById('fill_phone')) document.getElementById('fill_phone').value = '';
             }
 
             const firstSel = document.querySelector('.person-client-select[data-idx="0"]');
@@ -1946,53 +1871,9 @@
 
         function updateMaktabCardsVisibility() {
             const maktabCCard = document.getElementById('maktabCCard');
-            const maktabACard = document.getElementById('maktabACard');
-            if (!maktabCCard || !maktabACard) return;
-
-            const campVal = (campSelect ? campSelect.value : '').toLowerCase();
-            const hasC = (currentPkgRates.c_sharing > 0 || currentPkgRates.c_quad > 0 || currentPkgRates.c_triple > 0 || currentPkgRates.c_double > 0);
-            const hasA = (currentPkgRates.a_quad > 0 || currentPkgRates.a_triple > 0 || currentPkgRates.a_double > 0);
-
-            let showC = true;
-            let showA = true;
-
-            if (campVal.includes('combo') || campVal.includes('& c')) {
-                showC = true;
-                showA = true;
-            } else if (campVal.includes('maktab c') || campVal.includes('zone 5')) {
-                showC = true;
-                showA = false;
-            } else if (campVal.includes('maktab a') || campVal.includes('zone 1') || campVal.includes('zone 2')) {
-                showC = false;
-                showA = true;
-            } else {
-                if (hasC && !hasA) {
-                    showC = true;
-                    showA = false;
-                } else if (hasA && !hasC) {
-                    showC = false;
-                    showA = true;
-                } else {
-                    showC = true;
-                    showA = true;
-                }
-            }
-
-            if (showC && !showA) {
+            if (maktabCCard) {
                 maktabCCard.classList.remove('d-none', 'col-lg-6');
                 maktabCCard.classList.add('col-12');
-                maktabACard.classList.add('d-none');
-                maktabACard.classList.remove('col-12');
-            } else if (showA && !showC) {
-                maktabACard.classList.remove('d-none', 'col-lg-6');
-                maktabACard.classList.add('col-12');
-                maktabCCard.classList.add('d-none');
-                maktabCCard.classList.remove('col-12');
-            } else {
-                maktabCCard.classList.remove('d-none', 'col-12');
-                maktabCCard.classList.add('col-lg-6');
-                maktabACard.classList.remove('d-none', 'col-12');
-                maktabACard.classList.add('col-lg-6');
             }
         }
 
@@ -2162,19 +2043,15 @@
 
             if (totalMainPax > 0) {
                 document.getElementById('no_of_pax').value = totalMainPax;
-                const avgPerPax = totalCost / totalMainPax;
-                packageCostInput.value = avgPerPax.toFixed(2);
-
-                const hasC = (cs + cq + ct + cd) > 0;
-                const hasA = (aq + at + ad) > 0;
-                if (hasC && hasA) {
-                    campSelect.value = 'Maktab A & C (Combo)';
-                } else if (hasA) {
-                    campSelect.value = 'Maktab A (Zone 1/2)';
-                } else if (hasC) {
-                    campSelect.value = 'Maktab C (Zone 5)';
+                if (totalCost > 0) {
+                    const avgPerPax = totalCost / totalMainPax;
+                    packageCostInput.value = avgPerPax.toFixed(2);
                 }
-                $(campSelect).val(campSelect.value).trigger('change.select2');
+
+                if (campSelect) {
+                    campSelect.value = 'Maktab C (Zone 5)';
+                    $(campSelect).val('Maktab C (Zone 5)').trigger('change.select2');
+                }
                 syncCampCategoryPreview();
                 updateMaktabCardsVisibility();
 
@@ -2820,15 +2697,31 @@
             const pkg = packagesData.find(p => p.id === pkgId);
 
             if (pkg) {
-                const pkgCode = pkg.code || pkg.package_number || '';
+                const pkgCode = pkg.next_booking_code || pkg.code || pkg.package_number || 'AZ 01';
                 const codeDisplay = document.getElementById('package_code_display');
                 if (codeDisplay) codeDisplay.value = pkgCode;
+
+                const bookingCodeInput = document.getElementById('booking_code_input');
+                if (bookingCodeInput) bookingCodeInput.value = pkgCode;
+
+                // Sync all person hidden HB / booking code inputs
+                document.querySelectorAll('.person-hb-input').forEach(inp => {
+                    inp.value = pkgCode;
+                });
 
                 const previewCodeBadge = document.getElementById('preview_pkg_code');
                 if (previewCodeBadge) previewCodeBadge.textContent = pkgCode ? 'CODE: ' + pkgCode : 'CODE: —';
 
                 const previewCodeText = document.getElementById('preview_pkg_code_text');
                 if (previewCodeText) previewCodeText.textContent = pkgCode || '—';
+
+                // Auto populate package default cost if currently empty or 0
+                const currentCost = parseFloat(packageCostInput.value) || 0;
+                const defaultPrice = Number(pkg.adult_pkr || pkg.maktab_c_quad_pkr || pkg.price_sharing || pkg.price_quad || 0);
+                if (currentCost === 0 && defaultPrice > 0) {
+                    packageCostInput.value = defaultPrice.toFixed(2);
+                }
+                calcTotal();
 
                 packageInfoCard.classList.remove('d-none');
                 packageNameInput.value = pkg.package_title || pkg.name || '';
@@ -2843,19 +2736,8 @@
                 // Auto select camp
                 if (campSelect) {
                     let chosenCamp = 'Maktab C (Zone 5)';
-                    const cat = (pkg.camp_category || '').trim().toUpperCase();
                     const maktabName = (pkg.maktab || '').toUpperCase();
-                    const zoneStr = (pkg.camp_zone || pkg.zone || '').toUpperCase();
-                    const hasA = (Number(pkg.maktab_a_quad_pkr || 0) > 0 || Number(pkg.maktab_a_triple_pkr || 0) > 0 || Number(pkg.maktab_a_double_pkr || 0) > 0);
-                    const hasC = (Number(pkg.price_sharing || 0) > 0 || Number(pkg.maktab_c_quad_pkr || 0) > 0 || Number(pkg.maktab_c_triple_pkr || 0) > 0 || Number(pkg.maktab_c_double_pkr || 0) > 0);
-
-                    if (cat === 'A & C' || maktabName.includes('COMBO') || (hasA && hasC)) {
-                        chosenCamp = 'Maktab A & C (Combo)';
-                    } else if (cat === 'A' || maktabName.includes('MAKTAB A') || zoneStr.includes('ZONE 1') || zoneStr.includes('ZONE 2') || (hasA && !hasC)) {
-                        chosenCamp = 'Maktab A (Zone 1/2)';
-                    } else if (cat === 'C' || maktabName.includes('MAKTAB C') || zoneStr.includes('ZONE 5') || (hasC && !hasA)) {
-                        chosenCamp = 'Maktab C (Zone 5)';
-                    } else if (maktabName.includes('VIP')) {
+                    if (maktabName.includes('VIP')) {
                         chosenCamp = 'VIP Mina Camp';
                     } else if (maktabName.includes('STANDARD')) {
                         chosenCamp = 'Standard Camp';
@@ -3053,23 +2935,25 @@
                         <input type="text" name="persons[${idx}][cnic]" id="person_cnic_${idx}"
                                class="form-control form-control-sm" placeholder="XXXXX-XXXXXXX-X">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label" style="font-size:12px;">Gender</label>
                         <select name="persons[${idx}][gender]" id="person_gender_${idx}" class="form-select form-select-sm">
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label" style="font-size:12px;">Hajj ID</label>
                         <input type="text" name="persons[${idx}][hajj_id]" id="person_hajj_id_${idx}"
-                               class="form-control form-control-sm" placeholder="e.g. PW27001">
+                               class="form-control form-control-sm" placeholder="e.g. BG001"
+                               value="${(function() {
+                                   if (!currentNextHajjId) return '';
+                                   const num = parseInt(currentNextHajjId.replace(/\D/g, '')) || 1;
+                                   return 'BG' + String(num + idx).padStart(3, '0');
+                               })()}">
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label" style="font-size:12px;">HB #</label>
-                        <input type="text" name="persons[${idx}][hb_number]" id="person_hb_number_${idx}"
-                               class="form-control form-control-sm person-hb-input" value="${currentHbNumber || ''}" oninput="syncAllHbNumbers(this.value)" placeholder="e.g. HB0001">
-                    </div>
+                    <input type="hidden" name="persons[${idx}][hb_number]" id="person_hb_number_${idx}"
+                           class="person-hb-input" value="${document.getElementById('booking_code_input')?.value || currentHbNumber || ''}">
                     <div class="col-md-3">
                         <label class="form-label" style="font-size:12px;">Phone</label>
                         <input type="text" name="persons[${idx}][phone]" id="person_phone_${idx}"
@@ -3092,7 +2976,7 @@
                             <option value="without_ticket">Without Ticket</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label" style="font-size:12px;"><i class="mdi mdi-file-document-outline text-success me-1"></i>Passport Upload (Scan/PDF)</label>
                         <input type="file" name="persons[${idx}][passport_image]" id="person_passport_image_${idx}" class="form-control form-control-sm" accept="image/*,.pdf">
                     </div>
@@ -3880,6 +3764,17 @@
                     scrollToSection('tab-details');
                     alert('⚠️ No of Pax must be at least 1.');
                     paxInput.focus();
+                    return false;
+                }
+
+                // 2b. Validate Care Of (Required)
+                const careOfInput = document.getElementById('care_of');
+                if (careOfInput && !careOfInput.value.trim()) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    scrollToSection('tab-details');
+                    alert('⚠️ Please enter Care Of (Guardian / Agent) before updating the booking.');
+                    careOfInput.focus();
                     return false;
                 }
 

@@ -81,7 +81,7 @@ class BookingPerson extends Model
     }
 
     /**
-     * Standardize Hajj ID to strict format: PW27001, PW27002, ...
+     * Standardize Hajj ID to strict format: BG001, BG002, ...
      */
     public static function formatHajjId(?string $value): ?string
     {
@@ -89,9 +89,9 @@ class BookingPerson extends Model
             return null;
         }
         $trimmed = strtoupper(trim($value));
-        if (preg_match('/^(?:PW)?(?:27)?(\d+)$/i', $trimmed, $matches)) {
+        if (preg_match('/^(?:BG|PW27)?[-_\s]?(\d+)$/i', $trimmed, $matches)) {
             $num = (int) $matches[1];
-            return 'PW27' . str_pad($num, 3, '0', STR_PAD_LEFT);
+            return 'BG' . str_pad($num, 3, '0', STR_PAD_LEFT);
         }
         return $trimmed;
     }
@@ -105,7 +105,7 @@ class BookingPerson extends Model
     }
 
     /**
-     * Auto-generate sequential Hajj ID (PW27001, PW27002, ...)
+     * Auto-generate sequential Hajj ID (BG001, BG002, ...)
      */
     public static function generateNextHajjId(): string
     {
@@ -116,7 +116,7 @@ class BookingPerson extends Model
             ->pluck('hajj_id');
 
         foreach ($all as $hid) {
-            if (preg_match('/PW27(\d+)/i', $hid, $matches)) {
+            if (preg_match('/(?:BG|PW27)?[-_\s]?(\d+)/i', $hid, $matches)) {
                 $val = (int) $matches[1];
                 if ($val > $maxNum) {
                     $maxNum = $val;
@@ -126,11 +126,12 @@ class BookingPerson extends Model
 
         $next = $maxNum > 0 ? ($maxNum + 1) : 1;
 
-        return 'PW27' . str_pad($next, 3, '0', STR_PAD_LEFT);
+        return 'BG' . str_pad($next, 3, '0', STR_PAD_LEFT);
     }
 
     /**
-     * Standardize HB number to strict 4-digit format: HB0001, HB0002, ..., HB0010
+     * Standardize HB number / booking code format.
+     * Preserves package booking codes like "AZ 01", "AZ 02".
      */
     public static function formatHbNumber(?string $value): ?string
     {
@@ -138,11 +139,16 @@ class BookingPerson extends Model
             return null;
         }
         $trimmed = trim($value);
-        if (preg_match('/(\d+)/', $trimmed, $matches)) {
-            $num = (int) $matches[1];
-            return 'HB' . str_pad($num, 4, '0', STR_PAD_LEFT);
+        // If it starts with HB e.g. "HB1" or "HB0001", normalize to HB0001
+        if (preg_match('/^HB[-_\s]?(\d+)$/i', $trimmed, $matches)) {
+            return 'HB' . str_pad((int) $matches[1], 4, '0', STR_PAD_LEFT);
         }
-        return $trimmed;
+        // If it's a pure number, format as HB000X for backward compatibility
+        if (preg_match('/^\d+$/', $trimmed)) {
+            return 'HB' . str_pad((int) $trimmed, 4, '0', STR_PAD_LEFT);
+        }
+        // Otherwise it's a custom/package booking code like "AZ 01", "AZ 02", preserve as uppercase
+        return strtoupper($trimmed);
     }
 
     /**

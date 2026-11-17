@@ -66,7 +66,7 @@
                                             <tr>
                                                 <th class="text-center" style="width: 55px;">S:NO</th>
                                                 <th class="text-center" style="width: 110px;">Booking Date</th>
-                                                <th class="text-center" style="width: 100px;">HB #</th>
+                                                <th class="text-center" style="width: 110px;">Booking Code</th>
                                                 <th style="min-width: 160px;">Client / Company</th>
                                                 <th style="min-width: 180px;">Package Type</th>
                                                 <th class="text-center" style="width: 90px;">No of Pax</th>

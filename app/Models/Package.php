@@ -256,6 +256,11 @@ class Package extends Model
     }
 
     // Relationships
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
     public function accommodations()
     {
         return $this->hasMany(PackageAccommodation::class);

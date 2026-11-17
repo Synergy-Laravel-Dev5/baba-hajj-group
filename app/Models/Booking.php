@@ -94,6 +94,55 @@ class Booking extends Model
         });
     }
 
+    /**
+     * Auto-generate sequential package booking code, e.g. "AZ 01", "AZ 02", etc.
+     */
+    public static function generateNextPackageBookingCode(?int $packageId, ?int $excludeBookingId = null): string
+    {
+        $package = $packageId ? Package::find($packageId) : null;
+        $rawCode = $package ? ($package->code ?: ($package->package_number ?: 'AZ')) : 'AZ';
+
+        // Extract alphabetic/symbol prefix before trailing digits, e.g. "AZ01" -> "AZ", "AZ 01" -> "AZ", "AZ" -> "AZ"
+        if (preg_match('/^([A-Za-z\s_-]+)/', $rawCode, $m)) {
+            $prefix = strtoupper(trim(preg_replace('/[-_\s]+$/', '', $m[1])));
+        } else {
+            $prefix = 'AZ';
+        }
+        if (empty($prefix)) {
+            $prefix = 'AZ';
+        }
+
+        $query = self::query();
+        if ($packageId) {
+            $query->where('package_id', $packageId);
+        }
+        if ($excludeBookingId) {
+            $query->where('id', '!=', $excludeBookingId);
+        }
+        $bookingIds = $query->pluck('id');
+
+        $maxNum = 0;
+        if ($bookingIds->isNotEmpty()) {
+            $existingCodes = BookingPerson::whereIn('booking_id', $bookingIds)
+                ->whereNotNull('hb_number')
+                ->where('hb_number', '!=', '')
+                ->pluck('hb_number');
+
+            foreach ($existingCodes as $c) {
+                if (preg_match('/(\d+)$/', trim($c), $match)) {
+                    $num = (int) $match[1];
+                    if ($num > $maxNum) {
+                        $maxNum = $num;
+                    }
+                }
+            }
+        }
+
+        $next = max($maxNum, $bookingIds->count()) + 1;
+
+        return $prefix . ' ' . str_pad($next, 2, '0', STR_PAD_LEFT);
+    }
+
     public function package()
     {
         return $this->belongsTo(Package::class);

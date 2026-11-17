@@ -73,6 +73,10 @@ class BookingController extends Controller
             ->latest()
             ->get();
 
+        foreach ($packages as $pkg) {
+            $pkg->next_booking_code = \App\Models\Booking::generateNextPackageBookingCode($pkg->id);
+        }
+
         $nextHbNumber = \App\Models\BookingPerson::generateNextHbNumber();
         $nextHajjId   = \App\Models\BookingPerson::generateNextHajjId();
         $vehicles  = \App\Models\Vehicle::where('status', 'active')->orderBy('vehicle_type')->orderBy('brand_name')->get();
@@ -108,6 +112,8 @@ class BookingController extends Controller
             'booking_for'     => 'required|in:client,company',
             'client_id'       => 'required_if:booking_for,client|nullable|exists:clients,id',
             'company_id'      => 'required_if:booking_for,company|nullable|exists:companies,id',
+            'care_of'         => 'required|string|max:255',
+            'no_of_pax'       => 'required|integer|min:1',
             'package_id'      => 'nullable|exists:packages,id',
             'package_type'    => 'nullable|in:umrah,hajj,other',
             'camp'            => 'nullable|string|max:150',
@@ -219,16 +225,21 @@ class BookingController extends Controller
                     @mkdir($uploadDir, 0777, true);
                 }
 
-                // Determine unified HB number for all persons in this booking
-                $bookingHbNumber = null;
-                foreach ($request->persons as $p) {
-                    if (!empty($p['hb_number'])) {
-                        $bookingHbNumber = \App\Models\BookingPerson::formatHbNumber($p['hb_number']);
-                        break;
+                // Determine unified booking code (e.g. AZ 01, AZ 02) for all persons in this booking
+                $bookingHbNumber = $request->booking_code;
+                if (empty($bookingHbNumber) && !empty($booking->package_id)) {
+                    $bookingHbNumber = \App\Models\Booking::generateNextPackageBookingCode($booking->package_id);
+                }
+                if (empty($bookingHbNumber)) {
+                    foreach ($request->persons as $p) {
+                        if (!empty($p['hb_number'])) {
+                            $bookingHbNumber = trim($p['hb_number']);
+                            break;
+                        }
                     }
                 }
                 if (empty($bookingHbNumber)) {
-                    $bookingHbNumber = \App\Models\BookingPerson::generateNextHbNumber();
+                    $bookingHbNumber = 'AZ 01';
                 }
 
                 foreach ($request->persons as $index => $person) {
@@ -391,13 +402,20 @@ class BookingController extends Controller
             ->latest()
             ->get();
 
+        foreach ($packages as $pkg) {
+            $pkg->next_booking_code = \App\Models\Booking::generateNextPackageBookingCode($pkg->id, $booking->id);
+        }
+
         $transactionsPaid = Transaction::where('client_id', $booking->client_id)
             ->where('status', 'confirmed')
             ->sum('amount');
 
         $bookingHbNumber = $booking->persons->pluck('hb_number')->filter()->first();
+        if (empty($bookingHbNumber) && $booking->package_id) {
+            $bookingHbNumber = \App\Models\Booking::generateNextPackageBookingCode($booking->package_id, $booking->id);
+        }
         if (empty($bookingHbNumber)) {
-            $bookingHbNumber = \App\Models\BookingPerson::generateNextHbNumber($booking->id);
+            $bookingHbNumber = 'AZ 01';
         }
         $vehicles  = \App\Models\Vehicle::where('status', 'active')->orderBy('vehicle_type')->orderBy('brand_name')->get();
         if ($vehicles->isEmpty()) {
@@ -433,6 +451,8 @@ class BookingController extends Controller
             'booking_for'     => 'required|in:client,company',
             'client_id'       => 'required_if:booking_for,client|nullable|exists:clients,id',
             'company_id'      => 'required_if:booking_for,company|nullable|exists:companies,id',
+            'care_of'         => 'required|string|max:255',
+            'no_of_pax'       => 'required|integer|min:1',
             'package_id'      => 'nullable|exists:packages,id',
             'package_type'    => 'nullable|in:umrah,hajj,other',
             'camp'            => 'nullable|string|max:150',
@@ -561,21 +581,17 @@ class BookingController extends Controller
                     @mkdir($uploadDir, 0777, true);
                 }
 
-                // Determine unified HB number for all persons in this booking
-                $bookingHbNumber = null;
-                foreach ($request->persons as $p) {
-                    if (!empty($p['hb_number'])) {
-                        $bookingHbNumber = \App\Models\BookingPerson::formatHbNumber($p['hb_number']);
-                        break;
-                    }
-                }
+                // Determine unified booking code (e.g. AZ 01, AZ 02) for all persons in this booking
+                $bookingHbNumber = $request->booking_code;
                 if (empty($bookingHbNumber)) {
                     $bookingHbNumber = $booking->persons()->whereNotNull('hb_number')->where('hb_number', '!=', '')->value('hb_number');
                 }
-                if (empty($bookingHbNumber)) {
-                    $bookingHbNumber = \App\Models\BookingPerson::generateNextHbNumber($booking->id);
+                if (empty($bookingHbNumber) && !empty($booking->package_id)) {
+                    $bookingHbNumber = \App\Models\Booking::generateNextPackageBookingCode($booking->package_id, $booking->id);
                 }
-                $bookingHbNumber = \App\Models\BookingPerson::formatHbNumber($bookingHbNumber);
+                if (empty($bookingHbNumber)) {
+                    $bookingHbNumber = 'AZ 01';
+                }
 
                 foreach ($request->persons as $index => $p) {
                     $name = !empty($p['full_name']) ? trim($p['full_name']) : trim(($p['given_name'] ?? '') . ' ' . ($p['surname'] ?? ''));
