@@ -165,7 +165,7 @@ class Package extends Model
         'valid_until'              => 'date',
     ];
 
-    protected $appends = ['package_image_url', 'banner_image_url'];
+    protected $appends = ['package_image_url', 'banner_image_url', 'maktab'];
 
     public function getPackageImageUrlAttribute(): ?string
     {

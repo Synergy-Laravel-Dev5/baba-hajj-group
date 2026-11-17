@@ -354,9 +354,23 @@
                                                         <span class="maktab-zone" id="lbl_maktab_c_zone">ZONE 5</span>
                                                     </div>
                                                     <div class="pkg-pricing-cols d-flex flex-grow-1">
+                                                        {{-- Sharing --}}
+                                                        <div class="pkg-col flex-1 text-center p-2 border-end">
+                                                            <div class="pkg-col-title">SHARING</div>
+                                                            <div class="pkg-col-pkr" id="disp_c_sharing_pkr">0.00</div>
+                                                            <div class="pkg-col-usd" id="disp_c_sharing_usd">$ 0.00</div>
+                                                            <div class="pax-stepper mt-2">
+                                                                <label class="small text-muted d-block" style="font-size:11px;">Pax in Sharing</label>
+                                                                <div class="input-group input-group-sm">
+                                                                    <button class="btn btn-outline-secondary btn-step-minus" type="button" data-target="c_sharing_pax">-</button>
+                                                                    <input type="number" name="room_breakdown[c_sharing_pax]" id="c_sharing_pax" class="form-control text-center room-pax-input" value="{{ $rb['c_sharing_pax'] ?? ($rb['sharing_pax'] ?? 0) }}" min="0">
+                                                                    <button class="btn btn-outline-secondary btn-step-plus" type="button" data-target="c_sharing_pax">+</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                         {{-- Quad --}}
                                                         <div class="pkg-col flex-1 text-center p-2 border-end">
-                                                            <div class="pkg-col-title">QUAD / SHARING</div>
+                                                            <div class="pkg-col-title">QUAD</div>
                                                             <div class="pkg-col-pkr" id="disp_c_quad_pkr">0.00</div>
                                                             <div class="pkg-col-usd" id="disp_c_quad_usd">$ 0.00</div>
                                                             <div class="pax-stepper mt-2">
@@ -413,7 +427,7 @@
                                                     <div class="pkg-pricing-cols d-flex flex-grow-1">
                                                         {{-- Quad --}}
                                                         <div class="pkg-col flex-1 text-center p-2 border-end">
-                                                            <div class="pkg-col-title">QUAD / SHARING</div>
+                                                            <div class="pkg-col-title">QUAD</div>
                                                             <div class="pkg-col-pkr" id="disp_a_quad_pkr">0.00</div>
                                                             <div class="pkg-col-usd" id="disp_a_quad_usd">$ 0.00</div>
                                                             <div class="pax-stepper mt-2">
@@ -1921,7 +1935,7 @@
         const packageCostInput = document.getElementById('package_cost');
 
         let currentPkgRates = {
-            c_quad: 0, c_triple: 0, c_double: 0,
+            c_sharing: 0, c_quad: 0, c_triple: 0, c_double: 0,
             a_quad: 0, a_triple: 0, a_double: 0,
             az_quad: 0, az_triple: 0, az_double: 0
         };
@@ -1930,15 +1944,72 @@
             return Number(num || 0).toLocaleString('en-US');
         }
 
+        function updateMaktabCardsVisibility() {
+            const maktabCCard = document.getElementById('maktabCCard');
+            const maktabACard = document.getElementById('maktabACard');
+            if (!maktabCCard || !maktabACard) return;
+
+            const campVal = (campSelect ? campSelect.value : '').toLowerCase();
+            const hasC = (currentPkgRates.c_sharing > 0 || currentPkgRates.c_quad > 0 || currentPkgRates.c_triple > 0 || currentPkgRates.c_double > 0);
+            const hasA = (currentPkgRates.a_quad > 0 || currentPkgRates.a_triple > 0 || currentPkgRates.a_double > 0);
+
+            let showC = true;
+            let showA = true;
+
+            if (campVal.includes('combo') || campVal.includes('& c')) {
+                showC = true;
+                showA = true;
+            } else if (campVal.includes('maktab c') || campVal.includes('zone 5')) {
+                showC = true;
+                showA = false;
+            } else if (campVal.includes('maktab a') || campVal.includes('zone 1') || campVal.includes('zone 2')) {
+                showC = false;
+                showA = true;
+            } else {
+                if (hasC && !hasA) {
+                    showC = true;
+                    showA = false;
+                } else if (hasA && !hasC) {
+                    showC = false;
+                    showA = true;
+                } else {
+                    showC = true;
+                    showA = true;
+                }
+            }
+
+            if (showC && !showA) {
+                maktabCCard.classList.remove('d-none', 'col-lg-6');
+                maktabCCard.classList.add('col-12');
+                maktabACard.classList.add('d-none');
+                maktabACard.classList.remove('col-12');
+            } else if (showA && !showC) {
+                maktabACard.classList.remove('d-none', 'col-lg-6');
+                maktabACard.classList.add('col-12');
+                maktabCCard.classList.add('d-none');
+                maktabCCard.classList.remove('col-12');
+            } else {
+                maktabCCard.classList.remove('d-none', 'col-12');
+                maktabCCard.classList.add('col-lg-6');
+                maktabACard.classList.remove('d-none', 'col-12');
+                maktabACard.classList.add('col-lg-6');
+            }
+        }
+
         function updateBrochureRates(pkg) {
             if (!pkg) {
                 currentPkgRates = {
-                    c_quad: 0, c_triple: 0, c_double: 0,
+                    c_sharing: 0, c_quad: 0, c_triple: 0, c_double: 0,
                     a_quad: 0, a_triple: 0, a_double: 0,
                     az_quad: 0, az_triple: 0, az_double: 0
                 };
 
                 document.getElementById('lbl_maktab_c_zone').textContent = 'ZONE —';
+                const elCS = document.getElementById('disp_c_sharing_pkr');
+                if (elCS) elCS.textContent = '0.00';
+                const elCSusd = document.getElementById('disp_c_sharing_usd');
+                if (elCSusd) elCSusd.textContent = '$ 0.00';
+
                 document.getElementById('disp_c_quad_pkr').textContent = '0.00';
                 document.getElementById('disp_c_triple_pkr').textContent = '0.00';
                 document.getElementById('disp_c_double_pkr').textContent = '0.00';
@@ -1960,16 +2031,19 @@
                 document.getElementById('disp_az_triple_usd').textContent = '$ 0.00';
                 document.getElementById('disp_az_double_usd').textContent = '$ 0.00';
 
+                updateMaktabCardsVisibility();
                 calculateMultiRoomCost();
                 return;
             }
 
             // Maktab C rates
+            let cSharing = Number(pkg.price_sharing || 0);
             let cQuad = Number(pkg.maktab_c_quad_pkr || 0);
             if (cQuad === 0 && Number(pkg.adult_pkr || 0) > 0) cQuad = Number(pkg.adult_pkr);
             let cTriple = Number(pkg.maktab_c_triple_pkr || 0);
             let cDouble = Number(pkg.maktab_c_double_pkr || 0);
 
+            let cSharingUsd = Number(pkg.price_sharing_usd || 0);
             let cQuadUsd = Number(pkg.maktab_c_quad_usd || 0);
             if (cQuadUsd === 0 && Number(pkg.adult_usd || 0) > 0) cQuadUsd = Number(pkg.adult_usd);
             let cTripleUsd = Number(pkg.maktab_c_triple_usd || 0);
@@ -1992,6 +2066,7 @@
             let azDoubleUsd = Number(pkg.azizia_double_usd || 0);
 
             currentPkgRates = {
+                c_sharing: cSharing,
                 c_quad: cQuad,
                 c_triple: cTriple,
                 c_double: cDouble,
@@ -2005,9 +2080,14 @@
 
             // Update Maktab C Zone label
             const zoneLabel = pkg.camp_zone || pkg.zone || 'ZONE 5';
-            document.getElementById('lbl_maktab_c_zone').textContent = zoneLabel;
+            document.getElementById('lbl_maktab_c_zone').textContent = zoneLabel.startsWith('ZONE') ? zoneLabel : ('ZONE ' + zoneLabel);
 
             // Update Maktab C displays
+            const elCS = document.getElementById('disp_c_sharing_pkr');
+            if (elCS) elCS.textContent = cSharing > 0 ? (formatPkr(cSharing) + '.') : '0.00';
+            const elCSusd = document.getElementById('disp_c_sharing_usd');
+            if (elCSusd) elCSusd.textContent = cSharingUsd > 0 ? ('$ ' + formatPkr(cSharingUsd) + '.') : '$ 0.00';
+
             document.getElementById('disp_c_quad_pkr').textContent = cQuad > 0 ? (formatPkr(cQuad) + '.') : '0.00';
             document.getElementById('disp_c_triple_pkr').textContent = cTriple > 0 ? (formatPkr(cTriple) + '.') : '0.00';
             document.getElementById('disp_c_double_pkr').textContent = cDouble > 0 ? (formatPkr(cDouble) + '.') : '0.00';
@@ -2031,25 +2111,28 @@
             document.getElementById('disp_az_triple_usd').textContent = azTripleUsd > 0 ? ('Per Person $ ' + formatPkr(azTripleUsd)) : '$ 0.00';
             document.getElementById('disp_az_double_usd').textContent = azDoubleUsd > 0 ? ('Per Person $ ' + formatPkr(azDoubleUsd)) : '$ 0.00';
 
+            updateMaktabCardsVisibility();
             calculateMultiRoomCost();
         }
 
         function calculateMultiRoomCost() {
-            const cq = parseInt(document.getElementById('c_quad_pax').value) || 0;
-            const ct = parseInt(document.getElementById('c_triple_pax').value) || 0;
-            const cd = parseInt(document.getElementById('c_double_pax').value) || 0;
+            const cs = parseInt(document.getElementById('c_sharing_pax')?.value) || 0;
+            const cq = parseInt(document.getElementById('c_quad_pax')?.value) || 0;
+            const ct = parseInt(document.getElementById('c_triple_pax')?.value) || 0;
+            const cd = parseInt(document.getElementById('c_double_pax')?.value) || 0;
 
-            const aq = parseInt(document.getElementById('a_quad_pax').value) || 0;
-            const at = parseInt(document.getElementById('a_triple_pax').value) || 0;
-            const ad = parseInt(document.getElementById('a_double_pax').value) || 0;
+            const aq = parseInt(document.getElementById('a_quad_pax')?.value) || 0;
+            const at = parseInt(document.getElementById('a_triple_pax')?.value) || 0;
+            const ad = parseInt(document.getElementById('a_double_pax')?.value) || 0;
 
-            const azq = parseInt(document.getElementById('az_quad_pax').value) || 0;
-            const azt = parseInt(document.getElementById('az_triple_pax').value) || 0;
-            const azd = parseInt(document.getElementById('az_double_pax').value) || 0;
+            const azq = parseInt(document.getElementById('az_quad_pax')?.value) || 0;
+            const azt = parseInt(document.getElementById('az_triple_pax')?.value) || 0;
+            const azd = parseInt(document.getElementById('az_double_pax')?.value) || 0;
 
-            const totalMainPax = cq + ct + cd + aq + at + ad;
+            const totalMainPax = cs + cq + ct + cd + aq + at + ad;
 
-            const totalCost = (cq * currentPkgRates.c_quad)
+            const totalCost = (cs * (currentPkgRates.c_sharing || 0))
+                + (cq * currentPkgRates.c_quad)
                 + (ct * currentPkgRates.c_triple)
                 + (cd * currentPkgRates.c_double)
                 + (aq * currentPkgRates.a_quad)
@@ -2060,6 +2143,7 @@
                 + (azd * currentPkgRates.az_double);
 
             let parts = [];
+            if (cs > 0) parts.push(`Maktab C Sharing (${cs} × PKR ${formatPkr(currentPkgRates.c_sharing)})`);
             if (cq > 0) parts.push(`Maktab C Quad (${cq} × PKR ${formatPkr(currentPkgRates.c_quad)})`);
             if (ct > 0) parts.push(`Maktab C Triple (${ct} × PKR ${formatPkr(currentPkgRates.c_triple)})`);
             if (cd > 0) parts.push(`Maktab C Double (${cd} × PKR ${formatPkr(currentPkgRates.c_double)})`);
@@ -2081,7 +2165,7 @@
                 const avgPerPax = totalCost / totalMainPax;
                 packageCostInput.value = avgPerPax.toFixed(2);
 
-                const hasC = (cq + ct + cd) > 0;
+                const hasC = (cs + cq + ct + cd) > 0;
                 const hasA = (aq + at + ad) > 0;
                 if (hasC && hasA) {
                     campSelect.value = 'Maktab A & C (Combo)';
@@ -2090,8 +2174,9 @@
                 } else if (hasC) {
                     campSelect.value = 'Maktab C (Zone 5)';
                 }
-                $(campSelect).trigger('change.select2');
+                $(campSelect).val(campSelect.value).trigger('change.select2');
                 syncCampCategoryPreview();
+                updateMaktabCardsVisibility();
 
                 if (qurbaniOption.value !== 'not_included' && pkgQurbaniPerHeadRate > 0) {
                     qurbaniQty.value = totalMainPax;
@@ -2103,6 +2188,7 @@
                 syncVisas();
             } else {
                 syncCampCategoryPreview();
+                updateMaktabCardsVisibility();
             }
 
             calcTotal();
@@ -2114,6 +2200,7 @@
 
             const selectedCampVal = (campSelect ? campSelect.value : '').trim();
 
+            const cs = parseInt(document.getElementById('c_sharing_pax')?.value) || 0;
             const cq = parseInt(document.getElementById('c_quad_pax')?.value) || 0;
             const ct = parseInt(document.getElementById('c_triple_pax')?.value) || 0;
             const cd = parseInt(document.getElementById('c_double_pax')?.value) || 0;
@@ -2121,7 +2208,7 @@
             const at = parseInt(document.getElementById('a_triple_pax')?.value) || 0;
             const ad = parseInt(document.getElementById('a_double_pax')?.value) || 0;
 
-            const hasC = (cq + ct + cd) > 0;
+            const hasC = (cs + cq + ct + cd) > 0;
             const hasA = (aq + at + ad) > 0;
 
             if (selectedCampVal) {
@@ -2143,8 +2230,8 @@
             } else {
                 const pkgId = parseInt(packageSelect?.value);
                 const pkg = (typeof packagesData !== 'undefined') ? packagesData.find(p => p.id === pkgId) : null;
-                if (pkg && pkg.camp_category) {
-                    previewCampEl.textContent = 'Maktab ' + pkg.camp_category;
+                if (pkg && (pkg.maktab || pkg.camp_category)) {
+                    previewCampEl.textContent = pkg.maktab || ('Maktab ' + pkg.camp_category);
                 } else {
                     previewCampEl.textContent = '—';
                 }
@@ -2152,7 +2239,14 @@
         }
 
         if (campSelect) {
-            campSelect.addEventListener('change', syncCampCategoryPreview);
+            campSelect.addEventListener('change', function() {
+                syncCampCategoryPreview();
+                updateMaktabCardsVisibility();
+            });
+            $(campSelect).on('change', function() {
+                syncCampCategoryPreview();
+                updateMaktabCardsVisibility();
+            });
         }
 
         // Stepper buttons
@@ -2749,22 +2843,27 @@
                 // Auto select camp
                 if (campSelect) {
                     let chosenCamp = 'Maktab C (Zone 5)';
-                    const pkgMaktab = (pkg.maktab || pkg.camp_category || '').toLowerCase();
-                    const pkgZone = (pkg.camp_zone || '').toLowerCase();
-                    if (pkgMaktab.includes('a') && pkgMaktab.includes('c')) {
+                    const cat = (pkg.camp_category || '').trim().toUpperCase();
+                    const maktabName = (pkg.maktab || '').toUpperCase();
+                    const zoneStr = (pkg.camp_zone || pkg.zone || '').toUpperCase();
+                    const hasA = (Number(pkg.maktab_a_quad_pkr || 0) > 0 || Number(pkg.maktab_a_triple_pkr || 0) > 0 || Number(pkg.maktab_a_double_pkr || 0) > 0);
+                    const hasC = (Number(pkg.price_sharing || 0) > 0 || Number(pkg.maktab_c_quad_pkr || 0) > 0 || Number(pkg.maktab_c_triple_pkr || 0) > 0 || Number(pkg.maktab_c_double_pkr || 0) > 0);
+
+                    if (cat === 'A & C' || maktabName.includes('COMBO') || (hasA && hasC)) {
                         chosenCamp = 'Maktab A & C (Combo)';
-                    } else if (pkgMaktab.includes('a') || pkgZone.includes('zone 1') || pkgZone.includes('zone 2')) {
+                    } else if (cat === 'A' || maktabName.includes('MAKTAB A') || zoneStr.includes('ZONE 1') || zoneStr.includes('ZONE 2') || (hasA && !hasC)) {
                         chosenCamp = 'Maktab A (Zone 1/2)';
-                    } else if (pkgMaktab.includes('c') || pkgZone.includes('zone 5') || pkg.maktab_c_quad_pkr) {
+                    } else if (cat === 'C' || maktabName.includes('MAKTAB C') || zoneStr.includes('ZONE 5') || (hasC && !hasA)) {
                         chosenCamp = 'Maktab C (Zone 5)';
-                    } else if (pkgMaktab.includes('vip')) {
+                    } else if (maktabName.includes('VIP')) {
                         chosenCamp = 'VIP Mina Camp';
-                    } else if (pkgMaktab.includes('standard')) {
+                    } else if (maktabName.includes('STANDARD')) {
                         chosenCamp = 'Standard Camp';
                     }
                     campSelect.value = chosenCamp;
-                    $(campSelect).val(chosenCamp).trigger('change');
+                    $(campSelect).val(chosenCamp).trigger('change.select2').trigger('change');
                     syncCampCategoryPreview();
+                    updateMaktabCardsVisibility();
                 }
 
                 if (qurbaniOption) {
