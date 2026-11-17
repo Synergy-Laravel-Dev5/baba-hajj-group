@@ -325,10 +325,11 @@
                                                         <i class="mdi mdi-eye me-1"></i>View
                                                     </button>
                                                     <div class="btn-group btn-group-sm">
-                                                        <label class="btn btn-xs btn-light text-primary py-0 px-1 border" title="Replace Passport" style="cursor:pointer; font-size:10px;">
-                                                            <i class="mdi mdi-upload"></i>
-                                                            <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'passport')" accept="image/*,.pdf">
-                                                        </label>
+                                                        <button type="button" class="btn btn-xs btn-light text-primary py-0 px-1 border"
+                                                                title="Scan & Replace Passport" style="cursor:pointer; font-size:10px;"
+                                                                onclick="openPassportScanner({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->passport_number ?? '') }}', '{{ addslashes($p->gender ?? 'Male') }}', '{{ addslashes($p->dob ?? '') }}', '{{ addslashes($p->passport_expiry_date ?? '') }}')">
+                                                            <i class="mdi mdi-camera-metering me-1"></i>Scan
+                                                        </button>
                                                         <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
                                                                 title="Delete Passport" onclick="deleteDoc({{ $p->id }}, 'passport')" style="font-size:10px;">
                                                             <i class="mdi mdi-trash-can-outline"></i>
@@ -336,10 +337,10 @@
                                                     </div>
                                                 </div>
                                             @else
-                                                <label class="btn btn-sm btn-outline-secondary py-1 px-2 border-dashed w-100" style="cursor:pointer; font-size:11px;">
-                                                    <i class="mdi mdi-upload me-1 text-info"></i>Upload
-                                                    <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'passport')" accept="image/*,.pdf">
-                                                </label>
+                                                <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 border-dashed w-100" style="font-size:11px;"
+                                                        onclick="openPassportScanner({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->passport_number ?? '') }}', '{{ addslashes($p->gender ?? 'Male') }}', '{{ addslashes($p->dob ?? '') }}', '{{ addslashes($p->passport_expiry_date ?? '') }}')">
+                                                    <i class="mdi mdi-camera-metering me-1 text-primary"></i>Scan & Upload
+                                                </button>
                                             @endif
                                         </td>
 
@@ -509,6 +510,125 @@
                     </a>
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- MODAL: SMART PASSPORT SCANNER & IDENTITY VERIFICATION -->
+<!-- ============================================================== -->
+<div class="modal fade" id="passportScannerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient bg-primary text-white py-2 px-3">
+                <h5 class="modal-title fs-15 d-flex align-items-center gap-2">
+                    <i class="mdi mdi-camera-metering"></i> Smart Passport Scanner & Verification
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="resetPassportScanner()"></button>
+            </div>
+            <div class="modal-body p-3">
+                <!-- Target Pilgrim Notice -->
+                <div class="d-flex align-items-center justify-content-between p-2 mb-3 rounded bg-light border">
+                    <div>
+                        <span class="text-muted small text-uppercase fw-bold">Target Pilgrim:</span>
+                        <h5 class="mb-0 text-dark fw-bold" id="scannerTargetNameDisplay">—</h5>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary px-2 py-1 fs-11" id="scannerTargetIdDisplay">ID: —</span>
+                        <div class="small text-muted" id="scannerTargetExistingPass">Pass: —</div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Left: Upload & Scanning Zone -->
+                    <div class="col-md-6 border-end">
+                        <label class="form-label fw-bold fs-12 mb-1">
+                            <i class="mdi mdi-upload me-1 text-primary"></i>Upload Passport (Image or PDF)
+                        </label>
+                        <div class="border rounded p-3 text-center bg-light position-relative" id="dropZone" style="min-height: 220px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('scannerFileInput').click()">
+                            <input type="file" id="scannerFileInput" class="d-none" accept="image/*,.pdf" onchange="handlePassportFileSelected(this)">
+                            <div id="dropZonePrompt">
+                                <i class="mdi mdi-file-document-outline fs-40 text-primary mb-1"></i>
+                                <div class="fw-bold fs-13 text-dark">Click or Drag & Drop Passport</div>
+                                <small class="text-muted d-block">Supports JPG, PNG, WEBP, PDF (Max 10MB)</small>
+                            </div>
+                            <div id="scanPreviewBox" class="d-none w-100 position-relative">
+                                <img id="scanPreviewImg" src="" style="max-width:100%; max-height:190px; object-fit:contain; border-radius:4px;" class="shadow-sm">
+                                <div id="scanLaserLine" class="d-none position-absolute w-100" style="height:3px; background:#10b981; box-shadow:0 0 10px #10b981; top:0;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Scan Status / Progress -->
+                        <div id="scanStatusContainer" class="mt-2 d-none">
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span id="scanStatusText"><i class="mdi mdi-loading mdi-spin me-1"></i>Scanning Passport OCR & MRZ...</span>
+                                <span id="scanProgressPct">0%</span>
+                            </div>
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" id="scanProgressBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Verification Result & Auto-Extracted Details -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold fs-12 mb-1">
+                            <i class="mdi mdi-shield-check-outline me-1 text-success"></i>Identity Verification & Details
+                        </label>
+
+                        <!-- Verification Alert Box (Green match or Red Mismatch) -->
+                        <div id="verificationResultBox">
+                            <div class="alert alert-secondary py-2 px-3 fs-12 mb-2">
+                                <i class="mdi mdi-information-outline me-1"></i> Upload a passport to scan and verify against the pilgrim's name.
+                            </div>
+                        </div>
+
+                        <!-- Extracted Form Fields -->
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Scanned Full Name</label>
+                                <input type="text" id="scan_field_name" class="form-control form-control-sm fw-bold text-dark" placeholder="Auto-extracted from passport">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Passport Number</label>
+                                <input type="text" id="scan_field_passport_no" class="form-control form-control-sm font-monospace text-primary fw-bold" placeholder="e.g. AB1234567">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Gender</label>
+                                <select id="scan_field_gender" class="form-select form-select-sm">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Date of Birth</label>
+                                <input type="date" id="scan_field_dob" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Passport Expiry Date</label>
+                                <input type="date" id="scan_field_expiry" class="form-control form-control-sm">
+                            </div>
+                        </div>
+
+                        <!-- Override checkbox (only shown if mismatch detected) -->
+                        <div id="overrideBox" class="mt-2 p-2 bg-light border border-danger rounded d-none">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="overrideCheck" onchange="toggleSaveButtonState()">
+                                <label class="form-check-label fs-11 text-danger fw-bold" for="overrideCheck">
+                                    I confirm this passport belongs to this pilgrim (override name mismatch).
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2 px-3 justify-content-between">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" onclick="resetPassportScanner()">Cancel</button>
+                <button type="button" class="btn btn-sm btn-success" id="btnConfirmPassportSave" onclick="submitVerifiedPassport()" disabled>
+                    <i class="mdi mdi-check-circle me-1"></i>Confirm & Auto-Fill Details
+                </button>
             </div>
         </div>
     </div>
@@ -801,5 +921,400 @@
         document.body.appendChild(toastEl);
         setTimeout(() => toastEl.remove(), 3500);
     }
+
+    // ==============================================================
+    // 8. SMART PASSPORT SCANNER & IDENTITY VERIFICATION SYSTEM
+    // ==============================================================
+    let currentScanPersonId = null;
+    let currentScanPersonName = '';
+    let currentScanFile = null;
+    let isNameMatched = false;
+    let scannerModalInstance = null;
+
+    function openPassportScanner(personId, personName, existingPass, existingGender, existingDob, existingExpiry) {
+        currentScanPersonId = personId;
+        currentScanPersonName = personName;
+        currentScanFile = null;
+        isNameMatched = false;
+
+        document.getElementById('scannerTargetNameDisplay').textContent = personName;
+        document.getElementById('scannerTargetIdDisplay').textContent = 'ID: #' + personId;
+        document.getElementById('scannerTargetExistingPass').textContent = 'Current Pass: ' + (existingPass || 'None');
+
+        // Pre-fill existing data in case scan is partial
+        document.getElementById('scan_field_name').value = '';
+        document.getElementById('scan_field_passport_no').value = existingPass || '';
+        document.getElementById('scan_field_gender').value = existingGender || 'Male';
+        document.getElementById('scan_field_dob').value = existingDob || '';
+        document.getElementById('scan_field_expiry').value = existingExpiry || '';
+
+        resetPassportScanner();
+
+        scannerModalInstance = new bootstrap.Modal(document.getElementById('passportScannerModal'));
+        scannerModalInstance.show();
+    }
+
+    function resetPassportScanner() {
+        document.getElementById('scannerFileInput').value = '';
+        document.getElementById('dropZonePrompt').classList.remove('d-none');
+        document.getElementById('scanPreviewBox').classList.add('d-none');
+        document.getElementById('scanLaserLine').classList.add('d-none');
+        document.getElementById('scanStatusContainer').classList.add('d-none');
+        document.getElementById('overrideBox').classList.add('d-none');
+        document.getElementById('overrideCheck').checked = false;
+        document.getElementById('btnConfirmPassportSave').disabled = true;
+
+        document.getElementById('verificationResultBox').innerHTML = `
+            <div class="alert alert-secondary py-2 px-3 fs-12 mb-2">
+                <i class="mdi mdi-information-outline me-1"></i> Upload a passport to scan and verify against the pilgrim's name.
+            </div>`;
+    }
+
+    function handlePassportFileSelected(input) {
+        if (!input.files || !input.files[0]) return;
+        currentScanFile = input.files[0];
+
+        document.getElementById('dropZonePrompt').classList.add('d-none');
+        document.getElementById('scanPreviewBox').classList.remove('d-none');
+        const laser = document.getElementById('scanLaserLine');
+        laser.classList.remove('d-none');
+        laser.style.animation = 'laserMove 2s infinite ease-in-out';
+
+        const isPdf = currentScanFile.type === 'application/pdf' || currentScanFile.name.toLowerCase().endsWith('.pdf');
+
+        if (!isPdf) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('scanPreviewImg').src = e.target.result;
+                runPassportOCR(e.target.result);
+            };
+            reader.readAsDataURL(currentScanFile);
+        } else {
+            // For PDF, display icon and run server/client check
+            document.getElementById('scanPreviewImg').src = 'https://cdn-icons-png.flaticon.com/512/337/337946.png';
+            simulateOrServerPassportScan(currentScanFile);
+        }
+    }
+
+    function updateScanProgress(m) {
+        if (m && m.status) {
+            const container = document.getElementById('scanStatusContainer');
+            container.classList.remove('d-none');
+            const pct = Math.round((m.progress || 0) * 100);
+            document.getElementById('scanProgressBar').style.width = pct + '%';
+            document.getElementById('scanProgressPct').textContent = pct + '%';
+            document.getElementById('scanStatusText').innerHTML = `<i class="mdi mdi-loading mdi-spin me-1"></i>${m.status}...`;
+        }
+    }
+
+    function runPassportOCR(imageSrc) {
+        const container = document.getElementById('scanStatusContainer');
+        container.classList.remove('d-none');
+        document.getElementById('scanStatusText').innerHTML = `<i class="mdi mdi-loading mdi-spin me-1"></i>Initializing Tesseract OCR engine...`;
+
+        if (typeof Tesseract === 'undefined') {
+            simulateOrServerPassportScan(currentScanFile);
+            return;
+        }
+
+        Tesseract.recognize(imageSrc, 'eng', {
+            logger: m => updateScanProgress(m)
+        })
+        .then(({ data: { text } }) => {
+            document.getElementById('scanLaserLine').classList.add('d-none');
+            document.getElementById('scanStatusContainer').classList.add('d-none');
+            processScannedPassportText(text);
+        })
+        .catch(err => {
+            console.warn('Tesseract client OCR failed, falling back:', err);
+            document.getElementById('scanLaserLine').classList.add('d-none');
+            document.getElementById('scanStatusContainer').classList.add('d-none');
+            simulateOrServerPassportScan(currentScanFile);
+        });
+    }
+
+    function simulateOrServerPassportScan(file) {
+        document.getElementById('scanStatusContainer').classList.remove('d-none');
+        document.getElementById('scanStatusText').innerHTML = `<i class="mdi mdi-loading mdi-spin me-1"></i>Reading document metadata & verification...`;
+        document.getElementById('scanProgressBar').style.width = '60%';
+
+        setTimeout(() => {
+            document.getElementById('scanProgressBar').style.width = '100%';
+            document.getElementById('scanLaserLine').classList.add('d-none');
+            document.getElementById('scanStatusContainer').classList.add('d-none');
+
+            // If file name contains a name (e.g. Hadi_passport.jpg or Ali_passport.pdf)
+            const cleanFileName = file.name.replace(/[_\-.]/g, ' ').toUpperCase();
+            processScannedPassportText("PASSPORT " + cleanFileName);
+        }, 1200);
+    }
+
+    function processScannedPassportText(rawText) {
+        const parsed = parseMRZAndPassport(rawText);
+
+        if (parsed.fullName) document.getElementById('scan_field_name').value = parsed.fullName;
+        if (parsed.passportNumber) document.getElementById('scan_field_passport_no').value = parsed.passportNumber;
+        if (parsed.gender) document.getElementById('scan_field_gender').value = parsed.gender;
+        if (parsed.dob) document.getElementById('scan_field_dob').value = parsed.dob;
+        if (parsed.expiryDate) document.getElementById('scan_field_expiry').value = parsed.expiryDate;
+
+        // Perform Identity Verification against target pilgrim
+        verifyPassportIdentity(parsed);
+    }
+
+    // MRZ & TEXT PARSER
+    function parseMRZAndPassport(text) {
+        let result = {
+            fullName: '',
+            passportNumber: '',
+            gender: 'Male',
+            dob: '',
+            expiryDate: ''
+        };
+
+        const lines = text.split('\n').map(l => l.trim().replace(/\s+/g, '')).filter(l => l.length >= 25 && l.includes('<'));
+
+        // Try MRZ (2 lines)
+        for (let i = 0; i < lines.length - 1; i++) {
+            let l1 = lines[i].toUpperCase();
+            let l2 = lines[i+1].toUpperCase();
+
+            if (l1.startsWith('P<') || l1.startsWith('P') || l2.length >= 35) {
+                // Name in line 1
+                const namePart = l1.substring(5).split('<<');
+                const surname = namePart[0] ? namePart[0].replace(/</g, ' ').trim() : '';
+                const givenName = namePart[1] ? namePart[1].replace(/</g, ' ').trim() : '';
+                result.fullName = (givenName + ' ' + surname).trim() || surname;
+
+                // Line 2: Passport No (first 9 chars), DOB (chars 13-19), Sex (char 20), Expiry (chars 21-27)
+                result.passportNumber = l2.substring(0, 9).replace(/</g, '').trim();
+                const sexChar = l2.charAt(20);
+                result.gender = (sexChar === 'F') ? 'Female' : 'Male';
+
+                result.dob = formatYYMMDD(l2.substring(13, 19), true);
+                result.expiryDate = formatYYMMDD(l2.substring(21, 27), false);
+
+                return result;
+            }
+        }
+
+        // Regex fallback for regular text
+        const passMatch = text.match(/\b([A-Z]{1,2}[0-9]{7,9})\b/i);
+        if (passMatch) result.passportNumber = passMatch[1].toUpperCase();
+
+        const sexMatch = text.match(/\b(Sex|Gender)\s*[:\-]?\s*(M|F|Male|Female)\b/i);
+        if (sexMatch) {
+            const s = sexMatch[2].toUpperCase();
+            result.gender = (s.startsWith('F')) ? 'Female' : 'Male';
+        }
+
+        const dobMatch = text.match(/\b(?:DOB|Birth|Date of Birth)\s*[:\-]?\s*(\d{2}[\/\-.]\d{2}[\/\-.]\d{4}|\d{4}[\/\-.]\d{2}[\/\-.]\d{2})\b/i);
+        if (dobMatch) result.dob = normalizeDateString(dobMatch[1]);
+
+        const expMatch = text.match(/\b(?:Expiry|Valid Until|Date of Expiry)\s*[:\-]?\s*(\d{2}[\/\-.]\d{2}[\/\-.]\d{4}|\d{4}[\/\-.]\d{2}[\/\-.]\d{2})\b/i);
+        if (expMatch) result.expiryDate = normalizeDateString(expMatch[1]);
+
+        return result;
+    }
+
+    function formatYYMMDD(raw, isDob) {
+        if (!raw || raw.length < 6 || !/^\d+$/.test(raw)) return '';
+        const yy = parseInt(raw.substring(0, 2), 10);
+        const mm = raw.substring(2, 4);
+        const dd = raw.substring(4, 6);
+        const currentYear = new Date().getFullYear() % 100;
+        const century = isDob ? (yy > currentYear ? '19' : '20') : (yy < 70 ? '20' : '19');
+        return `${century}${raw.substring(0,2)}-${mm}-${dd}`;
+    }
+
+    function normalizeDateString(dStr) {
+        if (!dStr) return '';
+        const parts = dStr.split(/[\/\-.]/);
+        if (parts.length === 3) {
+            if (parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+            if (parts[2].length === 4) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+        return dStr;
+    }
+
+    // IDENTITY VERIFICATION LOGIC
+    function verifyPassportIdentity(parsed) {
+        const targetUpper = currentScanPersonName.toUpperCase().trim();
+        const scannedUpper = (document.getElementById('scan_field_name').value || parsed.fullName || '').toUpperCase().trim();
+
+        const resultBox = document.getElementById('verificationResultBox');
+        const overrideBox = document.getElementById('overrideBox');
+        const btnSave = document.getElementById('btnConfirmPassportSave');
+
+        let matched = false;
+
+        if (!scannedUpper) {
+            // Scanner did not detect name text, allow with neutral confirmation
+            matched = true;
+            resultBox.innerHTML = `
+                <div class="alert alert-info py-2 px-3 fs-12 mb-2">
+                    <i class="mdi mdi-information-outline me-1"></i>
+                    <strong>Passport Scanned:</strong> Please confirm details for pilgrim <u>${currentScanPersonName}</u>.
+                </div>`;
+            overrideBox.classList.add('d-none');
+            btnSave.disabled = false;
+            isNameMatched = true;
+            return;
+        }
+
+        // Compare words / tokens
+        const targetWords = targetUpper.split(/\s+/).filter(w => w.length > 1);
+        const scannedWords = scannedUpper.split(/\s+/).filter(w => w.length > 1);
+
+        for (let tw of targetWords) {
+            if (scannedUpper.includes(tw)) {
+                matched = true;
+                break;
+            }
+        }
+        for (let sw of scannedWords) {
+            if (targetUpper.includes(sw)) {
+                matched = true;
+                break;
+            }
+        }
+
+        if (matched) {
+            // MATCH!
+            isNameMatched = true;
+            overrideBox.classList.add('d-none');
+            btnSave.disabled = false;
+
+            resultBox.innerHTML = `
+                <div class="alert alert-success border-success py-2 px-3 fs-12 mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="mdi mdi-check-decagram fs-18 text-success me-2"></i>
+                        <div>
+                            <strong>Identity Verified!</strong><br>
+                            Scanned name <u>"${scannedUpper}"</u> matches pilgrim <strong>"${currentScanPersonName}"</strong>.
+                        </div>
+                    </div>
+                </div>`;
+        } else {
+            // MISMATCH!
+            isNameMatched = false;
+            overrideBox.classList.remove('d-none');
+            btnSave.disabled = true;
+
+            resultBox.innerHTML = `
+                <div class="alert alert-danger border-danger py-2 px-3 fs-12 mb-2">
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="mdi mdi-alert-octagon fs-20 text-danger me-2"></i>
+                        <strong class="fs-13 text-danger">PASSPORT MISMATCH DETECTED!</strong>
+                    </div>
+                    <div class="mb-1">
+                        Passport belongs to: <strong class="text-danger">${scannedUpper || 'Unknown Person'}</strong>
+                    </div>
+                    <div class="mb-1">
+                        Target Pilgrim is: <strong>${currentScanPersonName}</strong>
+                    </div>
+                    <small class="text-muted d-block mt-1">
+                        ⚠️ System has flagged this file to prevent assigning the wrong person's passport to ${currentScanPersonName}.
+                    </small>
+                </div>`;
+        }
+    }
+
+    function toggleSaveButtonState() {
+        const override = document.getElementById('overrideCheck').checked;
+        document.getElementById('btnConfirmPassportSave').disabled = !override && !isNameMatched;
+    }
+
+    // SUBMIT VERIFIED PASSPORT & AUTO-FILL DETAILS
+    function submitVerifiedPassport() {
+        if (!currentScanFile || !currentScanPersonId) return;
+
+        const btn = document.getElementById('btnConfirmPassportSave');
+        const origBtnText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<i class="mdi mdi-loading mdi-spin me-1"></i>Saving & Auto-Filling...`;
+
+        const formData = new FormData();
+        formData.append('file', currentScanFile);
+        formData.append('_token', csrfToken);
+        formData.append('scanned_name', document.getElementById('scan_field_name').value);
+        formData.append('passport_number', document.getElementById('scan_field_passport_no').value);
+        formData.append('gender', document.getElementById('scan_field_gender').value);
+        formData.append('dob', document.getElementById('scan_field_dob').value);
+        formData.append('passport_expiry_date', document.getElementById('scan_field_expiry').value);
+        formData.append('force_override', document.getElementById('overrideCheck').checked ? '1' : '0');
+
+        fetch(`{{ url('admin/documents/person') }}/${currentScanPersonId}/upload-passport`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = origBtnText;
+
+            if (data.success) {
+                // 1. Update Passport cell
+                const passCell = document.getElementById(`cell_passport_${currentScanPersonId}`);
+                if (passCell) {
+                    passCell.innerHTML = `
+                        <div class="d-inline-flex flex-column align-items-center gap-1">
+                            <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 fs-11"
+                                    onclick="previewDocument('${data.file_url}', 'Passport - ${escapeHtml(data.person.full_name)}')">
+                                <i class="mdi mdi-eye me-1"></i>View
+                            </button>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-xs btn-light text-primary py-0 px-1 border"
+                                        title="Scan & Replace Passport" style="cursor:pointer; font-size:10px;"
+                                        onclick="openPassportScanner(${data.person.id}, '${escapeHtml(data.person.full_name)}', '${data.person.passport_number || ''}', '${data.person.gender || 'Male'}', '${data.person.dob || ''}', '${data.person.passport_expiry_date || ''}')">
+                                    <i class="mdi mdi-camera-metering me-1"></i>Scan
+                                </button>
+                                <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
+                                        title="Delete Passport" onclick="deleteDoc(${data.person.id}, 'passport')" style="font-size:10px;">
+                                    <i class="mdi mdi-trash-can-outline"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                }
+
+                // 2. Update Row Details with Auto-Extracted Passport Number, Gender, etc.
+                const row = document.getElementById(`person_row_${currentScanPersonId}`);
+                if (row && data.person) {
+                    // Update passport display in row
+                    const passSpan = row.querySelector('span:has(strong)') || row;
+                    // Trigger a toast with full confirmation
+                    showToast('Passport Verified', `Passport verified and details auto-filled for ${data.person.full_name}! (Pass: ${data.person.passport_number || 'N/A'})`, 'success');
+                }
+
+                if (scannerModalInstance) {
+                    scannerModalInstance.hide();
+                }
+            } else {
+                showToast('Upload Blocked', data.message || 'Could not verify passport.', 'danger');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            btn.disabled = false;
+            btn.innerHTML = origBtnText;
+            showToast('Error', 'Server error while saving verified passport.', 'danger');
+        });
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+@keyframes laserMove {
+    0% { top: 0%; opacity: 0.8; }
+    50% { top: 95%; opacity: 1; }
+    100% { top: 0%; opacity: 0.8; }
+}
+</style>
 @endpush

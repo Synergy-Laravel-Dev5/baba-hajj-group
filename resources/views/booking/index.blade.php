@@ -72,9 +72,26 @@
                                             @endif
                                         </select>
                                     </div>
-                                    <div class="col-md-9 col-sm-6 d-flex justify-content-end align-items-end gap-2 pt-3">
+                                    <div class="col-md-4 col-sm-6">
+                                        <label class="form-label mb-1 fw-bold fs-12 text-muted"><i class="mdi mdi-cube-outline me-1 text-primary"></i>Filter By Package (with Prefix)</label>
+                                        <select id="packageFilterSelect" class="form-select form-select-sm border-primary">
+                                            <option value="">-- All Packages --</option>
+                                            @if(isset($allPackages))
+                                                @foreach($allPackages as $pkg)
+                                                    @php
+                                                        $pkgCode = $pkg->code ?: ($pkg->package_number ?: 'AZ');
+                                                        $pkgTitle = $pkg->package_title ?: ($pkg->name ?: 'Package');
+                                                    @endphp
+                                                    <option value="{{ $pkgTitle }}">
+                                                        [{{ $pkgCode }}] {{ $pkgTitle }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                    <div class="col-md-5 col-sm-12 d-flex justify-content-end align-items-end gap-2 pt-3">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" id="resetPrefixFilter">
-                                            <i class="mdi mdi-refresh me-1"></i>Reset Filter
+                                            <i class="mdi mdi-refresh me-1"></i>Reset Filters
                                         </button>
                                     </div>
                                 </div>
@@ -292,8 +309,18 @@
                 }
             });
 
+            $('#packageFilterSelect').on('change', function() {
+                const val = $(this).val();
+                if (val) {
+                    table.column(4).search(val).draw();
+                } else {
+                    table.column(4).search('').draw();
+                }
+            });
+
             $('#resetPrefixFilter').on('click', function() {
                 $('#prefixFilterSelect').val('').trigger('change');
+                $('#packageFilterSelect').val('').trigger('change');
             });
         }
     });

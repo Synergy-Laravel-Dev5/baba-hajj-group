@@ -47,20 +47,18 @@ class ClientController extends Controller
     {
         $this->authorize('client_create');
 
-        $phone = $request->phone ? trim($request->phone) : null;
-        if ($phone === '+92' || $phone === '+92 ') {
-            $phone = null;
-        } elseif ($phone) {
-            $digits = preg_replace('/\D/', '', $phone);
-            if ($digits === '92' || empty($digits)) {
-                $phone = null;
-            } elseif (str_starts_with($digits, '0') && strlen($digits) === 11) {
-                $digits = '92' . substr($digits, 1);
-            } elseif (!str_starts_with($digits, '92') && strlen($digits) === 10) {
-                $digits = '92' . $digits;
-            }
-            if ($digits && str_starts_with($digits, '92') && strlen($digits) === 12) {
-                $phone = '+92 ' . substr($digits, 2, 3) . ' ' . substr($digits, 5);
+        $rawPhone = $request->phone ? trim($request->phone) : null;
+        $dialCode = $request->country_dial_code ? trim($request->country_dial_code) : '+92';
+
+        $phone = null;
+        if (!empty($rawPhone)) {
+            if (str_starts_with($rawPhone, '+')) {
+                $phone = preg_replace('/\s+/', ' ', $rawPhone);
+            } else {
+                $cleanDigits = ltrim(preg_replace('/\D/', '', $rawPhone), '0');
+                if (!empty($cleanDigits)) {
+                    $phone = $dialCode . ' ' . $cleanDigits;
+                }
             }
         }
 
@@ -116,20 +114,18 @@ class ClientController extends Controller
         $this->authorize('client_edit');
         $client = Client::findOrFail($id);
 
-        $phone = $request->phone ? trim($request->phone) : null;
-        if ($phone === '+92' || $phone === '+92 ') {
-            $phone = null;
-        } elseif ($phone) {
-            $digits = preg_replace('/\D/', '', $phone);
-            if ($digits === '92' || empty($digits)) {
-                $phone = null;
-            } elseif (str_starts_with($digits, '0') && strlen($digits) === 11) {
-                $digits = '92' . substr($digits, 1);
-            } elseif (!str_starts_with($digits, '92') && strlen($digits) === 10) {
-                $digits = '92' . $digits;
-            }
-            if ($digits && str_starts_with($digits, '92') && strlen($digits) === 12) {
-                $phone = '+92 ' . substr($digits, 2, 3) . ' ' . substr($digits, 5);
+        $rawPhone = $request->phone ? trim($request->phone) : null;
+        $dialCode = $request->country_dial_code ? trim($request->country_dial_code) : '+92';
+
+        $phone = null;
+        if (!empty($rawPhone)) {
+            if (str_starts_with($rawPhone, '+')) {
+                $phone = preg_replace('/\s+/', ' ', $rawPhone);
+            } else {
+                $cleanDigits = ltrim(preg_replace('/\D/', '', $rawPhone), '0');
+                if (!empty($cleanDigits)) {
+                    $phone = $dialCode . ' ' . $cleanDigits;
+                }
             }
         }
 

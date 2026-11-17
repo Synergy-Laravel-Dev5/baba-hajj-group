@@ -54,13 +54,35 @@
                                         </div>
                                         <div class="col-lg-6">
                                             <div class="mb-3">
-                                                <label class="form-label">Contact No</label>
+                                                <label class="form-label">Contact / Mobile No</label>
                                                 <div class="input-group">
                                                     <span class="input-group-text bg-light text-muted"><i class="mdi mdi-whatsapp text-success"></i></span>
+                                                    <select name="country_dial_code" id="country_dial_code" class="form-select flex-shrink-0" style="max-width: 145px; background-color:#f8fafc; font-weight:600;">
+                                                        <option value="+92" {{ old('country_dial_code') == '+92' ? 'selected' : '' }}>🇵🇰 +92 (PK)</option>
+                                                        <option value="+966" {{ old('country_dial_code') == '+966' ? 'selected' : '' }}>🇸🇦 +966 (SA)</option>
+                                                        <option value="+971" {{ old('country_dial_code') == '+971' ? 'selected' : '' }}>🇦🇪 +971 (AE)</option>
+                                                        <option value="+91" {{ old('country_dial_code') == '+91' ? 'selected' : '' }}>🇮🇳 +91 (IN)</option>
+                                                        <option value="+44" {{ old('country_dial_code') == '+44' ? 'selected' : '' }}>🇬🇧 +44 (UK)</option>
+                                                        <option value="+1" {{ old('country_dial_code') == '+1' ? 'selected' : '' }}>🇺🇸 +1 (US/CA)</option>
+                                                        <option value="+968" {{ old('country_dial_code') == '+968' ? 'selected' : '' }}>🇴🇲 +968 (OM)</option>
+                                                        <option value="+965" {{ old('country_dial_code') == '+965' ? 'selected' : '' }}>🇰🇼 +965 (KW)</option>
+                                                        <option value="+974" {{ old('country_dial_code') == '+974' ? 'selected' : '' }}>🇶🇦 +974 (QA)</option>
+                                                        <option value="+973" {{ old('country_dial_code') == '+973' ? 'selected' : '' }}>🇧🇭 +973 (BH)</option>
+                                                        <option value="+880" {{ old('country_dial_code') == '+880' ? 'selected' : '' }}>🇧🇩 +880 (BD)</option>
+                                                        <option value="+60" {{ old('country_dial_code') == '+60' ? 'selected' : '' }}>🇲🇾 +60 (MY)</option>
+                                                        <option value="+62" {{ old('country_dial_code') == '+62' ? 'selected' : '' }}>🇮🇩 +62 (ID)</option>
+                                                        <option value="+90" {{ old('country_dial_code') == '+90' ? 'selected' : '' }}>🇹🇷 +90 (TR)</option>
+                                                        <option value="+20" {{ old('country_dial_code') == '+20' ? 'selected' : '' }}>🇪🇬 +20 (EG)</option>
+                                                        <option value="+27" {{ old('country_dial_code') == '+27' ? 'selected' : '' }}>🇿🇦 +27 (ZA)</option>
+                                                        <option value="+61" {{ old('country_dial_code') == '+61' ? 'selected' : '' }}>🇦🇺 +61 (AU)</option>
+                                                        <option value="+49" {{ old('country_dial_code') == '+49' ? 'selected' : '' }}>🇩🇪 +49 (DE)</option>
+                                                        <option value="+33" {{ old('country_dial_code') == '+33' ? 'selected' : '' }}>🇫🇷 +33 (FR)</option>
+                                                        <option value="+39" {{ old('country_dial_code') == '+39' ? 'selected' : '' }}>🇮🇹 +39 (IT)</option>
+                                                    </select>
                                                     <input type="text" name="phone" id="client_phone" value="{{ old('phone') }}"
-                                                        class="form-control" placeholder="+92 334 5409691" maxlength="16" autocomplete="off">
+                                                        class="form-control" placeholder="3XX XXXXXXX or local number" maxlength="20" autocomplete="off">
                                                 </div>
-                                                <small class="text-muted fs-11">Format: +92 3XX XXXXXXX (Starts automatically with +92)</small>
+                                                <small class="text-muted fs-11">Select country dial code from dropdown (supports Pakistan +92, India +91, Saudi +966, etc.).</small>
                                                 @error('phone')
                                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                                 @enderror
@@ -147,76 +169,25 @@
             });
         }
 
-        // --- Contact No Auto Formatting (+92 3XX XXXXXXX) ---
-        function formatPhone(val) {
-            if (!val) return '';
-            let digits = val.replace(/\D/g, '');
-
-            if (digits.startsWith('92')) {
-                digits = digits.substring(2);
-            } else if (digits.startsWith('0')) {
-                digits = digits.substring(1);
-            }
-
-            digits = digits.substring(0, 10);
-
-            if (digits.length === 0) {
-                return val.includes('+') ? '+92 ' : '';
-            }
-
-            let res = '+92 ' + digits.substring(0, Math.min(3, digits.length));
-            if (digits.length > 3) {
-                res += ' ' + digits.substring(3, 10);
-            }
-            return res;
-        }
+        // --- Contact No & Country Dial Code Support ---
+        const dialSelect = document.getElementById('country_dial_code');
 
         if (phoneInput) {
-            if (phoneInput.value) {
-                phoneInput.value = formatPhone(phoneInput.value);
-            }
-
-            phoneInput.addEventListener('focus', function() {
-                if (!this.value.trim()) {
-                    this.value = '+92 ';
-                }
-            });
-
+            // Auto-detect country code if pasted with +
             phoneInput.addEventListener('input', function() {
-                this.value = formatPhone(this.value);
-            });
-
-            phoneInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Backspace') {
-                    if (this.value === '+92 ' || this.value === '+92' || this.value === '+9') {
-                        e.preventDefault();
-                        this.value = '';
-                    } else if (this.selectionStart === 9 && this.selectionStart === this.selectionEnd && this.value.charAt(8) === ' ') {
-                        e.preventDefault();
-                        const val = this.value;
-                        const newVal = val.slice(0, 7) + val.slice(9);
-                        this.value = formatPhone(newVal);
-                        this.setSelectionRange(7, 7);
+                let val = this.value.trim();
+                if (val.startsWith('+')) {
+                    if (dialSelect) {
+                        for (let opt of dialSelect.options) {
+                            if (val.startsWith(opt.value)) {
+                                dialSelect.value = opt.value;
+                                this.value = val.substring(opt.value.length).trim();
+                                break;
+                            }
+                        }
                     }
                 }
             });
-
-            phoneInput.addEventListener('blur', function() {
-                let digits = this.value.replace(/\D/g, '');
-                if (digits === '92' || digits === '') {
-                    this.value = '';
-                }
-            });
-
-            const form = phoneInput.closest('form');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    let digits = phoneInput.value.replace(/\D/g, '');
-                    if (digits === '92' || digits === '') {
-                        phoneInput.value = '';
-                    }
-                });
-            }
         }
     }
 

@@ -41,6 +41,10 @@ class BookingController extends Controller
             });
         }
 
+        if ($request->filled('package_id')) {
+            $query->where('package_id', $request->package_id);
+        }
+
         $bookings = $query->orderBy('id', 'asc')->get();
 
         $hajjCount = $bookings->count();
@@ -61,7 +65,15 @@ class BookingController extends Controller
             ->sort()
             ->values();
 
-        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax', 'hajjCount', 'allPrefixes'));
+        $allPackages = \App\Models\Package::where(function ($q) {
+            $q->where('package_type', 'hajj')
+              ->orWhereNull('package_type')
+              ->orWhere('package_type', '');
+        })->orderBy('id', 'desc')->get();
+
+        $selectedPackageId = $request->get('package_id');
+
+        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax', 'hajjCount', 'allPrefixes', 'allPackages', 'selectedPackageId'));
     }
 
     public function create(Request $request)

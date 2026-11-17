@@ -259,6 +259,106 @@ class PilgrimDocumentController extends Controller
     }
 
     /**
+     * Upload & Verify Passport, auto-filling pilgrim details (Passport #, Name, Gender, DOB, Expiry Date).
+     */
+    public function uploadPassport(Request $request, $personId)
+    {
+        $person = BookingPerson::findOrFail($personId);
+
+        $request->validate([
+            'file' => 'required|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
+        ]);
+
+        $scannedName = trim($request->input('scanned_name', ''));
+        $passportNo = trim($request->input('passport_number', ''));
+        $gender = trim($request->input('gender', ''));
+        $dob = trim($request->input('dob', ''));
+        $expiryDate = trim($request->input('passport_expiry_date', ''));
+        $forceOverride = $request->boolean('force_override', false);
+
+        // Name Verification Check
+        $personName = strtoupper(trim($person->full_name));
+        $nameMatch = false;
+
+        if (!empty($scannedName)) {
+            $scannedUpper = strtoupper($scannedName);
+            // Check if any major name token matches
+            $personTokens = array_filter(explode(' ', preg_replace('/[^A-Z]/', ' ', $personName)));
+            $scannedTokens = array_filter(explode(' ', preg_replace('/[^A-Z]/', ' ', $scannedUpper)));
+
+            $common = array_intersect($personTokens, $scannedTokens);
+            if (!empty($common) || str_contains($scannedUpper, $personName) || str_contains($personName, $scannedUpper)) {
+                $nameMatch = true;
+            }
+        } else {
+            // If scanner couldn't read name, consider it neutral
+            $nameMatch = true;
+        }
+
+        if (!$nameMatch && !$forceOverride) {
+            return response()->json([
+                'success' => false,
+                'mismatch' => true,
+                'message' => "Passport Mismatch: Scanned passport belongs to '{$scannedName}', but current pilgrim is '{$person->full_name}'.",
+                'scanned_name' => $scannedName,
+                'target_name' => $person->full_name,
+            ], 422);
+        }
+
+        // Upload and save file
+        $file = $request->file('file');
+        $uploadDir = public_path('uploads/booking_persons');
+        if (!File::isDirectory($uploadDir)) {
+            File::makeDirectory($uploadDir, 0755, true, true);
+        }
+
+        if (!empty($person->passport_image) && file_exists(public_path($person->passport_image))) {
+            @unlink(public_path($person->passport_image));
+        }
+
+        $filename = 'pass_' . time() . '_' . $person->id . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->move($uploadDir, $filename);
+        $relativePath = 'uploads/booking_persons/' . $filename;
+
+        // Auto-fill person details from scanned passport
+        $person->passport_image = $relativePath;
+        if (!empty($passportNo)) {
+            $person->passport_number = $passportNo;
+        }
+        if (!empty($gender) && in_array(ucfirst(strtolower($gender)), ['Male', 'Female'])) {
+            $person->gender = ucfirst(strtolower($gender));
+        }
+        if (!empty($dob)) {
+            $person->dob = $dob;
+        }
+        if (!empty($expiryDate)) {
+            $person->passport_expiry_date = $expiryDate;
+        }
+        $person->save();
+
+        // Sync PersonDocument
+        $doc = PersonDocument::firstOrNew(['person_id' => $person->id]);
+        $doc->booking_id = $person->booking_id;
+        $doc->passport = $relativePath;
+        $doc->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Passport verified and pilgrim details auto-filled successfully!",
+            'file_url' => asset($relativePath),
+            'filename' => $filename,
+            'person' => [
+                'id' => $person->id,
+                'full_name' => $person->full_name,
+                'passport_number' => $person->passport_number,
+                'gender' => $person->gender,
+                'dob' => $person->dob,
+                'passport_expiry_date' => $person->passport_expiry_date,
+            ]
+        ]);
+    }
+
+    /**
      * Update portal/Nusuk password for a pilgrim.
      */
     public function updatePassword(Request $request, $personId)

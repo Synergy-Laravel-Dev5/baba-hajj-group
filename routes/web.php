@@ -163,6 +163,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('booking/{id}', 'fetchBooking')->name('booking');
                 Route::post('person/{id}/upload', 'upload')->name('upload');
+                Route::post('person/{id}/upload-passport', 'uploadPassport')->name('upload-passport');
                 Route::post('person/{id}/password', 'updatePassword')->name('password');
                 Route::post('person/{id}/update-all', 'updateAll')->name('update-all');
                 Route::delete('person/{id}/delete/{type}', 'deleteDocument')->name('delete');
