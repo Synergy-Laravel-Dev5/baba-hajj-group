@@ -1835,13 +1835,6 @@
                 if (document.getElementById('fill_cnic')) document.getElementById('fill_cnic').value = '';
                 if (document.getElementById('fill_phone')) document.getElementById('fill_phone').value = '';
             }
-
-            const firstSel = document.querySelector('.person-client-select[data-idx="0"]');
-            if (firstSel && clientSelectEl.value) {
-                firstSel.value = clientSelectEl.value;
-                $(firstSel).val(clientSelectEl.value).trigger('change.select2');
-                fillPersonFromClient(firstSel, 0);
-            }
         }
         clientSelectEl.addEventListener('change', handleClientChange);
         $(clientSelectEl).on('select2:select select2:clear change', handleClientChange);
@@ -2864,9 +2857,9 @@
 
             const clientDropdown = (isFirst && !companyMode) ? `
                 <div class="col-md-12 mb-2">
-                    <label class="form-label" style="font-size:12px;">Select Client to auto-fill</label>
+                    <label class="form-label" style="font-size:12px;">Select Client to auto-fill (Optional)</label>
                     <select class="form-select form-select-sm person-client-select" data-idx="${idx}" onchange="fillPersonFromClient(this, ${idx})">
-                        ${buildClientOptions(clientSelectEl.value)}
+                        ${buildClientOptions('')}
                     </select>
                 </div>` : '';
 

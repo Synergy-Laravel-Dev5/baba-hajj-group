@@ -1206,14 +1206,6 @@
                 if (document.getElementById('fill_cnic')) document.getElementById('fill_cnic').value = '';
                 if (document.getElementById('fill_phone')) document.getElementById('fill_phone').value = '';
             }
-            const firstSel = document.querySelector('.person-client-select[data-idx="0"]');
-            if (firstSel && clientSelect.value) {
-                firstSel.value = clientSelect.value;
-                if ($(firstSel).hasClass('select2-hidden-accessible')) {
-                    $(firstSel).val(clientSelect.value).trigger('change.select2');
-                }
-                fillPersonFromClient(firstSel, 0);
-            }
         }
         clientSelect.addEventListener('change', handleClientChange);
         $(clientSelect).on('select2:select select2:clear change', handleClientChange);
@@ -2259,15 +2251,13 @@
 
         function buildPersonRow(idx, isFirst = false) {
             const companyMode = isCompanyMode();
-            const label = isFirst ?
-                (companyMode ? 'Main Passenger' : 'Main Passenger (Client)') :
-                `Passenger ${idx + 1}`;
+            const label = isFirst ? 'Main Passenger' : `Passenger ${idx + 1}`;
 
             const clientDropdown = (isFirst && !companyMode) ? `
                 <div class="col-md-12 mb-2">
-                    <label class="form-label" style="font-size:12px;">Select Client to auto-fill</label>
+                    <label class="form-label" style="font-size:12px;">Select Client to auto-fill (Optional)</label>
                     <select class="form-select form-select-sm person-client-select" data-idx="${idx}" onchange="fillPersonFromClient(this, ${idx})">
-                        ${buildClientOptions(clientSelect.value)}
+                        ${buildClientOptions('')}
                     </select>
                 </div>` : '';
 
@@ -2453,17 +2443,6 @@
                 }
             }
 
-            if (currentCount === 0 && !isCompanyMode()) {
-                const clientId = clientSelect.value;
-                if (clientId) {
-                    const firstSel = document.querySelector('.person-client-select[data-idx="0"]');
-                    if (firstSel) {
-                        firstSel.value = clientId;
-                        $(firstSel).val(clientId).trigger('change.select2');
-                        fillPersonFromClient(firstSel, 0);
-                    }
-                }
-            }
             initSearchableSelects('#personsList');
             calcTotal();
         }
