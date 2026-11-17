@@ -237,8 +237,9 @@
 <body>
 
     @php
+        $hasGd = extension_loaded('gd');
         $logoPath = public_path('assets/images/logo.png');
-        $logoBase64 = file_exists($logoPath) ? base64_encode(file_get_contents($logoPath)) : '';
+        $logoBase64 = ($hasGd && file_exists($logoPath)) ? base64_encode(file_get_contents($logoPath)) : '';
         $balance = (float)$booking->balance;
         $received = (float)$booking->total_received;
         $total = (float)$booking->total_amount;
@@ -254,9 +255,13 @@
             <td style="width: 60%; vertical-align: middle;">
                 <table style="width: 100%;">
                     <tr>
-                        @if($logoBase64)
+                        @if($hasGd && $logoBase64)
                             <td style="width: 65px; vertical-align: middle;">
                                 <img src="data:image/png;base64,{{ $logoBase64 }}" style="height: 52px; width: auto; background:#ffffff; padding:2px; border-radius:4px;">
+                            </td>
+                        @else
+                            <td style="width: 48px; vertical-align: middle;">
+                                <div style="width: 44px; height: 44px; background: #c9a84c; border-radius: 6px; text-align: center; line-height: 44px; color: #091322; font-weight: bold; font-size: 18px; font-family: serif;">BHG</div>
                             </td>
                         @endif
                         <td style="vertical-align: middle; padding-left: 8px;">
