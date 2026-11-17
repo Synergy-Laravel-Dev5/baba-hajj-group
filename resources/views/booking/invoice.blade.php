@@ -459,6 +459,15 @@
                 @if($booking->client?->phone || $booking->phone)
                     <div class="meta-kv">Contact: <strong>{{ $booking->client->phone ?? $booking->phone }}</strong></div>
                 @endif
+                @php
+                    $refName = $booking->company?->company_name 
+                        ?: ($booking->client?->referral?->company_name 
+                        ?: ($booking->client?->referral?->name 
+                        ?: ($booking->company?->name ?: '')));
+                @endphp
+                @if(!empty($refName))
+                    <div class="meta-kv">Referral Name: <strong style="color:var(--navy);">{{ $refName }}</strong></div>
+                @endif
                 @if($booking->care_of)
                     <div class="meta-kv">Care Of: <strong>{{ $booking->care_of }}</strong></div>
                 @endif
