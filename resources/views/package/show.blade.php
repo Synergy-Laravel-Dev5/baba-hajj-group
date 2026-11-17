@@ -73,8 +73,8 @@
                 $cSharing = (float)($package->price_sharing > 0 ? $package->price_sharing : $cQuad);
 
                 $tiers->push([
-                    'title'        => 'MAKTAB C ' . ($package->camp_zone ? '&mdash; ZONE ' . $package->camp_zone : '&mdash; STANDARD CAMP'),
-                    'badge'        => 'MAKTAB C' . ($package->stay_duration ? ' &bull; ' . $package->stay_duration . ' DAYS' : ($package->days ? ' &bull; ' . $package->days . ' DAYS' : '')),
+                    'title'        => 'MAKTAB C ' . ($package->camp_zone ? '— ZONE ' . $package->camp_zone : '— STANDARD CAMP'),
+                    'badge'        => 'MAKTAB C' . ($package->stay_duration ? ' • ' . $package->stay_duration . ' DAYS' : ($package->days ? ' • ' . $package->days . ' DAYS' : '')),
                     'date_badge'   => $travelDate1,
                     'price_sharing'=> $cSharing,
                     'price_quad'   => $cQuad,
@@ -92,8 +92,8 @@
                 $aSharing = (float)($package->price_sharing > 0 ? $package->price_sharing : $aQuad);
 
                 $tiers->push([
-                    'title'        => 'MAKTAB A ' . ($package->camp_zone ? '&mdash; ZONE ' . $package->camp_zone : '&mdash; VIP EXECUTIVE'),
-                    'badge'        => 'MAKTAB A (VIP)' . ($package->stay_duration ? ' &bull; ' . $package->stay_duration . ' DAYS' : ($package->days ? ' &bull; ' . $package->days . ' DAYS' : '')),
+                    'title'        => 'MAKTAB A ' . ($package->camp_zone ? '— ZONE ' . $package->camp_zone : '— VIP EXECUTIVE'),
+                    'badge'        => 'MAKTAB A (VIP)' . ($package->stay_duration ? ' • ' . $package->stay_duration . ' DAYS' : ($package->days ? ' • ' . $package->days . ' DAYS' : '')),
                     'date_badge'   => $travelDate2,
                     'price_sharing'=> $aSharing,
                     'price_quad'   => $aQuad,
@@ -107,7 +107,7 @@
             // Fallback for single Hajj package without Maktab comparison
             if ($tiers->isEmpty()) {
                 $tiers->push([
-                    'title'        => ($package->stay_type ?: 'HAJJ EXECUTIVE') . ' &mdash; ' . ($calcDays ? $calcDays . ' DAYS' : 'FULL SEASON'),
+                    'title'        => ($package->stay_type ?: 'HAJJ EXECUTIVE') . ' — ' . ($calcDays ? $calcDays . ' DAYS' : 'FULL SEASON'),
                     'badge'        => ($calcDays ? $calcDays . ' DAYS' : 'EXECUTIVE'),
                     'date_badge'   => $travelDate1,
                     'price_sharing'=> $baseSharing,
@@ -893,7 +893,7 @@
                             <img src="{{ asset('assets/images/packages/flyer_assets/kaaba_thumb.png') }}"
                                  alt="Makkah Holy Kaaba" class="hotel-thumb-img">
                             <div class="hotel-info-col">
-                                <span class="hotel-city-nights">MAKKAH &mdash; {{ $makkahNights }} NIGHTS</span>
+                                <span class="hotel-city-nights">MAKKAH — {{ $makkahNights }} NIGHTS</span>
                                 <h3 class="hotel-name-h3">{{ $makkahHotel }}</h3>
                                 <span class="hotel-distance-pill">
                                     <i class="mdi mdi-map-marker"></i> {{ $makkahDistance }} METER
@@ -906,7 +906,7 @@
                             <img src="{{ asset('assets/images/packages/flyer_assets/madina_thumb.png') }}"
                                  alt="Madina Green Dome" class="hotel-thumb-img">
                             <div class="hotel-info-col">
-                                <span class="hotel-city-nights">MADINA &mdash; {{ $madinahNights }} NIGHTS</span>
+                                <span class="hotel-city-nights">MADINA — {{ $madinahNights }} NIGHTS</span>
                                 <h3 class="hotel-name-h3">{{ $madinahHotel }}</h3>
                                 <span class="hotel-distance-pill">
                                     <i class="mdi mdi-map-marker"></i> {{ $madinahDistance }} METER
@@ -990,100 +990,52 @@
                 </section>
             @endforeach
 
-            <!-- ── 3. FLIGHT SCHEDULES / TRAVEL SECTORS (DYNAMIC) ── -->
+            <!-- ── 3. FLIGHT SCHEDULES / TRAVEL SECTORS (DYNAMIC - ONLY SHOWN IF PACKAGE HAS FLIGHTS) ── -->
+            @if ($hasFlights && $flights->isNotEmpty())
             <section class="flight-schedules-grid">
                 <!-- Flight Schedule Column 1 -->
                 <div class="flight-schedule-card">
                     <div class="flight-card-header">
-                        <i class="mdi mdi-airplane"></i> FLIGHT SCHEDULE &nbsp; {{ $tiers->first()['badge'] ?? ($calcDays . ' DAYS') }}
+                        <i class="mdi mdi-airplane"></i> FLIGHT SCHEDULE &nbsp; {{ strip_tags($tiers->first()['badge'] ?? ($calcDays . ' DAYS')) }}
                     </div>
                     <table class="flight-table-compact">
                         <tbody>
-                            @if ($hasFlights)
+                            @foreach ($flights->take(2) as $fl)
                                 <tr>
-                                    <td class="flight-code-badge">{{ $f1?->flight_no ?? 'SV-701' }}</td>
-                                    <td>{{ $f1?->departure_date ? \Carbon\Carbon::parse($f1->departure_date)->format('d M') : '19 DEC' }}</td>
-                                    <td class="flight-sector-badge">{{ $f1?->origin ?? 'KHI' }}-{{ $f1?->destination ?? 'JED' }}</td>
-                                    <td>{{ $f1?->departure_time ? substr($f1->departure_time, 0, 5) : '10:20' }} &mdash; {{ $f1?->arrival_time ? substr($f1->arrival_time, 0, 5) : '12:45' }}</td>
-                                    <td><span class="flight-baggage-badge">23 KG</span></td>
+                                    <td class="flight-code-badge">{{ $fl->flight_no ?: 'FLIGHT' }}</td>
+                                    <td>{{ $fl->departure_date ? \Carbon\Carbon::parse($fl->departure_date)->format('d M') : '' }}</td>
+                                    <td class="flight-sector-badge">{{ $fl->origin }}-{{ $fl->destination }}</td>
+                                    <td>{{ $fl->departure_time ? substr($fl->departure_time, 0, 5) : '' }} @if($fl->arrival_time)&mdash; {{ substr($fl->arrival_time, 0, 5) }}@endif</td>
+                                    <td><span class="flight-baggage-badge">CONFIRMED</span></td>
                                 </tr>
-                                <tr>
-                                    <td class="flight-code-badge">{{ $f2?->flight_no ?? 'SV-704' }}</td>
-                                    <td>{{ $f2?->departure_date ? \Carbon\Carbon::parse($f2->departure_date)->format('d M') : '03 JAN' }}</td>
-                                    <td class="flight-sector-badge">{{ $f2?->origin ?? 'JED' }}-{{ $f2->destination ?? 'KHI' }}</td>
-                                    <td>{{ $f2?->departure_time ? substr($f2->departure_time, 0, 5) : '19:45' }} &mdash; {{ $f2?->arrival_time ? substr($f2->arrival_time, 0, 5) : '01:30' }}</td>
-                                    <td><span class="flight-baggage-badge">46 KG</span></td>
-                                </tr>
-                            @else
-                                <tr>
-                                    <td class="flight-code-badge">OUTBOUND</td>
-                                    <td>{{ $package->departure_date_str ?: 'CONFIRMED' }}</td>
-                                    <td class="flight-sector-badge">{{ $package->departure_sector ?: 'KHI &rarr; JED' }}</td>
-                                    <td>DIRECT FLIGHT</td>
-                                    <td><span class="flight-baggage-badge">46 KG</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="flight-code-badge">RETURN</td>
-                                    <td>{{ $package->arrival_date_str ?: 'CONFIRMED' }}</td>
-                                    <td class="flight-sector-badge">{{ $package->arrival_sector ?: 'JED/MED &rarr; KHI' }}</td>
-                                    <td>DIRECT FLIGHT</td>
-                                    <td><span class="flight-baggage-badge">46 KG</span></td>
-                                </tr>
-                            @endif
+                            @endforeach
                         </tbody>
                     </table>
-                    <div class="flight-airline-emblem">
-                        <img src="{{ asset('assets/images/packages/flyer_assets/saudia_logo.png') }}"
-                             alt="Saudia Airlines" class="flight-airline-img">
-                    </div>
                 </div>
 
+                @if ($flights->count() > 2)
                 <!-- Flight Schedule Column 2 -->
                 <div class="flight-schedule-card">
                     <div class="flight-card-header">
-                        <i class="mdi mdi-airplane"></i> FLIGHT SCHEDULE &nbsp; {{ $tiers->count() > 1 ? $tiers->get(1)['badge'] : 'RETURN ITINERARY' }}
+                        <i class="mdi mdi-airplane"></i> FLIGHT SCHEDULE &nbsp; {{ strip_tags($tiers->count() > 1 ? $tiers->get(1)['badge'] : 'RETURN ITINERARY') }}
                     </div>
                     <table class="flight-table-compact">
                         <tbody>
-                            @if ($hasFlights && $flights->count() >= 2)
+                            @foreach ($flights->slice(2, 2) as $fl)
                                 <tr>
-                                    <td class="flight-code-badge">{{ $f1?->flight_no ?? 'SV-701' }}</td>
-                                    <td>{{ $travelDate2 }}</td>
-                                    <td class="flight-sector-badge">{{ $f1?->origin ?? 'KHI' }}-{{ $f1?->destination ?? 'JED' }}</td>
-                                    <td>10:20 &mdash; 12:45</td>
-                                    <td><span class="flight-baggage-badge">23 KG</span></td>
+                                    <td class="flight-code-badge">{{ $fl->flight_no ?: 'FLIGHT' }}</td>
+                                    <td>{{ $fl->departure_date ? \Carbon\Carbon::parse($fl->departure_date)->format('d M') : '' }}</td>
+                                    <td class="flight-sector-badge">{{ $fl->origin }}-{{ $fl->destination }}</td>
+                                    <td>{{ $fl->departure_time ? substr($fl->departure_time, 0, 5) : '' }} @if($fl->arrival_time)&mdash; {{ substr($fl->arrival_time, 0, 5) }}@endif</td>
+                                    <td><span class="flight-baggage-badge">CONFIRMED</span></td>
                                 </tr>
-                                <tr>
-                                    <td class="flight-code-badge">{{ $f2?->flight_no ?? 'SV-704' }}</td>
-                                    <td>RETURN</td>
-                                    <td class="flight-sector-badge">{{ $f2?->origin ?? 'JED' }}-{{ $f2?->destination ?? 'KHI' }}</td>
-                                    <td>19:45 &mdash; 01:30</td>
-                                    <td><span class="flight-baggage-badge">46 KG</span></td>
-                                </tr>
-                            @else
-                                <tr>
-                                    <td class="flight-code-badge">SECTOR</td>
-                                    <td>{{ $travelDate1 }}</td>
-                                    <td class="flight-sector-badge">{{ $package->departure_sector ?: 'PAKISTAN &rarr; SAUDIA' }}</td>
-                                    <td>SCHEDULED</td>
-                                    <td><span class="flight-baggage-badge">46 KG</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="flight-code-badge">SECTOR</td>
-                                    <td>{{ $travelDate2 }}</td>
-                                    <td class="flight-sector-badge">{{ $package->arrival_sector ?: 'SAUDIA &rarr; PAKISTAN' }}</td>
-                                    <td>SCHEDULED</td>
-                                    <td><span class="flight-baggage-badge">46 KG</span></td>
-                                </tr>
-                            @endif
+                            @endforeach
                         </tbody>
                     </table>
-                    <div class="flight-airline-emblem">
-                        <img src="{{ asset('assets/images/packages/flyer_assets/saudia_logo.png') }}"
-                             alt="Saudia Airlines" class="flight-airline-img">
-                    </div>
                 </div>
+                @endif
             </section>
+            @endif
 
             <!-- ── 4. CONTACTS TEAM FOOTER ── -->
             <footer class="flyer-contacts-section">
