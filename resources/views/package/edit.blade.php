@@ -140,19 +140,19 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Departure Date & Hijri</label>
-                                    <input type="text" name="departure_date_str" class="form-control" placeholder="e.g. 28-29 Apr / 21-22 Zil Qadh" value="{{ old('departure_date_str', $package->departure_date_str ?? '28-29 Apr / 21-22 Zil Qadh') }}">
+                                    <input type="text" name="departure_date_str" class="form-control" placeholder="e.g. 28-29 Apr / 21-22 Zil Qadh" value="{{ old('departure_date_str', $package->departure_date_str) }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Departure Sector</label>
-                                    <input type="text" name="departure_sector" class="form-control" placeholder="e.g. Karachi to Jeddah" value="{{ old('departure_sector', $package->departure_sector ?? 'Karachi to Jeddah') }}">
+                                    <input type="text" name="departure_sector" class="form-control" placeholder="e.g. Karachi to Jeddah" value="{{ old('departure_sector', $package->departure_sector) }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Arrival Date & Hijri</label>
-                                    <input type="text" name="arrival_date_str" class="form-control" placeholder="e.g. 28 May / 22 Zil Hajj" value="{{ old('arrival_date_str', $package->arrival_date_str ?? '28 May / 22 Zil Hajj') }}">
+                                    <input type="text" name="arrival_date_str" class="form-control" placeholder="e.g. 28 May / 22 Zil Hajj" value="{{ old('arrival_date_str', $package->arrival_date_str) }}">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-bold">Arrival Sector</label>
-                                    <input type="text" name="arrival_sector" class="form-control" placeholder="e.g. Jeddah/Madinah to Karachi" value="{{ old('arrival_sector', $package->arrival_sector ?? 'Jeddah/Madinah to Karachi') }}">
+                                    <input type="text" name="arrival_sector" class="form-control" placeholder="e.g. Jeddah/Madinah to Karachi" value="{{ old('arrival_sector', $package->arrival_sector) }}">
                                 </div>
                             </div>
 

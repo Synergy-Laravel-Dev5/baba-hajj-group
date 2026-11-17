@@ -172,7 +172,11 @@
         $flights = $package->transportFlights ?? collect([]);
         $f1 = $flights?->first();
         $f2 = ($flights && $flights->count() > 1) ? $flights->get(1) : null;
-        $hasFlights = ($f1 !== null);
+        $hasCustomFlights = ($flights && $flights->isNotEmpty());
+        $hasDepartureSector = !empty(trim((string)($package->departure_sector ?? '')));
+        $hasArrivalSector   = !empty(trim((string)($package->arrival_sector ?? '')));
+        $hasSectorFlights   = ($hasDepartureSector || $hasArrivalSector);
+        $showFlightSchedule = ($hasCustomFlights || $hasSectorFlights);
     @endphp
 
     <title>{{ $fullTitle }} | Baba Group of Companies</title>
@@ -684,10 +688,10 @@
             text-transform: uppercase;
         }
 
-        /* ════ 3. FLIGHT SCHEDULES SECTION (2 COLUMNS) ════ */
+        /* ════ 3. FLIGHT SCHEDULES SECTION (DYNAMIC) ════ */
         .flight-schedules-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 12px;
         }
         .flight-schedule-card {
@@ -991,7 +995,7 @@
             @endforeach
 
             <!-- ── 3. FLIGHT SCHEDULES / TRAVEL SECTORS (DYNAMIC - ONLY SHOWN IF PACKAGE HAS FLIGHTS) ── -->
-            @if ($hasFlights && $flights->isNotEmpty())
+            @if ($showFlightSchedule)
             <section class="flight-schedules-grid">
                 <!-- Flight Schedule Column 1 -->
                 <div class="flight-schedule-card">
@@ -1000,21 +1004,40 @@
                     </div>
                     <table class="flight-table-compact">
                         <tbody>
-                            @foreach ($flights->take(2) as $fl)
-                                <tr>
-                                    <td class="flight-code-badge">{{ $fl->flight_no ?: 'FLIGHT' }}</td>
-                                    <td>{{ $fl->departure_date ? \Carbon\Carbon::parse($fl->departure_date)->format('d M') : '' }}</td>
-                                    <td class="flight-sector-badge">{{ $fl->origin }}-{{ $fl->destination }}</td>
-                                    <td>{{ $fl->departure_time ? substr($fl->departure_time, 0, 5) : '' }} @if($fl->arrival_time)&mdash; {{ substr($fl->arrival_time, 0, 5) }}@endif</td>
-                                    <td><span class="flight-baggage-badge">CONFIRMED</span></td>
-                                </tr>
-                            @endforeach
+                            @if ($hasCustomFlights)
+                                @foreach ($flights->take(2) as $fl)
+                                    <tr>
+                                        <td class="flight-code-badge">{{ $fl->flight_no ?: ($fl->airline ?: 'FLIGHT') }}</td>
+                                        <td>{{ $fl->departure_date ? \Carbon\Carbon::parse($fl->departure_date)->format('d M') : '' }}</td>
+                                        <td class="flight-sector-badge">{{ $fl->origin }} ➔ {{ $fl->destination }}</td>
+                                        <td>{{ $fl->departure_time ? substr($fl->departure_time, 0, 5) : '' }} @if($fl->arrival_time)&mdash; {{ substr($fl->arrival_time, 0, 5) }}@endif</td>
+                                        <td><span class="flight-code-badge">{{ $fl->flight_class ?: 'DIRECT' }}</span></td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                @if ($hasDepartureSector)
+                                    <tr>
+                                        <td class="flight-code-badge">OUTBOUND</td>
+                                        <td>{{ $package->departure_date_str ?: ($package->valid_from ? \Carbon\Carbon::parse($package->valid_from)->format('d M Y') : '') }}</td>
+                                        <td class="flight-sector-badge">{{ $package->departure_sector }}</td>
+                                        <td>DIRECT FLIGHT</td>
+                                    </tr>
+                                @endif
+                                @if ($hasArrivalSector)
+                                    <tr>
+                                        <td class="flight-code-badge">RETURN</td>
+                                        <td>{{ $package->arrival_date_str ?: ($package->valid_until ? \Carbon\Carbon::parse($package->valid_until)->format('d M Y') : '') }}</td>
+                                        <td class="flight-sector-badge">{{ $package->arrival_sector }}</td>
+                                        <td>DIRECT FLIGHT</td>
+                                    </tr>
+                                @endif
+                            @endif
                         </tbody>
                     </table>
                 </div>
 
-                @if ($flights->count() > 2)
-                <!-- Flight Schedule Column 2 -->
+                @if ($hasCustomFlights && $flights->count() > 2)
+                <!-- Flight Schedule Column 2 (Remaining Custom Flights) -->
                 <div class="flight-schedule-card">
                     <div class="flight-card-header">
                         <i class="mdi mdi-airplane"></i> FLIGHT SCHEDULE &nbsp; {{ strip_tags($tiers->count() > 1 ? $tiers->get(1)['badge'] : 'RETURN ITINERARY') }}
@@ -1023,13 +1046,40 @@
                         <tbody>
                             @foreach ($flights->slice(2, 2) as $fl)
                                 <tr>
-                                    <td class="flight-code-badge">{{ $fl->flight_no ?: 'FLIGHT' }}</td>
+                                    <td class="flight-code-badge">{{ $fl->flight_no ?: ($fl->airline ?: 'FLIGHT') }}</td>
                                     <td>{{ $fl->departure_date ? \Carbon\Carbon::parse($fl->departure_date)->format('d M') : '' }}</td>
-                                    <td class="flight-sector-badge">{{ $fl->origin }}-{{ $fl->destination }}</td>
+                                    <td class="flight-sector-badge">{{ $fl->origin }} ➔ {{ $fl->destination }}</td>
                                     <td>{{ $fl->departure_time ? substr($fl->departure_time, 0, 5) : '' }} @if($fl->arrival_time)&mdash; {{ substr($fl->arrival_time, 0, 5) }}@endif</td>
-                                    <td><span class="flight-baggage-badge">CONFIRMED</span></td>
+                                    <td><span class="flight-code-badge">{{ $fl->flight_class ?: 'DIRECT' }}</span></td>
                                 </tr>
                             @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @elseif (!$hasCustomFlights && $hasSectorFlights && $tiers->count() > 1)
+                <!-- Flight Schedule Column 2 (Tier 2 Itinerary) -->
+                <div class="flight-schedule-card">
+                    <div class="flight-card-header">
+                        <i class="mdi mdi-airplane"></i> FLIGHT SCHEDULE &nbsp; {{ strip_tags($tiers->get(1)['badge'] ?? 'RETURN ITINERARY') }}
+                    </div>
+                    <table class="flight-table-compact">
+                        <tbody>
+                            @if ($hasDepartureSector)
+                                <tr>
+                                    <td class="flight-code-badge">OUTBOUND</td>
+                                    <td>{{ $tiers->get(1)['date_badge'] ?? ($package->departure_date_str ?: '') }}</td>
+                                    <td class="flight-sector-badge">{{ $package->departure_sector }}</td>
+                                    <td>DIRECT FLIGHT</td>
+                                </tr>
+                            @endif
+                            @if ($hasArrivalSector)
+                                <tr>
+                                    <td class="flight-code-badge">RETURN</td>
+                                    <td>{{ $package->arrival_date_str ?: '' }}</td>
+                                    <td class="flight-sector-badge">{{ $package->arrival_sector }}</td>
+                                    <td>DIRECT FLIGHT</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
