@@ -277,16 +277,17 @@
                 <table style="width: 100%;">
                     <tr>
                         @if($hasGd && $logoBase64)
-                            <td style="width: 180px; vertical-align: middle;">
-                                <img src="data:image/png;base64,{{ $logoBase64 }}" style="height: 52px; width: auto; max-width: 175px;">
+                            <td style="width: 175px; vertical-align: middle;">
+                                <img src="data:image/png;base64,{{ $logoBase64 }}" style="height: 52px; width: auto; max-width: 170px;">
                             </td>
                         @else
                             <td style="width: 160px; vertical-align: middle;">
-                                <div style="font-size: 15px; font-weight: bold; color: #fef08a; letter-spacing: 0.5px;">BABA GROUP</div>
+                                <div style="font-size: 15px; font-weight: bold; color: #fef08a; letter-spacing: 0.5px;">{{ strtoupper($invCompanyName) }}</div>
                                 <div style="font-size: 8.5px; color: #cbd5e1; letter-spacing: 1px; text-transform: uppercase;">HAJJ & UMRAH</div>
                             </td>
                         @endif
                         <td style="vertical-align: middle; padding-left: 10px; border-left: 1px solid #c9a84c;">
+                            <div class="company-name" style="font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 2px;">{{ $invCompanyName }}</div>
                             <div class="company-sub" style="font-size: 8px; color: #fef08a; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">VIP Hajj & Umrah Tour Management</div>
                             <div class="company-meta" style="font-size: 7.5px; color: #cbd5e1; margin-top: 2px; line-height: 1.3;">
                                 Approved Tour Operator · KSA Munazzam Portal

@@ -14,7 +14,27 @@
 
     @php
         $pkgType = strtolower($booking->package_type ?? 'hajj');
-        $appName = 'BABA HAJJ GROUP';
+        $badgeCompany = $booking->company ?? ($booking->client?->referral ?? \App\Models\Company::first());
+        $badgeCompanyName = $badgeCompany?->company_name ?: ($badgeCompany?->name ?: 'BABA HAJJ GROUP');
+        $appName = $badgeCompanyName;
+
+        $badgeLogoPath = null;
+        if (!empty($badgeCompany?->company_logo)) {
+            if (file_exists(public_path('storage/' . $badgeCompany->company_logo))) {
+                $badgeLogoPath = public_path('storage/' . $badgeCompany->company_logo);
+            } elseif (file_exists(public_path($badgeCompany->company_logo))) {
+                $badgeLogoPath = public_path($badgeCompany->company_logo);
+            }
+        }
+        if (!$badgeLogoPath) {
+            if (file_exists(public_path('assets/images/baba_hajj_logo_crisp.png'))) {
+                $badgeLogoPath = public_path('assets/images/baba_hajj_logo_crisp.png');
+            } elseif (file_exists(public_path('assets/images/logo_clean_transparent.png'))) {
+                $badgeLogoPath = public_path('assets/images/logo_clean_transparent.png');
+            }
+        }
+        $badgeLogoBase64 = $badgeLogoPath ? base64_encode(file_get_contents($badgeLogoPath)) : '';
+
         $agencyPhone = $booking->emergency_phone ?? ($booking->phone ?? '+92 300 0000000');
         $saudiHelpline = '911 / 1966';
         $packageYear = $booking->package_year ?? date('Y');
@@ -197,11 +217,11 @@
         }
 
         .badge-logo-img {
-            height: 48px;
+            height: 44px;
             width: auto;
-            max-width: 65px;
+            max-width: 80px;
             object-fit: contain;
-            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+            display: block;
         }
 
         .badge-brand-text {
@@ -594,9 +614,11 @@
         <!-- Header -->
         <div class="badge-header-wrapper">
             <div class="badge-brand-plate">
-                <img src="{{ asset('assets/images/logo.png') }}?v={{ time() }}" alt="Baba Hajj Group" class="badge-logo-img">
+                @if($badgeLogoBase64)
+                    <img src="data:image/png;base64,{{ $badgeLogoBase64 }}" alt="{{ $badgeCompanyName }}" class="badge-logo-img">
+                @endif
                 <div class="badge-brand-text">
-                    <div class="badge-brand-title">{{ $appName }}</div>
+                    <div class="badge-brand-title">{{ $badgeCompanyName }}</div>
                     <div class="badge-brand-sub">VIP HAJJ MANIFEST PORTAL</div>
                 </div>
             </div>
@@ -639,7 +661,7 @@
                         <div class="pax-kv">S/O: <strong>{{ $person->father_name }}</strong></div>
                     @endif
                     <div class="pax-kv">Passport: <strong style="color:#091322;">{{ $person->passport_number ?? ($booking->passport_number ?? '—') }}</strong></div>
-                    <div class="pax-kv">Blood: <strong style="color:#dc2626;">{{ $person->blood_group ?? '—' }}</strong> · {{ ucfirst($person->gender ?? 'Male') }}</div>
+                    <div class="pax-kv">Gender: <strong>{{ ucfirst($person->gender ?? 'Male') }}</strong>@if(!empty($person->blood_group) && $person->blood_group !== '—') · Blood: <strong style="color:#dc2626;">{{ $person->blood_group }}</strong>@endif</div>
                     <div class="pax-kv">Origin: <strong>{{ $person->city ?? 'Pakistan' }}</strong></div>
                 </div>
             </div>

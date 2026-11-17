@@ -443,35 +443,35 @@
             $invCompany = $booking->company ?? ($booking->client?->referral ?? \App\Models\Company::first());
             $invCompanyName = $invCompany?->company_name ?: ($invCompany?->name ?: 'BABA HAJJ GROUP');
 
-            $invLogoUrl = null;
+            $invLogoPath = null;
             if (!empty($invCompany?->company_logo)) {
                 if (file_exists(public_path('storage/' . $invCompany->company_logo))) {
-                    $invLogoUrl = asset('storage/' . $invCompany->company_logo);
+                    $invLogoPath = public_path('storage/' . $invCompany->company_logo);
                 } elseif (file_exists(public_path($invCompany->company_logo))) {
-                    $invLogoUrl = asset($invCompany->company_logo);
+                    $invLogoPath = public_path($invCompany->company_logo);
                 }
             }
-            if (!$invLogoUrl) {
+            if (!$invLogoPath) {
                 if (file_exists(public_path('assets/images/logo_clean_transparent.png'))) {
-                    $invLogoUrl = asset('assets/images/logo_clean_transparent.png');
+                    $invLogoPath = public_path('assets/images/logo_clean_transparent.png');
                 } elseif (file_exists(public_path('assets/images/baba_hajj_logo_gold.png'))) {
-                    $invLogoUrl = asset('assets/images/baba_hajj_logo_gold.png');
+                    $invLogoPath = public_path('assets/images/baba_hajj_logo_gold.png');
                 } elseif (file_exists(public_path('assets/images/logo.png'))) {
-                    $invLogoUrl = asset('assets/images/logo.png');
+                    $invLogoPath = public_path('assets/images/logo.png');
                 }
             }
+            $invLogoBase64 = $invLogoPath ? base64_encode(file_get_contents($invLogoPath)) : '';
         @endphp
 
         <div class="invoice-header">
             <div class="invoice-header-flex">
                 <div class="company-branding">
-                    @if($invLogoUrl)
-                        <img src="{{ $invLogoUrl }}?v={{ time() }}" alt="{{ $invCompanyName }}" class="company-brand-logo">
-                    @else
-                        <div class="company-name">{{ $invCompanyName }}</div>
+                    @if($invLogoBase64)
+                        <img src="data:image/png;base64,{{ $invLogoBase64 }}" alt="{{ $invCompanyName }}" class="company-brand-logo">
                     @endif
-                    <div class="company-brand-subinfo">
-                        <div class="company-sub-tag">VIP Hajj & Umrah Tour Management</div>
+                    <div>
+                        <div class="company-name">{{ $invCompanyName }}</div>
+                        <div class="company-sub">VIP Hajj & Umrah Tour Management System</div>
                         <div class="company-badges">
                             <span><i class="bi bi-shield-check text-warning me-1"></i>Approved Tour Operator</span>
                             <span class="badge-sep">·</span>
