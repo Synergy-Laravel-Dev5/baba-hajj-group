@@ -59,6 +59,26 @@
                             <!-- BODY -->
                             <div class="card-body">
 
+                                <!-- Filter Bar -->
+                                <div class="row g-2 align-items-center mb-3 p-2 bg-light rounded border">
+                                    <div class="col-md-3 col-sm-6">
+                                        <label class="form-label mb-1 fw-bold fs-12 text-muted"><i class="mdi mdi-filter-variant me-1 text-primary"></i>Filter By Prefix</label>
+                                        <select id="prefixFilterSelect" class="form-select form-select-sm border-primary">
+                                            <option value="">-- All Prefixes --</option>
+                                            @if(isset($allPrefixes))
+                                                @foreach($allPrefixes as $pfx)
+                                                    <option value="{{ $pfx }}">{{ $pfx }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                    <div class="col-md-9 col-sm-6 d-flex justify-content-end align-items-end gap-2 pt-3">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="resetPrefixFilter">
+                                            <i class="mdi mdi-refresh me-1"></i>Reset Filter
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <div class="table-responsive">
                                     <table id="datatable" class="table table-bordered table-hover align-middle w-100 mb-0">
 
@@ -66,7 +86,7 @@
                                             <tr>
                                                 <th class="text-center" style="width: 55px;">S:NO</th>
                                                 <th class="text-center" style="width: 110px;">Booking Date</th>
-                                                <th class="text-center" style="width: 110px;">Booking Code</th>
+                                                <th class="text-center" style="width: 110px;">Prefix</th>
                                                 <th style="min-width: 160px;">Client / Company</th>
                                                 <th style="min-width: 180px;">Package Type</th>
                                                 <th class="text-center" style="width: 90px;">No of Pax</th>
@@ -244,8 +264,30 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        if ($.fn.DataTable && $.fn.DataTable.isDataTable('#datatable')) {
-            $('#datatable').DataTable().columns.adjust();
+        let table = null;
+        if ($.fn.DataTable) {
+            if ($.fn.DataTable.isDataTable('#datatable')) {
+                table = $('#datatable').DataTable();
+            } else {
+                table = $('#datatable').DataTable();
+            }
+        }
+
+        if (table) {
+            table.columns.adjust();
+
+            $('#prefixFilterSelect').on('change', function() {
+                const val = $(this).val();
+                if (val) {
+                    table.column(2).search(val).draw();
+                } else {
+                    table.column(2).search('').draw();
+                }
+            });
+
+            $('#resetPrefixFilter').on('click', function() {
+                $('#prefixFilterSelect').val('').trigger('change');
+            });
         }
     });
 </script>

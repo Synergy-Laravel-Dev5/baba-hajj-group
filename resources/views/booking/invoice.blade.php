@@ -84,6 +84,16 @@
             transform: translateY(-1px);
         }
 
+        .btn-pdf {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #ffffff;
+        }
+        .btn-pdf:hover {
+            color: #ffffff;
+            background: linear-gradient(135deg, #047857, #059669);
+            transform: translateY(-1px);
+        }
+
         .btn-back {
             background: #ffffff;
             color: var(--gray-800);
@@ -389,6 +399,9 @@
             <a href="{{ route('booking.voucher', $booking->id) }}" class="btn-action btn-back" target="_blank">
                 <i class="bi bi-ticket-perforated"></i> Hotel Voucher
             </a>
+            <a href="{{ route('booking.invoice.pdf', $booking->id) }}" class="btn-action btn-pdf">
+                <i class="bi bi-file-earmark-pdf-fill"></i> Download PDF
+            </a>
             <button onclick="window.print()" class="btn-action btn-print">
                 <i class="bi bi-printer-fill"></i> Print Official Invoice
             </button>
@@ -437,18 +450,14 @@
             <!-- Billed To -->
             <div class="meta-col">
                 <div class="meta-heading"><i class="bi bi-person-fill"></i> Billed To Client</div>
-                <div class="meta-val-large">{{ $booking->client->name ?? 'Guest Client' }}</div>
+                <div class="meta-val-large" style="font-size:17px; font-weight:800; color:var(--navy); margin-bottom:4px;">
+                    {{ $booking->client->name ?? 'Guest Client' }}
+                </div>
                 @if($booking->client?->cnic)
                     <div class="meta-kv">CNIC: <strong>{{ $booking->client->cnic }}</strong></div>
                 @endif
                 @if($booking->client?->phone || $booking->phone)
                     <div class="meta-kv">Contact: <strong>{{ $booking->client->phone ?? $booking->phone }}</strong></div>
-                @endif
-                @php
-                    $refCompany = $booking->company ?? $booking->client?->referral;
-                @endphp
-                @if($refCompany)
-                    <div class="meta-kv">Referral / Agent: <strong style="color:var(--navy);">{{ $refCompany->company_name }}</strong></div>
                 @endif
                 @if($booking->care_of)
                     <div class="meta-kv">Care Of: <strong>{{ $booking->care_of }}</strong></div>
@@ -458,17 +467,30 @@
             <!-- Booking Package Details -->
             <div class="meta-col">
                 <div class="meta-heading"><i class="bi bi-box-seam-fill"></i> Package & Camp Details</div>
-                <div class="meta-val-large" style="font-size:15px; color:var(--gold-dark);">
-                    {{ $booking->package->package_title ?? $booking->package->name ?? $booking->package_name ?? 'Hajj Package' }}
-                    @if($booking->package && ($booking->package->code || $booking->package->package_number))
-                        <span class="badge bg-dark text-light ms-1" style="font-size:10px;">{{ $booking->package->code ?? $booking->package->package_number }}</span>
-                    @endif
+                @php
+                    $fullPkgName = $booking->package->package_title ?? ($booking->package->name ?? ($booking->package_name ?? 'Hajj Package'));
+                    $pkgPrefix = $booking->persons->pluck('hb_number')->filter()->first() ?: ($booking->package?->next_booking_code ?? ($booking->package?->code ?? 'AZ 01'));
+                    $campName = $booking->camp ?? ($booking->package->maktab ?? ($booking->package->camp_category ? 'Maktab ' . $booking->package->camp_category : ''));
+                @endphp
+                <div class="meta-val-large" style="font-size:16px; color:var(--navy); font-weight:800; line-height:1.2; margin-bottom:5px;">
+                    {{ $fullPkgName }}
+                </div>
+                <div class="meta-kv mb-2">
+                    Prefix: <span class="badge bg-dark text-warning fw-bold px-2 py-1" style="font-size:11.5px; letter-spacing:0.5px;">{{ $pkgPrefix }}</span>
                 </div>
                 <div class="meta-kv">Season: <strong>{{ strtoupper($booking->package_type ?? 'HAJJ') }} {{ $booking->package_year ?? date('Y') }}</strong></div>
-                <div class="meta-kv">Camp / Maktab: <strong>{{ $booking->camp ?? ($booking->package->camp_category ?? 'Maktab C (Zone 5)') }}</strong></div>
+                @if(!empty($campName))
+                    <div class="meta-kv">Camp / Maktab: <strong>{{ $campName }}</strong></div>
+                @endif
                 <div class="meta-kv">Pilgrim Count: <strong>{{ $booking->persons->count() ?: ($booking->no_of_pax ?? 1) }} Pax</strong></div>
                 @if($booking->qurbani_charges > 0 || ($booking->qurbani_option && $booking->qurbani_option !== 'not_included'))
-                    <div class="meta-kv">Qurbani: <strong class="text-success">{{ ucfirst(str_replace('_', ' ', $booking->qurbani_option)) }} @if($booking->qurbani_qty) ({{ $booking->qurbani_qty }} Heads) @endif</strong></div>
+                    @php
+                        $qStatus = 'Included';
+                        if ($booking->qurbani_option === 'separate_request') {
+                            $qStatus = 'Separate Request';
+                        }
+                    @endphp
+                    <div class="meta-kv">Qurbani: <strong class="text-success">{{ $qStatus }} @if($booking->qurbani_qty) ({{ $booking->qurbani_qty }} {{ $booking->qurbani_qty > 1 ? 'Heads' : 'Head' }}) @endif</strong></div>
                 @endif
             </div>
         </div>
@@ -482,12 +504,14 @@
                 <table class="inv-table">
                     <thead>
                         <tr>
-                            <th style="width:40px;">#</th>
+                            <th style="width:35px;">#</th>
                             <th>Pilgrim Full Name</th>
+                            <th>Hajj ID</th>
+                            <th>Prefix</th>
                             <th>Passport #</th>
-                            <th>HB / Pilgrim ID</th>
+                            <th>CNIC</th>
                             <th>Gender</th>
-                            <th>City / Origin</th>
+                            <th>Contact</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -500,12 +524,16 @@
                                         <div class="text-muted" style="font-size:10.5px;">S/O: {{ $person->father_name }}</div>
                                     @endif
                                 </td>
-                                <td>{{ $person->passport_number ?? '—' }}</td>
                                 <td>
-                                    <span class="badge bg-secondary" style="font-size:10px;">{{ $person->hb_number ?? 'HB-'.str_pad($person->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                    <span class="badge bg-primary text-white" style="font-size:11px; font-weight:700;">{{ $person->hajj_id ?? ('BG'.str_pad($person->id, 3, '0', STR_PAD_LEFT)) }}</span>
                                 </td>
+                                <td>
+                                    <span class="badge bg-dark text-warning fw-bold" style="font-size:11px; letter-spacing:0.5px;">{{ $person->hb_number ?? $pkgPrefix }}</span>
+                                </td>
+                                <td>{{ $person->passport_number ?? '—' }}</td>
+                                <td>{{ $person->cnic ?? '—' }}</td>
                                 <td>{{ ucfirst($person->gender ?? 'Male') }}</td>
-                                <td>{{ $person->city ?? 'Pakistan' }}</td>
+                                <td>{{ $person->phone ?? ($booking->phone ?? '—') }}</td>
                             </tr>
                         @endforeach
                     </tbody>

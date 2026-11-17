@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Package;
 use App\Models\Transaction;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,12 +29,19 @@ class BookingController extends Controller
         // Save selected package context to session
         session(['dashboard_package' => 'hajj']);
 
-        $bookings = Booking::with(['client', 'company', 'package', 'persons'])
+        $query = Booking::with(['client', 'company', 'package', 'persons'])
             ->where(function ($q) {
                 $q->whereRaw('LOWER(COALESCE(package_type, "hajj")) = ?', ['hajj']);
-            })
-            ->orderBy('id', 'asc')
-            ->get();
+            });
+
+        if ($request->filled('prefix')) {
+            $pfx = trim($request->prefix);
+            $query->whereHas('persons', function ($pq) use ($pfx) {
+                $pq->where('hb_number', 'like', '%' . $pfx . '%');
+            });
+        }
+
+        $bookings = $query->orderBy('id', 'asc')->get();
 
         $hajjCount = $bookings->count();
         $trashCount = Booking::onlyTrashed()->count();
@@ -42,7 +50,18 @@ class BookingController extends Controller
             return max($b->persons->count(), (int)($b->no_of_pax ?: 0));
         });
 
-        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax', 'hajjCount'));
+        $allPrefixes = \App\Models\BookingPerson::whereNotNull('hb_number')
+            ->where('hb_number', '!=', '')
+            ->pluck('hb_number')
+            ->map(function ($val) {
+                return \App\Models\BookingPerson::formatHbNumber($val);
+            })
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax', 'hajjCount', 'allPrefixes'));
     }
 
     public function create(Request $request)
@@ -817,6 +836,40 @@ class BookingController extends Controller
             }
         ]);
         return view('booking.invoice', compact('booking'));
+    }
+
+    /**
+     * Download Official Booking Invoice as PDF
+     */
+    public function invoicePdf(Booking $booking)
+    {
+        $this->authorize('booking_show');
+        $booking->load([
+            'client.referral',
+            'company',
+            'package.accommodations',
+            'package.transports',
+            'package.transportFlights',
+            'persons',
+            'hotels',
+            'transports',
+            'visas',
+            'transactions' => function ($q) {
+                $q->where('status', 'confirmed')->orderBy('payment_date', 'asc');
+            }
+        ]);
+
+        $pdf = Pdf::loadView('booking.invoice_pdf', compact('booking'));
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->setOption('isHtml5ParserEnabled', true);
+        $pdf->setOption('isRemoteEnabled', true);
+
+        $clientName = preg_replace('/[^A-Za-z0-9]/', '_', $booking->client?->name ?: 'Client');
+        $prefix = $booking->persons->pluck('hb_number')->filter()->first() ?: 'AZ01';
+        $cleanPrefix = preg_replace('/[^A-Za-z0-9]/', '_', $prefix);
+        $fileName = 'Invoice_' . $clientName . '_' . $cleanPrefix . '.pdf';
+
+        return $pdf->download($fileName);
     }
 
     /**

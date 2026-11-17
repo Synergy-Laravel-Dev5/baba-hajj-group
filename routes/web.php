@@ -146,6 +146,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('restore/{id}', 'restore')->name('booking.restore');
                 Route::get('voucher/{booking}', 'voucher')->name('booking.voucher');
                 Route::get('invoice/{booking}', 'invoice')->name('booking.invoice');
+                Route::get('invoice/{booking}/pdf', 'invoicePdf')->name('booking.invoice.pdf');
                 Route::delete('{booking}/person/{person}', 'deletePerson')->name('booking.person.delete');
             });
 
