@@ -150,6 +150,7 @@ class PilgrimDocumentController extends Controller
                 'picture' => $p->photo ? asset($p->photo) : null,
                 'medical' => $p->medical_document ? asset($p->medical_document) : null,
                 'id_document' => $p->id_document ? asset($p->id_document) : null,
+                'email' => $p->portal_email ?? '',
                 'password' => $p->portal_password ?? '',
             ];
         });
@@ -359,32 +360,44 @@ class PilgrimDocumentController extends Controller
     }
 
     /**
-     * Update portal/Nusuk password for a pilgrim.
+     * Update portal/Nusuk credentials (email & password) for a pilgrim.
      */
     public function updatePassword(Request $request, $personId)
     {
         $person = BookingPerson::findOrFail($personId);
         $password = $request->input('password', '');
+        $email = $request->input('email', $request->input('portal_email', ''));
 
-        $person->portal_password = $password;
+        if ($request->has('email') || $request->has('portal_email')) {
+            $person->portal_email = $email;
+        }
+        if ($request->has('password')) {
+            $person->portal_password = $password;
+        }
         $person->save();
 
         // Sync PersonDocument
         $doc = PersonDocument::firstOrNew(['person_id' => $person->id]);
         $doc->booking_id = $person->booking_id;
-        $doc->password = $password;
+        if ($request->has('password')) {
+            $doc->password = $password;
+        }
+        if ($request->has('email') || $request->has('portal_email')) {
+            $doc->email = $email;
+        }
         $doc->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Password saved successfully!',
-            'password' => $password,
+            'message' => 'Credentials (Email & Password) saved successfully!',
+            'email' => $person->portal_email,
+            'password' => $person->portal_password,
             'person_id' => $person->id,
         ]);
     }
 
     /**
-     * Update all 5 columns (Passport, Picture, Medical, ID, and Password) in one go.
+     * Update all 5 columns (Passport, Picture, Medical, ID, and Credentials) in one go.
      */
     public function updateAll(Request $request, $personId)
     {
@@ -426,7 +439,10 @@ class PilgrimDocumentController extends Controller
             $person->id_document = 'uploads/booking_persons/' . $filename;
         }
 
-        // 5. Password
+        // 5. Credentials (Email & Password)
+        if ($request->has('email') || $request->has('portal_email')) {
+            $person->portal_email = $request->input('email', $request->input('portal_email'));
+        }
         if ($request->has('password')) {
             $person->portal_password = $request->input('password');
         }
@@ -443,6 +459,7 @@ class PilgrimDocumentController extends Controller
             $doc->nic_front = $person->id_document;
         }
         if (isset($person->portal_password)) $doc->password = $person->portal_password;
+        if (isset($person->portal_email)) $doc->email = $person->portal_email;
         $doc->save();
 
         if ($request->ajax()) {
@@ -455,12 +472,13 @@ class PilgrimDocumentController extends Controller
                     'picture' => $person->photo ? asset($person->photo) : null,
                     'medical' => $person->medical_document ? asset($person->medical_document) : null,
                     'id_document' => $person->id_document ? asset($person->id_document) : null,
+                    'email' => $person->portal_email ?? '',
                     'password' => $person->portal_password ?? '',
                 ]
             ]);
         }
 
-        return redirect()->back()->with('success', 'Pilgrim documents and password updated successfully!');
+        return redirect()->back()->with('success', 'Pilgrim documents and credentials updated successfully!');
     }
 
     /**
@@ -549,13 +567,18 @@ class PilgrimDocumentController extends Controller
                     }
                 }
 
-                // Add Credentials text file if password exists
-                if (!empty($p->portal_password)) {
+                // Add Credentials text file if email or password exists
+                if (!empty($p->portal_password) || !empty($p->portal_email)) {
                     $credContent = "Pilgrim Name: {$p->full_name}\n";
                     $credContent .= "Hajj ID: {$p->hajj_id}\n";
                     $credContent .= "Passport Number: {$p->passport_number}\n";
                     $credContent .= "CNIC: {$p->cnic}\n";
-                    $credContent .= "Portal / Nusuk Password: {$p->portal_password}\n";
+                    if (!empty($p->portal_email)) {
+                        $credContent .= "Portal / Nusuk Email: {$p->portal_email}\n";
+                    }
+                    if (!empty($p->portal_password)) {
+                        $credContent .= "Portal / Nusuk Password: {$p->portal_password}\n";
+                    }
                     $zip->addFromString($folder . '/credentials.txt', $credContent);
                 }
             }

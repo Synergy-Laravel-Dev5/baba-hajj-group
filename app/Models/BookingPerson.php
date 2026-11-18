@@ -30,6 +30,7 @@ class BookingPerson extends Model
         'medical_document',
         'id_document',
         'portal_password',
+        'portal_email',
         'room_number',
         'room_group_id',
         'room_type',

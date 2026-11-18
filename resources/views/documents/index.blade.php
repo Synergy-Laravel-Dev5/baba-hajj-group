@@ -215,11 +215,11 @@
                         </div>
                     </div>
                 </div>
-                <!-- 5. PASSWORD -->
+                <!-- 5. EMAIL & PASSWORD -->
                 <div class="col-xl-2 col-md-4 col-6">
                     <div class="card mb-0 border shadow-sm h-100" style="border-top: 3px solid #ef4444 !important;">
                         <div class="card-body p-2 text-center">
-                            <span class="text-muted fs-11 fw-bold text-uppercase"><i class="mdi mdi-lock-outline text-danger me-1"></i>PASSWORD</span>
+                            <span class="text-muted fs-11 fw-bold text-uppercase"><i class="mdi mdi-account-key-outline text-danger me-1"></i>EMAIL & PASSWORD</span>
                             <h3 class="fs-20 fw-bold text-danger my-1">{{ $stats['password'] }} / {{ $stats['total'] }}</h3>
                             @php $pwPct = $stats['total'] > 0 ? round(($stats['password'] / $stats['total']) * 100) : 0; @endphp
                             <div class="progress" style="height: 4px;">
@@ -240,7 +240,7 @@
                         <span class="badge bg-light text-dark border">{{ $persons->total() }} Records</span>
                     </div>
                     <div class="text-muted small">
-                        <i class="mdi mdi-information-outline text-info"></i> Upload directly via file buttons or use the quick <strong class="text-primary">"Upload All"</strong> modal per pilgrim.
+                        <i class="mdi mdi-information-outline text-info"></i> Upload directly via file buttons or use the quick <strong class="text-primary">"Manage"</strong> modal per pilgrim.
                     </div>
                 </div>
 
@@ -263,8 +263,8 @@
                                     <th style="min-width: 150px;" class="text-center">
                                         <i class="mdi mdi-card-account-details-outline me-1 text-purple"></i>ID
                                     </th>
-                                    <th style="min-width: 190px;" class="text-center">
-                                        <i class="mdi mdi-lock-outline me-1 text-danger"></i>PASSWORD
+                                    <th style="min-width: 220px;" class="text-center">
+                                        <i class="mdi mdi-account-key-outline me-1 text-danger"></i>EMAIL & PASSWORD
                                     </th>
                                     <th style="width: 110px;" class="text-center">ACTIONS</th>
                                 </tr>
@@ -428,20 +428,35 @@
                                             @endif
                                         </td>
 
-                                        <!-- 5. PASSWORD (Nusuk / App / Portal Login) -->
+                                        <!-- 5. EMAIL & PASSWORD (Nusuk / App / Portal Login) -->
                                         <td>
-                                            <div class="input-group input-group-sm" id="pw_group_{{ $p->id }}">
-                                                <input type="password" id="pw_input_{{ $p->id }}" class="form-control text-center font-monospace"
-                                                       placeholder="Password..." value="{{ $p->portal_password ?? '' }}" style="font-size:12px;">
-                                                <button class="btn btn-outline-secondary btn-pw-toggle" type="button" onclick="togglePasswordVisibility({{ $p->id }})" title="Show/Hide">
-                                                    <i class="mdi mdi-eye-outline" id="pw_icon_{{ $p->id }}"></i>
-                                                </button>
-                                                <button class="btn btn-outline-primary" type="button" onclick="savePasswordInline({{ $p->id }})" title="Save Password">
-                                                    <i class="mdi mdi-check"></i>
-                                                </button>
-                                                <button class="btn btn-outline-secondary" type="button" onclick="copyPassword({{ $p->id }})" title="Copy to Clipboard">
-                                                    <i class="mdi mdi-content-copy"></i>
-                                                </button>
+                                            <div class="credentials-box p-1 rounded bg-light border" id="cred_group_{{ $p->id }}" style="min-width: 215px;">
+                                                <!-- Email Field -->
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text bg-white px-2 text-muted" title="Portal / Nusuk Email" style="font-size:11px;">
+                                                        <i class="mdi mdi-email-outline"></i>
+                                                    </span>
+                                                    <input type="text" id="email_input_{{ $p->id }}" class="form-control form-control-sm bg-white"
+                                                           placeholder="Email / User..." value="{{ $p->portal_email ?? '' }}" style="font-size:11px;">
+                                                    <button class="btn btn-outline-secondary btn-sm px-2" type="button" onclick="copyCred('email', {{ $p->id }})" title="Copy Email">
+                                                        <i class="mdi mdi-content-copy"></i>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Password Field -->
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text bg-white px-2 text-muted" title="Portal / Nusuk Password" style="font-size:11px;">
+                                                        <i class="mdi mdi-lock-outline"></i>
+                                                    </span>
+                                                    <input type="password" id="pw_input_{{ $p->id }}" class="form-control form-control-sm font-monospace bg-white"
+                                                           placeholder="Password..." value="{{ $p->portal_password ?? '' }}" style="font-size:11px;">
+                                                    <button class="btn btn-outline-secondary btn-sm px-2 btn-pw-toggle" type="button" onclick="togglePasswordVisibility({{ $p->id }})" title="Show/Hide">
+                                                        <i class="mdi mdi-eye-outline" id="pw_icon_{{ $p->id }}"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-primary btn-sm px-2" type="button" onclick="saveCredentialsInline({{ $p->id }})" title="Save Email & Password">
+                                                        <i class="mdi mdi-check"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </td>
 
@@ -449,8 +464,8 @@
                                         <td class="text-center">
                                             <div class="d-flex align-items-center justify-content-center gap-1">
                                                 <button type="button" class="btn btn-xs btn-primary py-1 px-2 fs-11"
-                                                        onclick="openEditAllModal({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->portal_password ?? '') }}')"
-                                                        title="Upload all documents & set password">
+                                                        onclick="openEditAllModal({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->portal_email ?? '') }}', '{{ addslashes($p->portal_password ?? '') }}')"
+                                                        title="Upload all documents & manage credentials">
                                                     <i class="mdi mdi-square-edit-outline me-1"></i>Manage
                                                 </button>
                                                 <a href="{{ route('pilgrim.badge', $p->id) }}" target="_blank"
@@ -682,10 +697,16 @@
                             <input type="file" name="id_document" class="form-control form-control-sm" accept="image/*,.pdf">
                         </div>
 
-                        <!-- Password -->
-                        <div class="col-12">
+                        <!-- Credentials: Email & Password -->
+                        <div class="col-md-6 col-12">
                             <label class="form-label fw-bold fs-12 mb-1">
-                                <i class="mdi mdi-lock-outline text-danger me-1"></i>5. Nusuk / Portal Password
+                                <i class="mdi mdi-email-outline text-primary me-1"></i>5. Portal / Nusuk Email
+                            </label>
+                            <input type="text" name="email" id="modalEmailInput" class="form-control form-control-sm" placeholder="e.g. pilgrim@gmail.com">
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <label class="form-label fw-bold fs-12 mb-1">
+                                <i class="mdi mdi-lock-outline text-danger me-1"></i>6. Portal / Nusuk Password
                             </label>
                             <input type="text" name="password" id="modalPasswordInput" class="form-control form-control-sm font-monospace" placeholder="e.g. Pass@1234">
                         </div>
@@ -736,8 +757,10 @@
     }
 
     // 2. OPEN EDIT ALL MODAL
-    function openEditAllModal(personId, personName, currentPassword) {
+    function openEditAllModal(personId, personName, currentEmail, currentPassword) {
         document.getElementById('modalPilgrimName').textContent = personName;
+        const emailInput = document.getElementById('modalEmailInput');
+        if (emailInput) emailInput.value = currentEmail || '';
         document.getElementById('modalPasswordInput').value = currentPassword || '';
         document.getElementById('editAllForm').action = `{{ url('admin/documents/person') }}/${personId}/update-all`;
         const modal = new bootstrap.Modal(document.getElementById('editAllModal'));
@@ -861,20 +884,25 @@
         if (!input) return;
         if (input.type === 'password') {
             input.type = 'text';
-            icon.classList.remove('mdi-eye-outline');
-            icon.classList.add('mdi-eye-off-outline');
+            if (icon) {
+                icon.classList.remove('mdi-eye-outline');
+                icon.classList.add('mdi-eye-off-outline');
+            }
         } else {
             input.type = 'password';
-            icon.classList.remove('mdi-eye-off-outline');
-            icon.classList.add('mdi-eye-outline');
+            if (icon) {
+                icon.classList.remove('mdi-eye-off-outline');
+                icon.classList.add('mdi-eye-outline');
+            }
         }
     }
 
-    // 6. SAVE PASSWORD INLINE (AJAX)
-    function savePasswordInline(personId) {
-        const input = document.getElementById(`pw_input_${personId}`);
-        if (!input) return;
-        const password = input.value;
+    // 6. SAVE CREDENTIALS INLINE (EMAIL & PASSWORD VIA AJAX)
+    function saveCredentialsInline(personId) {
+        const emailInput = document.getElementById(`email_input_${personId}`);
+        const pwInput = document.getElementById(`pw_input_${personId}`);
+        const email = emailInput ? emailInput.value : '';
+        const password = pwInput ? pwInput.value : '';
 
         fetch(`{{ url('admin/documents/person') }}/${personId}/password`, {
             method: 'POST',
@@ -883,32 +911,49 @@
                 'X-CSRF-TOKEN': csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({ password: password })
+            body: JSON.stringify({ email: email, password: password })
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                input.classList.add('is-valid');
-                setTimeout(() => input.classList.remove('is-valid'), 2000);
-                showToast('Saved', 'Portal password saved successfully!', 'success');
+                if (emailInput) {
+                    emailInput.classList.add('is-valid');
+                    setTimeout(() => emailInput.classList.remove('is-valid'), 2000);
+                }
+                if (pwInput) {
+                    pwInput.classList.add('is-valid');
+                    setTimeout(() => pwInput.classList.remove('is-valid'), 2000);
+                }
+                showToast('Saved', 'Email & password saved successfully!', 'success');
             }
         })
         .catch(err => {
             console.error(err);
-            showToast('Error', 'Failed to save password.', 'danger');
+            showToast('Error', 'Failed to save credentials.', 'danger');
         });
     }
 
-    // 7. COPY PASSWORD TO CLIPBOARD
-    function copyPassword(personId) {
-        const input = document.getElementById(`pw_input_${personId}`);
+    function savePasswordInline(personId) {
+        saveCredentialsInline(personId);
+    }
+
+    // 7. COPY CREDENTIAL (EMAIL OR PASSWORD)
+    function copyCred(type, personId) {
+        const input = type === 'email' 
+            ? document.getElementById(`email_input_${personId}`)
+            : document.getElementById(`pw_input_${personId}`);
+            
         if (!input || !input.value) {
-            showToast('Empty', 'No password set for this pilgrim', 'warning');
+            showToast('Empty', `No ${type} set for this pilgrim`, 'warning');
             return;
         }
         navigator.clipboard.writeText(input.value).then(() => {
-            showToast('Copied!', 'Password copied to clipboard', 'info');
+            showToast('Copied!', `${type.charAt(0).toUpperCase() + type.slice(1)} copied to clipboard`, 'info');
         });
+    }
+
+    function copyPassword(personId) {
+        copyCred('password', personId);
     }
 
     // TOAST HELPER
