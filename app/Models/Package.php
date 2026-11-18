@@ -167,6 +167,24 @@ class Package extends Model
 
     protected $appends = ['package_image_url', 'banner_image_url', 'maktab'];
 
+    protected static function booted()
+    {
+        static::saving(function ($package) {
+            $priceFields = [
+                'price_sharing',
+                'price_quad',
+                'price_triple',
+                'price_double',
+                'price_per_person',
+            ];
+            foreach ($priceFields as $field) {
+                if (is_null($package->{$field}) || $package->{$field} === '') {
+                    $package->{$field} = 0.00;
+                }
+            }
+        });
+    }
+
     public function getPackageImageUrlAttribute(): ?string
     {
         if (empty($this->package_image)) {

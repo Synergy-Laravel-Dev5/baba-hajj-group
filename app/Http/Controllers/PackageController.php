@@ -358,6 +358,13 @@ class PackageController extends Controller
             'feature_icons' => 'nullable|array',
         ]);
 
+        // Ensure price fields default to 0.00 rather than null to prevent SQL integrity errors
+        foreach (['price_sharing', 'price_quad', 'price_triple', 'price_double', 'price_per_person'] as $priceField) {
+            if (!isset($package[$priceField]) || is_null($package[$priceField]) || $package[$priceField] === '') {
+                $package[$priceField] = 0.00;
+            }
+        }
+
         if ($request->hasFile('feature_icons_files')) {
             $featureIcons = $package['feature_icons'] ?? [];
             foreach ($request->file('feature_icons_files') as $key => $file) {
