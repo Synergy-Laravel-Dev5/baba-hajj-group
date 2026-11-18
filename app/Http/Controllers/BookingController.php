@@ -105,6 +105,17 @@ class BookingController extends Controller
         ));
     }
 
+    public function getNextPackageCode(Request $request)
+    {
+        $packageId = $request->get('package_id');
+        $excludeBookingId = $request->get('exclude_booking_id');
+        $code = Booking::generateNextPackageBookingCode(
+            $packageId ? (int) $packageId : null,
+            $excludeBookingId ? (int) $excludeBookingId : null
+        );
+        return response()->json(['code' => $code]);
+    }
+
     public function create(Request $request)
     {
         $this->authorize('booking_create');
@@ -669,6 +680,8 @@ class BookingController extends Controller
 
         DB::beginTransaction();
         try {
+            $existingBookingHb = $booking->persons()->whereNotNull('hb_number')->where('hb_number', '!=', '')->value('hb_number');
+
             $booking->update($bookingData);
 
             $booking->persons()->delete();
@@ -681,8 +694,16 @@ class BookingController extends Controller
 
                 // Determine unified booking code (e.g. AZ 01, AZ 02) for all persons in this booking
                 $bookingHbNumber = $request->booking_code;
-                if (empty($bookingHbNumber)) {
-                    $bookingHbNumber = $booking->persons()->whereNotNull('hb_number')->where('hb_number', '!=', '')->value('hb_number');
+                if (empty($bookingHbNumber) && !empty($existingBookingHb)) {
+                    $bookingHbNumber = $existingBookingHb;
+                }
+                if (empty($bookingHbNumber) && !empty($request->persons)) {
+                    foreach ($request->persons as $p) {
+                        if (!empty($p['hb_number'])) {
+                            $bookingHbNumber = trim($p['hb_number']);
+                            break;
+                        }
+                    }
                 }
                 if (empty($bookingHbNumber) && !empty($booking->package_id)) {
                     $bookingHbNumber = \App\Models\Booking::generateNextPackageBookingCode($booking->package_id, $booking->id);

@@ -106,9 +106,9 @@
                                     <input type="text" name="package_title" class="form-control" placeholder="e.g. HAJJ PACKAGE 1448 - 2027" value="{{ old('package_title', $package->package_title ?? 'HAJJ PACKAGE 1448 - 2027') }}">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Package Code</label>
-                                    <input type="text" name="code" id="package_code_input" class="form-control text-uppercase" placeholder="e.g. ECU01" value="{{ old('code', $package->code) }}">
-                                    <small class="text-muted" style="font-size: 11px;">Type prefix (e.g. ECU) to auto-generate code sequence (ECU01)</small>
+                                    <label class="form-label fw-bold">Package Code / Prefix</label>
+                                    <input type="text" name="code" id="package_code_input" class="form-control text-uppercase" placeholder="e.g. AZ, FZ, ECU" value="{{ old('code', $package->code) }}">
+                                    <small class="text-muted" style="font-size: 11px;">Enter package code/prefix (e.g. AZ, FZ). Booking will auto-generate sequence (AZ 01, AZ 02).</small>
                                 </div>
 
                                 <div class="col-md-3">
@@ -970,48 +970,5 @@
                 }
             }
         });
-
-        // ── AUTO SEQUENCE FOR PACKAGE CODE (e.g. ECU -> ECU01) ──
-        const pkgCodeInput = document.getElementById('package_code_input') || document.querySelector('input[name="code"]');
-        if (pkgCodeInput) {
-            let codeDebounce = null;
-
-            function fetchNextPackageCode(prefixVal) {
-                if (!prefixVal) return;
-                const cleanPrefix = prefixVal.trim().toUpperCase();
-                fetch(`{{ route('package.next-code') }}?prefix=${encodeURIComponent(cleanPrefix)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data && data.code) {
-                            const current = pkgCodeInput.value.trim().toUpperCase();
-                            if (current === cleanPrefix || current === cleanPrefix.replace(/\d+$/, '')) {
-                                pkgCodeInput.value = data.code;
-                            }
-                        }
-                    })
-                    .catch(() => {
-                        if (!/\d+$/.test(cleanPrefix)) {
-                            pkgCodeInput.value = cleanPrefix + '01';
-                        }
-                    });
-            }
-
-            pkgCodeInput.addEventListener('blur', function() {
-                const val = this.value.trim().toUpperCase();
-                if (val && !/\d+$/.test(val)) {
-                    fetchNextPackageCode(val);
-                }
-            });
-
-            pkgCodeInput.addEventListener('input', function() {
-                clearTimeout(codeDebounce);
-                const val = this.value.trim().toUpperCase();
-                if (val && !/\d+$/.test(val) && val.length >= 2) {
-                    codeDebounce = setTimeout(() => {
-                        fetchNextPackageCode(val);
-                    }, 500);
-                }
-            });
-        }
     </script>
 @endsection

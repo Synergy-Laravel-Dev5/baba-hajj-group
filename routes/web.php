@@ -137,6 +137,7 @@ Route::middleware('auth')->group(function () {
             ->prefix('booking')
             ->group(function () {
                 Route::get('/',            'index')->name('booking.index');
+                Route::get('next-package-code', 'getNextPackageCode')->name('booking.next-package-code');
                 Route::get('create',       'create')->name('booking.create');
                 Route::post('store',       'store')->name('booking.store');
                 Route::get('show/{id}',    'show')->name('booking.show');

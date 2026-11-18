@@ -2718,7 +2718,7 @@
             const pkg = packagesData.find(p => p.id === pkgId);
 
             if (pkg) {
-                const pkgCode = pkg.next_booking_code || pkg.code || pkg.package_number || 'AZ 01';
+                let pkgCode = pkg.next_booking_code || pkg.code || pkg.package_number || 'AZ 01';
                 const codeDisplay = document.getElementById('package_code_display');
                 if (codeDisplay) codeDisplay.value = pkgCode;
 
@@ -2729,12 +2729,35 @@
                 document.querySelectorAll('.person-hb-input').forEach(inp => {
                     inp.value = pkgCode;
                 });
+                if (typeof syncAllHbNumbers === 'function') {
+                    syncAllHbNumbers(pkgCode);
+                }
 
                 const previewCodeBadge = document.getElementById('preview_pkg_code');
                 if (previewCodeBadge) previewCodeBadge.textContent = pkgCode ? 'CODE: ' + pkgCode : 'CODE: —';
 
                 const previewCodeText = document.getElementById('preview_pkg_code_text');
                 if (previewCodeText) previewCodeText.textContent = pkgCode || '—';
+
+                // Real-time sequential booking code query
+                fetch(`{{ route('booking.next-package-code') }}?package_id=${pkgId}&exclude_booking_id={{ $booking->id }}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.code) {
+                            pkgCode = data.code;
+                            if (codeDisplay) codeDisplay.value = pkgCode;
+                            if (bookingCodeInput) bookingCodeInput.value = pkgCode;
+                            document.querySelectorAll('.person-hb-input').forEach(inp => {
+                                inp.value = pkgCode;
+                            });
+                            if (typeof syncAllHbNumbers === 'function') {
+                                syncAllHbNumbers(pkgCode);
+                            }
+                            if (previewCodeBadge) previewCodeBadge.textContent = 'CODE: ' + pkgCode;
+                            if (previewCodeText) previewCodeText.textContent = pkgCode;
+                        }
+                    })
+                    .catch(() => {});
 
                 // Auto populate package default cost if currently empty or 0
                 const currentCost = parseFloat(packageCostInput.value) || 0;
@@ -3493,9 +3516,11 @@
             if (packageSelect.value) {
                 const initialPkg = packagesData.find(p => p.id === parseInt(packageSelect.value));
                 if (initialPkg) {
-                    const pkgCode = initialPkg.code || initialPkg.package_number || '';
                     const codeDisplay = document.getElementById('package_code_display');
-                    if (codeDisplay) codeDisplay.value = pkgCode;
+                    const bookingCodeInput = document.getElementById('booking_code_input');
+                    const savedCode = (codeDisplay && codeDisplay.value) ? codeDisplay.value.trim() : (bookingCodeInput?.value || '');
+                    const pkgCode = savedCode || initialPkg.code || initialPkg.package_number || '';
+                    if (codeDisplay && !codeDisplay.value) codeDisplay.value = pkgCode;
 
                     const previewCodeBadge = document.getElementById('preview_pkg_code');
                     if (previewCodeBadge) previewCodeBadge.textContent = pkgCode ? 'CODE: ' + pkgCode : 'CODE: —';

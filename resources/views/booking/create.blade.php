@@ -2074,7 +2074,7 @@
             const pkg = packagesData.find(p => p.id === pkgId);
 
             if (pkg) {
-                const pkgCode = pkg.next_booking_code || pkg.code || pkg.package_number || 'AZ 01';
+                let pkgCode = pkg.next_booking_code || pkg.code || pkg.package_number || 'AZ 01';
                 const codeDisplay = document.getElementById('package_code_display');
                 if (codeDisplay) codeDisplay.value = pkgCode;
 
@@ -2085,12 +2085,35 @@
                 document.querySelectorAll('.person-hb-input').forEach(inp => {
                     inp.value = pkgCode;
                 });
+                if (typeof syncAllHbNumbers === 'function') {
+                    syncAllHbNumbers(pkgCode);
+                }
 
                 const previewCodeBadge = document.getElementById('preview_pkg_code');
                 if (previewCodeBadge) previewCodeBadge.textContent = pkgCode ? 'CODE: ' + pkgCode : 'CODE: —';
 
                 const previewCodeText = document.getElementById('preview_pkg_code_text');
                 if (previewCodeText) previewCodeText.textContent = pkgCode || '—';
+
+                // Real-time sequential booking code query
+                fetch(`{{ route('booking.next-package-code') }}?package_id=${pkgId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.code) {
+                            pkgCode = data.code;
+                            if (codeDisplay) codeDisplay.value = pkgCode;
+                            if (bookingCodeInput) bookingCodeInput.value = pkgCode;
+                            document.querySelectorAll('.person-hb-input').forEach(inp => {
+                                inp.value = pkgCode;
+                            });
+                            if (typeof syncAllHbNumbers === 'function') {
+                                syncAllHbNumbers(pkgCode);
+                            }
+                            if (previewCodeBadge) previewCodeBadge.textContent = 'CODE: ' + pkgCode;
+                            if (previewCodeText) previewCodeText.textContent = pkgCode;
+                        }
+                    })
+                    .catch(() => {});
 
                 // Auto populate package cost (can be freely edited by user)
                 const defaultPrice = Number(pkg.adult_pkr || pkg.maktab_c_quad_pkr || pkg.price_sharing || pkg.price_quad || 0);
