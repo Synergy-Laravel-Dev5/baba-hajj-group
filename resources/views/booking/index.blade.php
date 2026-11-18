@@ -61,19 +61,10 @@
 
                                 <!-- Filter Bar -->
                                 <div class="row g-2 align-items-center mb-3 p-2 bg-light rounded border">
-                                    <div class="col-md-3 col-sm-6">
-                                        <label class="form-label mb-1 fw-bold fs-12 text-muted"><i class="mdi mdi-filter-variant me-1 text-primary"></i>Filter By Prefix</label>
-                                        <select id="prefixFilterSelect" class="form-select form-select-sm border-primary">
-                                            <option value="">-- All Prefixes --</option>
-                                            @if(isset($allPrefixes))
-                                                @foreach($allPrefixes as $pfx)
-                                                    <option value="{{ $pfx }}">{{ $pfx }}</option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 col-sm-6">
-                                        <label class="form-label mb-1 fw-bold fs-12 text-muted"><i class="mdi mdi-cube-outline me-1 text-primary"></i>Filter By Package (with Prefix)</label>
+                                    <div class="col-md-5 col-sm-6">
+                                        <label class="form-label mb-1 fw-bold fs-12 text-muted">
+                                            <i class="mdi mdi-cube-outline me-1 text-primary"></i>1. Filter By Package
+                                        </label>
                                         <select id="packageFilterSelect" class="form-select form-select-sm border-primary">
                                             <option value="">-- All Packages --</option>
                                             @if(isset($allPackages))
@@ -82,14 +73,22 @@
                                                         $pkgCode = $pkg->code ?: ($pkg->package_number ?: 'AZ');
                                                         $pkgTitle = $pkg->package_title ?: ($pkg->name ?: 'Package');
                                                     @endphp
-                                                    <option value="{{ $pkgTitle }}">
+                                                    <option value="{{ $pkg->id }}" {{ (isset($selectedPackageId) && $selectedPackageId == $pkg->id) ? 'selected' : '' }}>
                                                         [{{ $pkgCode }}] {{ $pkgTitle }}
                                                     </option>
                                                 @endforeach
                                             @endif
                                         </select>
                                     </div>
-                                    <div class="col-md-5 col-sm-12 d-flex justify-content-end align-items-end gap-2 pt-3">
+                                    <div class="col-md-4 col-sm-6">
+                                        <label class="form-label mb-1 fw-bold fs-12 text-muted">
+                                            <i class="mdi mdi-filter-variant me-1 text-primary"></i>2. Filter By Prefix
+                                        </label>
+                                        <select id="prefixFilterSelect" class="form-select form-select-sm border-primary">
+                                            <option value="">-- All Prefixes --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 col-sm-12 d-flex justify-content-end align-items-end gap-2 pt-3">
                                         <button type="button" class="btn btn-sm btn-outline-secondary" id="resetPrefixFilter">
                                             <i class="mdi mdi-refresh me-1"></i>Reset Filters
                                         </button>
@@ -116,7 +115,14 @@
 
                                         <tbody>
                                             @foreach ($bookings as $booking)
-                                                <tr>
+                                                @php
+                                                    $hbList = $booking->persons->pluck('hb_number')->filter()->map(function($val) {
+                                                        return \App\Models\BookingPerson::formatHbNumber($val);
+                                                    })->filter()->unique()->values();
+                                                    $bookingPkgId = $booking->package_id ?? 0;
+                                                @endphp
+                                                <tr data-package-id="{{ $bookingPkgId }}"
+                                                    data-prefixes="{{ $hbList->implode('|') }}">
 
                                                     <td class="text-center fw-semibold text-muted">{{ $loop->iteration }}</td>
 
@@ -128,11 +134,6 @@
                                                     </td>
 
                                                     <td class="text-center">
-                                                        @php
-                                                            $hbList = $booking->persons->pluck('hb_number')->filter()->map(function($val) {
-                                                                return \App\Models\BookingPerson::formatHbNumber($val);
-                                                            })->filter()->unique()->values();
-                                                        @endphp
                                                         @if($hbList->count() > 0)
                                                             @foreach($hbList as $hb)
                                                                 <span class="badge bg-dark text-white fw-bold px-2 py-1 me-1 mb-1" style="font-size:11px; letter-spacing:0.5px;">{{ $hb }}</span>
@@ -288,41 +289,117 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        let table = null;
-        if ($.fn.DataTable) {
-            if ($.fn.DataTable.isDataTable('#datatable')) {
-                table = $('#datatable').DataTable();
+        const packagePrefixesMap = @json($packagePrefixesMap ?? []);
+        const allPrefixes = @json($allPrefixes ?? []);
+        const initialSelectedPrefix = @json($selectedPrefix ?? '');
+
+        let selectedPackageId = $('#packageFilterSelect').val() || '';
+        let selectedPrefix = initialSelectedPrefix || '';
+
+        // Function to populate Prefix dropdown based on selected package
+        function updatePrefixDropdown(pkgId, preSelectVal = '') {
+            const $prefixSelect = $('#prefixFilterSelect');
+            $prefixSelect.empty();
+
+            let list = [];
+            let placeholder = '-- All Prefixes --';
+
+            if (pkgId && packagePrefixesMap[pkgId] !== undefined) {
+                list = packagePrefixesMap[pkgId];
+                placeholder = (list && list.length > 0)
+                    ? '-- All Prefixes for this Package --'
+                    : '-- No Prefixes for this Package --';
             } else {
-                table = $('#datatable').DataTable();
+                list = allPrefixes;
+                placeholder = '-- All Prefixes --';
+            }
+
+            $prefixSelect.append(`<option value="">${placeholder}</option>`);
+
+            if (list && list.length > 0) {
+                list.forEach(function(pfx) {
+                    const isSel = (preSelectVal && (pfx.toUpperCase() === preSelectVal.toUpperCase())) ? 'selected' : '';
+                    $prefixSelect.append(`<option value="${pfx}" ${isSel}>${pfx}</option>`);
+                });
             }
         }
 
-        if (table) {
+        // Initialize prefix dropdown on load
+        updatePrefixDropdown(selectedPackageId, selectedPrefix);
+
+        // Custom DataTables filter for exact Package ID and Prefix
+        $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+            if (settings.nTable.id !== 'datatable') {
+                return true;
+            }
+
+            const row = settings.aoData[dataIndex].nTr;
+            if (!row) return true;
+
+            const rowPkgId = $(row).attr('data-package-id') !== undefined ? String($(row).attr('data-package-id')) : '';
+            const rowPrefixesStr = $(row).attr('data-prefixes') !== undefined ? String($(row).attr('data-prefixes')) : '';
+            const rowPrefixes = rowPrefixesStr.split('|').map(s => s.trim().toUpperCase()).filter(Boolean);
+
+            // 1. Package Filter
+            if (selectedPackageId !== '') {
+                if (rowPkgId !== String(selectedPackageId)) {
+                    return false;
+                }
+            }
+
+            // 2. Prefix Filter
+            if (selectedPrefix !== '') {
+                const searchPfx = selectedPrefix.trim().toUpperCase();
+                const searchClean = searchPfx.replace(/\s+/g, '');
+                const hasMatch = rowPrefixes.some(p => p === searchPfx || p.replace(/\s+/g, '') === searchClean);
+                if (!hasMatch) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        let table = null;
+        if ($.fn.DataTable) {
+            table = $('#datatable').DataTable();
             table.columns.adjust();
-
-            $('#prefixFilterSelect').on('change', function() {
-                const val = $(this).val();
-                if (val) {
-                    table.column(2).search(val).draw();
-                } else {
-                    table.column(2).search('').draw();
-                }
-            });
-
-            $('#packageFilterSelect').on('change', function() {
-                const val = $(this).val();
-                if (val) {
-                    table.column(4).search(val).draw();
-                } else {
-                    table.column(4).search('').draw();
-                }
-            });
-
-            $('#resetPrefixFilter').on('click', function() {
-                $('#prefixFilterSelect').val('').trigger('change');
-                $('#packageFilterSelect').val('').trigger('change');
-            });
+            if (selectedPackageId || selectedPrefix) {
+                table.draw();
+            }
         }
+
+        // When Package dropdown changes
+        $('#packageFilterSelect').on('change', function() {
+            selectedPackageId = $(this).val();
+            selectedPrefix = '';
+            updatePrefixDropdown(selectedPackageId);
+
+            if (table) {
+                table.draw();
+            }
+        });
+
+        // When Prefix dropdown changes
+        $('#prefixFilterSelect').on('change', function() {
+            selectedPrefix = $(this).val();
+
+            if (table) {
+                table.draw();
+            }
+        });
+
+        // Reset all filters
+        $('#resetPrefixFilter').on('click', function() {
+            $('#packageFilterSelect').val('');
+            selectedPackageId = '';
+            selectedPrefix = '';
+            updatePrefixDropdown('');
+
+            if (table) {
+                table.draw();
+            }
+        });
     });
 </script>
 @endpush

@@ -54,6 +54,36 @@ class BookingController extends Controller
             return max($b->persons->count(), (int)($b->no_of_pax ?: 0));
         });
 
+        $allPackages = \App\Models\Package::where(function ($q) {
+            $q->where('package_type', 'hajj')
+              ->orWhereNull('package_type')
+              ->orWhere('package_type', '');
+        })
+        ->orWhereIn('id', Booking::whereNotNull('package_id')->pluck('package_id'))
+        ->orderBy('id', 'desc')
+        ->get();
+
+        // Map each package to its booked prefixes
+        $packagePrefixesMap = [];
+        foreach ($allPackages as $pkg) {
+            $pfxList = \App\Models\BookingPerson::whereHas('booking', function ($bq) use ($pkg) {
+                $bq->where('package_id', $pkg->id);
+            })
+            ->whereNotNull('hb_number')
+            ->where('hb_number', '!=', '')
+            ->pluck('hb_number')
+            ->map(function ($val) {
+                return \App\Models\BookingPerson::formatHbNumber($val);
+            })
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+
+            $packagePrefixesMap[$pkg->id] = $pfxList;
+        }
+
         $allPrefixes = \App\Models\BookingPerson::whereNotNull('hb_number')
             ->where('hb_number', '!=', '')
             ->pluck('hb_number')
@@ -65,15 +95,14 @@ class BookingController extends Controller
             ->sort()
             ->values();
 
-        $allPackages = \App\Models\Package::where(function ($q) {
-            $q->where('package_type', 'hajj')
-              ->orWhereNull('package_type')
-              ->orWhere('package_type', '');
-        })->orderBy('id', 'desc')->get();
-
         $selectedPackageId = $request->get('package_id');
+        $selectedPrefix    = $request->get('prefix');
 
-        return view('booking.index', compact('bookings', 'trashCount', 'package', 'year', 'totalPax', 'hajjCount', 'allPrefixes', 'allPackages', 'selectedPackageId'));
+        return view('booking.index', compact(
+            'bookings', 'trashCount', 'package', 'year', 'totalPax',
+            'hajjCount', 'allPrefixes', 'allPackages', 'packagePrefixesMap',
+            'selectedPackageId', 'selectedPrefix'
+        ));
     }
 
     public function create(Request $request)
