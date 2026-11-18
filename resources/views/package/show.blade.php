@@ -10,35 +10,8 @@
         $mainTitle = $isHajj ? 'HAJJ' : 'UMRAH';
         $fullTitle = ($package->package_title ?? $package->name) ?? ($mainTitle . ' Packages');
 
-        // Extract Accommodations dynamically
-        $makkahAcc = $package->accommodations ? $package->accommodations->first(function($a) {
-            return str_contains(strtolower($a->place ?? ''), 'makkah');
-        }) ?? $package->accommodations->first() : null;
-
-        $madinahAcc = $package->accommodations ? $package->accommodations->first(function($a) {
-            return str_contains(strtolower($a->place ?? ''), 'madin') || str_contains(strtolower($a->place ?? ''), 'medin');
-        }) ?? ($package->accommodations->count() > 1 ? $package->accommodations->last() : null) : null;
-
-        $aziziaAcc = $package->accommodations ? $package->accommodations->first(function($a) {
-            return str_contains(strtolower($a->place ?? ''), 'azizia');
-        }) : null;
-
-        $minaAcc = $package->accommodations ? $package->accommodations->first(function($a) {
-            return str_contains(strtolower($a->place ?? ''), 'mina') || str_contains(strtolower($a->place ?? ''), 'arafat') || str_contains(strtolower($a->place ?? ''), 'hajj');
-        }) : null;
-
-        // Hotel Names (Checking custom fields, package_a_hotel, fallback)
-        $makkahHotel = $makkahAcc?->hotel ?: ($makkahAcc?->package_a_hotel ?: ($package->primary_hotel ?: ($isHajj ? 'PULLMAN ZAMZAM / CLOCK TOWER' : 'JOHRA HIJRA')));
-        $madinahHotel = $madinahAcc?->hotel ?: ($madinahAcc?->package_a_hotel ?: ($isHajj ? 'DAR AL TAQWA / MADINAH HOTEL' : 'TAIF-AL-NIBRAS'));
-
         // Nights Calculation
-        $calcDays = $package->stay_duration ?: ($package->days ?: 16);
-        $makkahNights = $makkahAcc?->nights ?: ($makkahAcc?->days ?: ($isHajj ? max(5, round($calcDays * 0.45)) : max(5, round($calcDays * 0.6))));
-        $madinahNights = $madinahAcc?->nights ?: ($madinahAcc?->days ?: ($isHajj ? max(4, round($calcDays * 0.25)) : max(3, round($calcDays * 0.35))));
-
-        // Distance Badges
-        $makkahDistance = $makkahAcc?->distance ?: ($isHajj ? '50' : '700');
-        $madinahDistance = $madinahAcc?->distance ?: ($isHajj ? '100' : '200');
+        $calcDays = $package->stay_duration ?: ($package->days ?: 30);
 
         // Travel / Departure Dates
         $travelDate1 = $package->departure_date_str ?? ($package->valid_from ? \Carbon\Carbon::parse($package->valid_from)->format('d M Y') : ($isHajj ? '01 ZUL HIJJAH ' . ($package->year ?? '2026') : '19 DEC ' . ($package->year ?? '2026')));
@@ -51,11 +24,11 @@
             $monthTag = $package->year ? 'DECEMBER ' . $package->year : 'DECEMBER 2026';
         }
 
-        // Standard Pricing Fallbacks
-        $baseSharing = (float)($package->price_sharing ?: ($package->maktab_c_quad_pkr ?: 320000));
-        $baseQuad    = (float)($package->price_quad ?: ($package->maktab_c_triple_pkr ?: 325000));
-        $baseTriple  = (float)($package->price_triple ?: ($package->maktab_a_triple_pkr ?: 350000));
-        $baseDouble  = (float)($package->price_double ?: ($package->maktab_a_double_pkr ?: 410000));
+        // Standard Pricing (Strictly from package, zero hardcoded numbers)
+        $baseSharing = (float)($package->price_sharing > 0 ? $package->price_sharing : 0);
+        $baseQuad    = (float)($package->maktab_c_quad_pkr > 0 ? $package->maktab_c_quad_pkr : ($package->price_quad > 0 ? $package->price_quad : 0));
+        $baseTriple  = (float)($package->maktab_c_triple_pkr > 0 ? $package->maktab_c_triple_pkr : ($package->price_triple > 0 ? $package->price_triple : 0));
+        $baseDouble  = (float)($package->maktab_c_double_pkr > 0 ? $package->maktab_c_double_pkr : ($package->price_double > 0 ? $package->price_double : 0));
 
         // ══════════════════════════════════════════════════════
         // DYNAMIC TIERS BUILDER (NO FAKE / HARDCODED NUMBERS)
@@ -63,14 +36,14 @@
         $tiers = collect([]);
 
         if ($isHajj) {
-            $hasMaktabC = ($package->maktab_c_quad_pkr > 0 || $package->maktab_c_triple_pkr > 0 || $package->maktab_c_double_pkr > 0);
+            $hasMaktabC = ($package->maktab_c_quad_pkr > 0 || $package->maktab_c_triple_pkr > 0 || $package->maktab_c_double_pkr > 0 || $package->price_sharing > 0);
             $hasMaktabA = ($package->maktab_a_quad_pkr > 0 || $package->maktab_a_triple_pkr > 0 || $package->maktab_a_double_pkr > 0);
 
             if ($hasMaktabC) {
-                $cQuad = (float)$package->maktab_c_quad_pkr;
-                $cTriple = (float)$package->maktab_c_triple_pkr;
-                $cDouble = (float)$package->maktab_c_double_pkr;
-                $cSharing = (float)($package->price_sharing > 0 ? $package->price_sharing : $cQuad);
+                $cQuad    = (float)$package->maktab_c_quad_pkr;
+                $cTriple  = (float)$package->maktab_c_triple_pkr;
+                $cDouble  = (float)$package->maktab_c_double_pkr;
+                $cSharing = (float)($package->price_sharing > 0 ? $package->price_sharing : 0);
 
                 $tiers->push([
                     'title'        => 'MAKTAB C ' . ($package->camp_zone ? '— ZONE ' . $package->camp_zone : '— STANDARD CAMP'),
@@ -86,10 +59,10 @@
             }
 
             if ($hasMaktabA) {
-                $aQuad = (float)$package->maktab_a_quad_pkr;
-                $aTriple = (float)$package->maktab_a_triple_pkr;
-                $aDouble = (float)$package->maktab_a_double_pkr;
-                $aSharing = (float)($package->price_sharing > 0 ? $package->price_sharing : $aQuad);
+                $aQuad    = (float)$package->maktab_a_quad_pkr;
+                $aTriple  = (float)$package->maktab_a_triple_pkr;
+                $aDouble  = (float)$package->maktab_a_double_pkr;
+                $aSharing = (float)($package->price_sharing > 0 ? $package->price_sharing : 0);
 
                 $tiers->push([
                     'title'        => 'MAKTAB A ' . ($package->camp_zone ? '— ZONE ' . $package->camp_zone : '— VIP EXECUTIVE'),
@@ -104,11 +77,15 @@
                 ]);
             }
 
-            // Fallback for single Hajj package without Maktab comparison
+            // Fallback for single Hajj package (shows real package rates)
             if ($tiers->isEmpty()) {
+                $tierDays = $package->stay_duration ? ($package->stay_duration . ' DAYS') : ($package->days ? ($package->days . ' DAYS') : ($calcDays ? $calcDays . ' DAYS' : 'PACKAGE'));
+
+                $tierTitle = $package->package_title ?: ($package->stay_type ? $package->stay_type . ' — ' . $tierDays : 'HAJJ PACKAGE — ' . $tierDays);
+
                 $tiers->push([
-                    'title'        => ($package->stay_type ?: 'HAJJ EXECUTIVE') . ' — ' . ($calcDays ? $calcDays . ' DAYS' : 'FULL SEASON'),
-                    'badge'        => ($calcDays ? $calcDays . ' DAYS' : 'EXECUTIVE'),
+                    'title'        => $tierTitle,
+                    'badge'        => $tierDays,
                     'date_badge'   => $travelDate1,
                     'price_sharing'=> $baseSharing,
                     'price_quad'   => $baseQuad,
@@ -132,13 +109,13 @@
                         'price_triple' => (float)($opt['triple'] ?? $baseTriple),
                         'price_double' => (float)($opt['double'] ?? $baseDouble),
                         'urdu_note'    => ($idx == 0 ? 'واپسی مدینہ ہوٹل سے جدہ ایئرپورٹ' : 'شب معراج مدینہ شریف میں • واپسی مدینہ ہوٹل سے جدہ ایئرپورٹ'),
-                        'meal_plan'    => '1 DISH BUFFET MEAL',
+                        'meal_plan'    => $package->meal_plan ?: '1 DISH BUFFET MEAL',
                     ]);
                 }
             }
 
             if ($tiers->isEmpty()) {
-                $durTitle = ($package->days ? $package->days . ' DAYS' : '16 DAYS');
+                $durTitle = ($package->days ? $package->days . ' DAYS' : ($package->stay_duration ? $package->stay_duration . ' DAYS' : 'UMRAH PACKAGE'));
                 $tiers->push([
                     'title'        => $durTitle . ' UMRAH PACKAGE',
                     'badge'        => $durTitle,
@@ -147,24 +124,9 @@
                     'price_quad'   => $baseQuad,
                     'price_triple' => $baseTriple,
                     'price_double' => $baseDouble,
-                    'urdu_note'    => 'واپسی مدینہ ہوٹل سے جدہ ایئرپورٹ',
-                    'meal_plan'    => '1 DISH BUFFET MEAL',
+                    'urdu_note'    => $package->important_note ?: 'واپسی مدینہ ہوٹل سے جدہ ایئرپورٹ',
+                    'meal_plan'    => $package->meal_plan ?: '1 DISH BUFFET MEAL',
                 ]);
-
-                // If package days is 16, provide 21 Days tier only if user didn't enter custom options
-                if (($package->days == 16 || empty($package->days)) && $package->id == 1) {
-                    $tiers->push([
-                        'title'        => '21 DAYS UMRAH PACKAGE',
-                        'badge'        => '21 DAYS',
-                        'date_badge'   => $travelDate2,
-                        'price_sharing'=> 350000,
-                        'price_quad'   => 355000,
-                        'price_triple' => 390000,
-                        'price_double' => 460000,
-                        'urdu_note'    => 'شب معراج مدینہ شریف میں • واپسی مدینہ ہوٹل سے جدہ ایئرپورٹ',
-                        'meal_plan'    => '1 DISH BUFFET MEAL',
-                    ]);
-                }
             }
         }
 
@@ -890,33 +852,106 @@
                         @endif
                     </div>
 
-                    <!-- Hotels Row (Makkah & Madina) -->
+                    <!-- Hotels Row (Dynamic Accommodations) -->
                     <div class="hotels-grid-row">
-                        <!-- Makkah Hotel -->
-                        <div class="hotel-item-box">
-                            <img src="{{ asset('assets/images/packages/flyer_assets/kaaba_thumb.png') }}"
-                                 alt="Makkah Holy Kaaba" class="hotel-thumb-img">
-                            <div class="hotel-info-col">
-                                <span class="hotel-city-nights">MAKKAH — {{ $makkahNights }} NIGHTS</span>
-                                <h3 class="hotel-name-h3">{{ $makkahHotel }}</h3>
-                                <span class="hotel-distance-pill">
-                                    <i class="mdi mdi-map-marker"></i> {{ $makkahDistance }} METER
-                                </span>
-                            </div>
-                        </div>
+                        @php
+                            $validAccs = $package->accommodations ? $package->accommodations->filter(function($a) {
+                                return !empty(trim((string)$a->hotel)) || !empty(trim((string)$a->package_a_hotel)) || !empty(trim((string)$a->place));
+                            })->values() : collect([]);
+                        @endphp
 
-                        <!-- Madina Hotel -->
-                        <div class="hotel-item-box">
-                            <img src="{{ asset('assets/images/packages/flyer_assets/madina_thumb.png') }}"
-                                 alt="Madina Green Dome" class="hotel-thumb-img">
-                            <div class="hotel-info-col">
-                                <span class="hotel-city-nights">MADINA — {{ $madinahNights }} NIGHTS</span>
-                                <h3 class="hotel-name-h3">{{ $madinahHotel }}</h3>
-                                <span class="hotel-distance-pill">
-                                    <i class="mdi mdi-map-marker"></i> {{ $madinahDistance }} METER
-                                </span>
+                        @if ($validAccs->isNotEmpty())
+                            @foreach ($validAccs as $acc)
+                                @php
+                                    $pName = strtoupper(trim((string)($acc->place ?: 'STAY')));
+                                    $hName = $acc->hotel ?: ($acc->package_a_hotel ?: ($acc->accommodation_type ?: 'Hotel Confirmed'));
+                                    
+                                    // Calculate nights
+                                    if ($acc->nights > 0) {
+                                        $nText = $acc->nights . ' NIGHTS';
+                                    } elseif ($acc->days > 0) {
+                                        $nText = $acc->days . ' DAYS';
+                                    } elseif ($acc->check_in && $acc->check_out) {
+                                        $diff = \Carbon\Carbon::parse($acc->check_in)->diffInDays(\Carbon\Carbon::parse($acc->check_out));
+                                        $nText = ($diff > 0 ? $diff : 1) . ' NIGHTS';
+                                    } elseif (!empty($acc->note)) {
+                                        $nText = $acc->note;
+                                    } else {
+                                        $nText = 'HOTEL STAY';
+                                    }
+
+                                    // Thumbnail & label
+                                    $lowerP = strtolower($acc->place ?? '');
+                                    if (str_contains($lowerP, 'madin') || str_contains($lowerP, 'medin')) {
+                                        $thumbImg = asset('assets/images/packages/flyer_assets/madina_thumb.png');
+                                        $cityLabel = 'MADINA';
+                                    } elseif (str_contains($lowerP, 'makkah') || str_contains($lowerP, 'kaaba')) {
+                                        $thumbImg = asset('assets/images/packages/flyer_assets/kaaba_thumb.png');
+                                        $cityLabel = 'MAKKAH';
+                                    } elseif (str_contains($lowerP, 'azizia')) {
+                                        $thumbImg = asset('assets/images/packages/flyer_assets/kaaba_thumb.png');
+                                        $cityLabel = 'AZIZIA';
+                                    } elseif (str_contains($lowerP, 'mina') || str_contains($lowerP, 'arafat')) {
+                                        $thumbImg = asset('assets/images/packages/flyer_assets/kaaba_thumb.png');
+                                        $cityLabel = 'HAJJ DAYS';
+                                    } else {
+                                        $thumbImg = asset('assets/images/packages/flyer_assets/kaaba_thumb.png');
+                                        $cityLabel = $pName;
+                                    }
+                                @endphp
+                                <div class="hotel-item-box">
+                                    <img src="{{ $thumbImg }}" alt="{{ $cityLabel }}" class="hotel-thumb-img">
+                                    <div class="hotel-info-col">
+                                        <span class="hotel-city-nights">{{ $cityLabel }} &mdash; {{ $nText }}</span>
+                                        <h3 class="hotel-name-h3">{{ $hName }}</h3>
+                                        <span class="hotel-distance-pill">
+                                            @if ($acc->distance > 0)
+                                                <i class="mdi mdi-map-marker"></i> {{ $acc->distance }} METER
+                                            @elseif ($acc->saudi_star_rating || $acc->package_a_saudi_star_rating)
+                                                <i class="mdi mdi-star"></i> {{ $acc->saudi_star_rating ?: $acc->package_a_saudi_star_rating }} STAR
+                                            @elseif ($acc->food_package || $acc->package_a_food_package)
+                                                <i class="mdi mdi-silverware-fork-knife"></i> {{ $acc->food_package ?: $acc->package_a_food_package }}
+                                            @else
+                                                <i class="mdi mdi-map-marker"></i> WALKING DISTANCE
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @elseif (!empty($package->primary_hotel))
+                            <div class="hotel-item-box" style="grid-column: 1 / -1;">
+                                <img src="{{ asset('assets/images/packages/flyer_assets/kaaba_thumb.png') }}" alt="Hotel" class="hotel-thumb-img">
+                                <div class="hotel-info-col">
+                                    <span class="hotel-city-nights">{{ strtoupper($package->destination_city ?: ($isHajj ? 'MAKKAH / MADINAH' : 'HOTEL')) }} &mdash; {{ $package->stay_duration ?: ($package->days ?: 30) }} DAYS</span>
+                                    <h3 class="hotel-name-h3">{{ $package->primary_hotel }}</h3>
+                                    <span class="hotel-distance-pill">
+                                        <i class="mdi mdi-hotel"></i> {{ $package->hotel_star_rating ? $package->hotel_star_rating . ' STAR HOTEL' : 'CONFIRMED HOTEL' }}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            {{-- When no accommodation segments added yet --}}
+                            <div class="hotel-item-box">
+                                <img src="{{ asset('assets/images/packages/flyer_assets/kaaba_thumb.png') }}" alt="Makkah" class="hotel-thumb-img">
+                                <div class="hotel-info-col">
+                                    <span class="hotel-city-nights">MAKKAH &mdash; AS PER SCHEDULE</span>
+                                    <h3 class="hotel-name-h3">HOTEL TO BE ANNOUNCED</h3>
+                                    <span class="hotel-distance-pill">
+                                        <i class="mdi mdi-clock-outline"></i> TO BE CONFIRMED
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="hotel-item-box">
+                                <img src="{{ asset('assets/images/packages/flyer_assets/madina_thumb.png') }}" alt="Madinah" class="hotel-thumb-img">
+                                <div class="hotel-info-col">
+                                    <span class="hotel-city-nights">MADINAH &mdash; AS PER SCHEDULE</span>
+                                    <h3 class="hotel-name-h3">HOTEL TO BE ANNOUNCED</h3>
+                                    <span class="hotel-distance-pill">
+                                        <i class="mdi mdi-clock-outline"></i> TO BE CONFIRMED
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Pricing Matrix (4 Rounded Dynamic Pills) -->
@@ -924,23 +959,23 @@
                         <div class="price-pill-card">
                             <div class="price-room-capsule">SHARING</div>
                             <div class="price-amount-large">
-                                {{ $tier['price_sharing'] > 0 ? number_format($tier['price_sharing']) : number_format($tier['price_quad']) }}
+                                {{ $tier['price_sharing'] > 0 ? number_format($tier['price_sharing']) : '0' }}
                             </div>
                             <div class="price-per-person-text">PER PERSON</div>
                         </div>
                         <div class="price-pill-card">
                             <div class="price-room-capsule">QUAD</div>
-                            <div class="price-amount-large">{{ number_format($tier['price_quad']) }}</div>
+                            <div class="price-amount-large">{{ $tier['price_quad'] > 0 ? number_format($tier['price_quad']) : '0' }}</div>
                             <div class="price-per-person-text">PER PERSON</div>
                         </div>
                         <div class="price-pill-card">
                             <div class="price-room-capsule">TRIPLE</div>
-                            <div class="price-amount-large">{{ number_format($tier['price_triple']) }}</div>
+                            <div class="price-amount-large">{{ $tier['price_triple'] > 0 ? number_format($tier['price_triple']) : '0' }}</div>
                             <div class="price-per-person-text">PER PERSON</div>
                         </div>
                         <div class="price-pill-card">
                             <div class="price-room-capsule">DOUBLE</div>
-                            <div class="price-amount-large">{{ number_format($tier['price_double']) }}</div>
+                            <div class="price-amount-large">{{ $tier['price_double'] > 0 ? number_format($tier['price_double']) : '0' }}</div>
                             <div class="price-per-person-text">PER PERSON</div>
                         </div>
                     </div>
