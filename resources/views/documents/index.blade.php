@@ -93,6 +93,8 @@
                                     <option value="missing_medical" {{ ($docFilter ?? '') === 'missing_medical' ? 'selected' : '' }}>Missing Medical</option>
                                     <option value="missing_id" {{ ($docFilter ?? '') === 'missing_id' ? 'selected' : '' }}>Missing ID</option>
                                     <option value="missing_password" {{ ($docFilter ?? '') === 'missing_password' ? 'selected' : '' }}>Missing Password</option>
+                                    <option value="invalid_passport_expiry" {{ ($docFilter ?? '') === 'invalid_passport_expiry' ? 'selected' : '' }}>⚠️ Invalid / Expiring Passport (&lt; 6 Mos for Hajj)</option>
+                                    <option value="valid_passport_expiry" {{ ($docFilter ?? '') === 'valid_passport_expiry' ? 'selected' : '' }}>✅ Valid Hajj Passport (&ge; 6 Mos)</option>
                                     <option value="complete" {{ ($docFilter ?? '') === 'complete' ? 'selected' : '' }}>100% Complete Only</option>
                                 </select>
                             </div>
@@ -297,19 +299,36 @@
                                                     @endif
                                                 </div>
                                                 <div class="flex-grow-1" style="line-height:1.25;">
-                                                    <div class="fw-bold text-dark fs-13">{{ $p->full_name }}</div>
+                                                    <div class="fw-bold text-dark fs-13" id="pilgrim_name_{{ $p->id }}">{{ $p->full_name }}</div>
+                                                    @if(!empty($p->father_name))
+                                                        <div class="text-muted" style="font-size:11px;" id="pilgrim_father_{{ $p->id }}">S/O, D/O, W/O: <strong>{{ $p->father_name }}</strong></div>
+                                                    @else
+                                                        <div class="text-muted d-none" style="font-size:11px;" id="pilgrim_father_{{ $p->id }}"></div>
+                                                    @endif
                                                     <div class="d-flex align-items-center gap-1 mt-1 flex-wrap">
                                                         <span class="badge bg-warning text-dark px-1 py-0" style="font-size: 10px;">{{ $hajjId }}</span>
                                                         <span class="badge bg-dark text-warning px-1 py-0" style="font-size: 10px;">{{ $pPrefix }}</span>
-                                                        <span class="text-muted" style="font-size:11px;">{{ ucfirst($p->gender ?? 'Male') }}</span>
+                                                        <span class="text-muted" style="font-size:11px;" id="pilgrim_gender_{{ $p->id }}">{{ ucfirst($p->gender ?? 'Male') }}</span>
                                                     </div>
                                                     <div class="text-muted mt-1" style="font-size: 11px;">
-                                                        @if(!empty($p->passport_number))
-                                                            <span>Pass: <strong>{{ $p->passport_number }}</strong></span>
-                                                        @endif
+                                                        <span id="pilgrim_pass_span_{{ $p->id }}">
+                                                            @if(!empty($p->passport_number))
+                                                                Pass: <strong>{{ $p->passport_number }}</strong>
+                                                            @endif
+                                                        </span>
                                                         @if(!empty($p->cnic))
                                                             <span class="ms-1">· CNIC: <strong>{{ $p->cnic }}</strong></span>
                                                         @endif
+                                                        @php
+                                                            $isExp = !empty($p->passport_expiry_date) && \Carbon\Carbon::parse($p->passport_expiry_date)->lt(now()->addMonths(6));
+                                                        @endphp
+                                                        <span id="pilgrim_expiry_badge_{{ $p->id }}">
+                                                            @if(!empty($p->passport_expiry_date))
+                                                                <span class="ms-1 badge {{ $isExp ? 'bg-danger' : 'bg-success' }} px-1 py-0" style="font-size:9.5px;" title="{{ $isExp ? 'Hajj requires minimum 6 months passport validity!' : 'Valid for Hajj' }}">
+                                                                    Exp: {{ date('d M Y', strtotime($p->passport_expiry_date)) }} {{ $isExp ? '⚠️' : '✓' }}
+                                                                </span>
+                                                            @endif
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -327,7 +346,7 @@
                                                     <div class="btn-group btn-group-sm">
                                                         <button type="button" class="btn btn-xs btn-light text-primary py-0 px-1 border"
                                                                 title="Scan & Replace Passport" style="cursor:pointer; font-size:10px;"
-                                                                onclick="openPassportScanner({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->passport_number ?? '') }}', '{{ addslashes($p->gender ?? 'Male') }}', '{{ addslashes($p->dob ?? '') }}', '{{ addslashes($p->passport_expiry_date ?? '') }}')">
+                                                                onclick="openPassportScanner({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->passport_number ?? '') }}', '{{ addslashes($p->gender ?? 'Male') }}', '{{ addslashes($p->dob ?? '') }}', '{{ addslashes($p->passport_expiry_date ?? '') }}', '{{ addslashes($p->given_name ?? '') }}', '{{ addslashes($p->surname ?? '') }}', '{{ addslashes($p->father_name ?? '') }}', '{{ addslashes($p->date_of_issue ?? $p->passport_issue_date ?? '') }}')">
                                                             <i class="mdi mdi-camera-metering me-1"></i>Scan
                                                         </button>
                                                         <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
@@ -338,7 +357,7 @@
                                                 </div>
                                             @else
                                                 <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 border-dashed w-100" style="font-size:11px;"
-                                                        onclick="openPassportScanner({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->passport_number ?? '') }}', '{{ addslashes($p->gender ?? 'Male') }}', '{{ addslashes($p->dob ?? '') }}', '{{ addslashes($p->passport_expiry_date ?? '') }}')">
+                                                        onclick="openPassportScanner({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->passport_number ?? '') }}', '{{ addslashes($p->gender ?? 'Male') }}', '{{ addslashes($p->dob ?? '') }}', '{{ addslashes($p->passport_expiry_date ?? '') }}', '{{ addslashes($p->given_name ?? '') }}', '{{ addslashes($p->surname ?? '') }}', '{{ addslashes($p->father_name ?? '') }}', '{{ addslashes($p->date_of_issue ?? $p->passport_issue_date ?? '') }}')">
                                                     <i class="mdi mdi-camera-metering me-1 text-primary"></i>Scan & Upload
                                                 </button>
                                             @endif
@@ -601,9 +620,21 @@
 
                         <!-- Extracted Form Fields -->
                         <div class="row g-2">
-                            <div class="col-12">
-                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Scanned Full Name</label>
-                                <input type="text" id="scan_field_name" class="form-control form-control-sm fw-bold text-dark" placeholder="Auto-extracted from passport">
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Given Name</label>
+                                <input type="text" id="scan_field_given_name" class="form-control form-control-sm text-dark" placeholder="e.g. MUHAMMAD HADI" oninput="updateFullNameFromParts()">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Surname</label>
+                                <input type="text" id="scan_field_surname" class="form-control form-control-sm text-dark" placeholder="e.g. SIDDIQUI" oninput="updateFullNameFromParts()">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Father / Husband Name</label>
+                                <input type="text" id="scan_field_father_name" class="form-control form-control-sm text-dark" placeholder="Auto-extracted or enter">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Full Name</label>
+                                <input type="text" id="scan_field_name" class="form-control form-control-sm fw-bold text-dark" placeholder="Auto-extracted from passport" oninput="verifyPassportIdentityManually()">
                             </div>
                             <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Passport Number</label>
@@ -616,13 +647,20 @@
                                     <option value="Female">Female</option>
                                 </select>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Date of Birth</label>
                                 <input type="date" id="scan_field_dob" class="form-control form-control-sm">
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">Date of Issue</label>
+                                <input type="date" id="scan_field_issue_date" class="form-control form-control-sm">
+                            </div>
+                            <div class="col-4">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Passport Expiry Date</label>
-                                <input type="date" id="scan_field_expiry" class="form-control form-control-sm">
+                                <input type="date" id="scan_field_expiry" class="form-control form-control-sm" onchange="checkHajjValidityFromDate(this.value)">
+                            </div>
+                            <div class="col-12" id="scan_hajj_validity_container">
+                                <!-- Hajj Validity Alert rendered here dynamically -->
                             </div>
                         </div>
 
@@ -976,7 +1014,7 @@
     let isNameMatched = false;
     let scannerModalInstance = null;
 
-    function openPassportScanner(personId, personName, existingPass, existingGender, existingDob, existingExpiry) {
+    function openPassportScanner(personId, personName, existingPass, existingGender, existingDob, existingExpiry, existingGiven, existingSurname, existingFather, existingIssue) {
         currentScanPersonId = personId;
         currentScanPersonName = personName;
         currentScanFile = null;
@@ -986,12 +1024,18 @@
         document.getElementById('scannerTargetIdDisplay').textContent = 'ID: #' + personId;
         document.getElementById('scannerTargetExistingPass').textContent = 'Current Pass: ' + (existingPass || 'None');
 
-        // Pre-fill existing data in case scan is partial
-        document.getElementById('scan_field_name').value = '';
+        // Pre-fill existing data in case scan is partial or viewing details
+        document.getElementById('scan_field_given_name').value = existingGiven || '';
+        document.getElementById('scan_field_surname').value = existingSurname || '';
+        document.getElementById('scan_field_father_name').value = existingFather || '';
+        document.getElementById('scan_field_name').value = personName || '';
         document.getElementById('scan_field_passport_no').value = existingPass || '';
         document.getElementById('scan_field_gender').value = existingGender || 'Male';
         document.getElementById('scan_field_dob').value = existingDob || '';
+        document.getElementById('scan_field_issue_date').value = existingIssue || '';
         document.getElementById('scan_field_expiry').value = existingExpiry || '';
+
+        checkHajjValidityFromDate(existingExpiry);
 
         resetPassportScanner();
 
@@ -1015,6 +1059,65 @@
             </div>`;
     }
 
+    function checkHajjValidityFromDate(dateStr) {
+        const container = document.getElementById('scan_hajj_validity_container');
+        if (!container) return;
+        if (!dateStr) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const expDate = new Date(dateStr);
+        const now = new Date();
+        const sixMonthsFromNow = new Date();
+        sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
+
+        if (isNaN(expDate.getTime())) {
+            container.innerHTML = '';
+            return;
+        }
+
+        if (expDate < now) {
+            container.innerHTML = `
+                <div class="alert alert-danger py-1 px-2 fs-11 mb-0 d-flex align-items-center gap-2">
+                    <i class="mdi mdi-alert-circle fs-16"></i>
+                    <div>
+                        <strong>PASSPORT EXPIRED!</strong> Expired on ${dateStr}. Ineligible for travel.
+                    </div>
+                </div>`;
+        } else if (expDate < sixMonthsFromNow) {
+            container.innerHTML = `
+                <div class="alert alert-warning py-1 px-2 fs-11 mb-0 d-flex align-items-center gap-2">
+                    <i class="mdi mdi-alert-triangle fs-16"></i>
+                    <div>
+                        <strong>HAJJ VALIDITY WARNING (&lt; 6 MONTHS):</strong> Passport expires on ${dateStr}. Saudi Ministry of Hajj requires minimum 6 months validity from travel date!
+                    </div>
+                </div>`;
+        } else {
+            container.innerHTML = `
+                <div class="alert alert-success py-1 px-2 fs-11 mb-0 d-flex align-items-center gap-2">
+                    <i class="mdi mdi-check-circle fs-16"></i>
+                    <div>
+                        <strong>VALID FOR HAJJ (&ge; 6 MONTHS):</strong> Passport expires on ${dateStr}. Meets Saudi Hajj regulations.
+                    </div>
+                </div>`;
+        }
+    }
+
+    function updateFullNameFromParts() {
+        const gn = document.getElementById('scan_field_given_name').value.trim();
+        const sn = document.getElementById('scan_field_surname').value.trim();
+        const fnInput = document.getElementById('scan_field_name');
+        if (gn || sn) {
+            fnInput.value = (gn + ' ' + sn).trim();
+        }
+        verifyPassportIdentity();
+    }
+
+    function verifyPassportIdentityManually() {
+        verifyPassportIdentity();
+    }
+
     function handlePassportFileSelected(input) {
         if (!input.files || !input.files[0]) return;
         currentScanFile = input.files[0];
@@ -1035,7 +1138,6 @@
             };
             reader.readAsDataURL(currentScanFile);
         } else {
-            // For PDF, display icon and run server/client check
             document.getElementById('scanPreviewImg').src = 'https://cdn-icons-png.flaticon.com/512/337/337946.png';
             simulateOrServerPassportScan(currentScanFile);
         }
@@ -1088,7 +1190,6 @@
             document.getElementById('scanLaserLine').classList.add('d-none');
             document.getElementById('scanStatusContainer').classList.add('d-none');
 
-            // If file name contains a name (e.g. Hadi_passport.jpg or Ali_passport.pdf)
             const cleanFileName = file.name.replace(/[_\-.]/g, ' ').toUpperCase();
             processScannedPassportText("PASSPORT " + cleanFileName);
         }, 1200);
@@ -1097,67 +1198,142 @@
     function processScannedPassportText(rawText) {
         const parsed = parseMRZAndPassport(rawText);
 
-        if (parsed.fullName) document.getElementById('scan_field_name').value = parsed.fullName;
+        if (parsed.givenName) document.getElementById('scan_field_given_name').value = parsed.givenName;
+        if (parsed.surname) document.getElementById('scan_field_surname').value = parsed.surname;
+        if (parsed.fatherName) document.getElementById('scan_field_father_name').value = parsed.fatherName;
+        if (parsed.fullName) {
+            document.getElementById('scan_field_name').value = parsed.fullName;
+        } else if (parsed.givenName || parsed.surname) {
+            document.getElementById('scan_field_name').value = ((parsed.givenName || '') + ' ' + (parsed.surname || '')).trim();
+        }
+
         if (parsed.passportNumber) document.getElementById('scan_field_passport_no').value = parsed.passportNumber;
         if (parsed.gender) document.getElementById('scan_field_gender').value = parsed.gender;
         if (parsed.dob) document.getElementById('scan_field_dob').value = parsed.dob;
-        if (parsed.expiryDate) document.getElementById('scan_field_expiry').value = parsed.expiryDate;
+        if (parsed.issueDate) document.getElementById('scan_field_issue_date').value = parsed.issueDate;
+        if (parsed.expiryDate) {
+            document.getElementById('scan_field_expiry').value = parsed.expiryDate;
+            checkHajjValidityFromDate(parsed.expiryDate);
+        }
 
         // Perform Identity Verification against target pilgrim
         verifyPassportIdentity(parsed);
+    }
+
+    // CLEAN EXTRACTED NAME HELPER
+    function cleanExtractedName(str) {
+        if (!str) return '';
+        let cleaned = str.split(/\n|\r|(?:Date|DOB|Sex|Gender|National|Country|Place|CNIC|Issue|Expiry)/i)[0];
+        cleaned = cleaned.replace(/[^A-Za-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
+        return cleaned;
     }
 
     // MRZ & TEXT PARSER
     function parseMRZAndPassport(text) {
         let result = {
             fullName: '',
+            givenName: '',
+            surname: '',
+            fatherName: '',
             passportNumber: '',
             gender: 'Male',
             dob: '',
+            issueDate: '',
             expiryDate: ''
         };
 
-        const lines = text.split('\n').map(l => l.trim().replace(/\s+/g, '')).filter(l => l.length >= 25 && l.includes('<'));
+        if (!text) return result;
 
-        // Try MRZ (2 lines)
-        for (let i = 0; i < lines.length - 1; i++) {
-            let l1 = lines[i].toUpperCase();
-            let l2 = lines[i+1].toUpperCase();
+        const rawLines = text.split('\n').map(l => l.trim());
+        const mrzLines = rawLines.map(l => l.replace(/\s+/g, '')).filter(l => l.length >= 25 && l.includes('<'));
+
+        // 1. Try MRZ Parsing (standard 2-line ICAO Doc 9303 Type 3)
+        for (let i = 0; i < mrzLines.length - 1; i++) {
+            let l1 = mrzLines[i].toUpperCase();
+            let l2 = mrzLines[i+1].toUpperCase();
 
             if (l1.startsWith('P<') || l1.startsWith('P') || l2.length >= 35) {
-                // Name in line 1
+                // Name in line 1: P<XXXSURNAME<<GIVEN<NAMES<<<<<<
                 const namePart = l1.substring(5).split('<<');
                 const surname = namePart[0] ? namePart[0].replace(/</g, ' ').trim() : '';
                 const givenName = namePart[1] ? namePart[1].replace(/</g, ' ').trim() : '';
+
+                result.surname = surname;
+                result.givenName = givenName;
                 result.fullName = (givenName + ' ' + surname).trim() || surname;
 
-                // Line 2: Passport No (first 9 chars), DOB (chars 13-19), Sex (char 20), Expiry (chars 21-27)
+                // Line 2: Passport No (first 9 chars), nationality (10-13), DOB (13-19), Sex (20), Expiry (21-27)
                 result.passportNumber = l2.substring(0, 9).replace(/</g, '').trim();
                 const sexChar = l2.charAt(20);
                 result.gender = (sexChar === 'F') ? 'Female' : 'Male';
 
                 result.dob = formatYYMMDD(l2.substring(13, 19), true);
                 result.expiryDate = formatYYMMDD(l2.substring(21, 27), false);
-
-                return result;
+                break;
             }
         }
 
-        // Regex fallback for regular text
-        const passMatch = text.match(/\b([A-Z]{1,2}[0-9]{7,9})\b/i);
-        if (passMatch) result.passportNumber = passMatch[1].toUpperCase();
-
-        const sexMatch = text.match(/\b(Sex|Gender)\s*[:\-]?\s*(M|F|Male|Female)\b/i);
-        if (sexMatch) {
-            const s = sexMatch[2].toUpperCase();
-            result.gender = (s.startsWith('F')) ? 'Female' : 'Male';
+        // 2. Visual Inspection Zone (VIZ) extraction from raw text
+        // Father / Husband Name
+        const fatherMatch = text.match(/(?:Father(?:'s)?(?:\s*\/\s*Husband)?\s*Name|Father\s*Name|Husband\s*Name|نام\s*والد|نام\s*شوہر)\s*[:\-]?\s*([A-Za-z\s]+)/i);
+        if (fatherMatch && fatherMatch[1]) {
+            const fName = cleanExtractedName(fatherMatch[1]);
+            if (fName && fName.length > 2) {
+                result.fatherName = fName;
+            }
         }
 
-        const dobMatch = text.match(/\b(?:DOB|Birth|Date of Birth)\s*[:\-]?\s*(\d{2}[\/\-.]\d{2}[\/\-.]\d{4}|\d{4}[\/\-.]\d{2}[\/\-.]\d{2})\b/i);
-        if (dobMatch) result.dob = normalizeDateString(dobMatch[1]);
+        // Given Name fallback
+        if (!result.givenName) {
+            const gMatch = text.match(/(?:Given\s*Names?|First\s*Name)\s*[:\-]?\s*([A-Za-z\s]+)/i);
+            if (gMatch && gMatch[1]) {
+                const g = cleanExtractedName(gMatch[1]);
+                if (g && g.length > 1) result.givenName = g;
+            }
+        }
 
-        const expMatch = text.match(/\b(?:Expiry|Valid Until|Date of Expiry)\s*[:\-]?\s*(\d{2}[\/\-.]\d{2}[\/\-.]\d{4}|\d{4}[\/\-.]\d{2}[\/\-.]\d{2})\b/i);
-        if (expMatch) result.expiryDate = normalizeDateString(expMatch[1]);
+        // Surname fallback
+        if (!result.surname) {
+            const sMatch = text.match(/(?:Surname|Last\s*Name)\s*[:\-]?\s*([A-Za-z\s]+)/i);
+            if (sMatch && sMatch[1]) {
+                const s = cleanExtractedName(sMatch[1]);
+                if (s && s.length > 1) result.surname = s;
+            }
+        }
+
+        // Full name combine if not present
+        if (!result.fullName && (result.givenName || result.surname)) {
+            result.fullName = (result.givenName + ' ' + result.surname).trim();
+        }
+
+        // Passport Number fallback
+        if (!result.passportNumber) {
+            const passMatch = text.match(/\b([A-Z]{1,2}[0-9]{7,9})\b/i);
+            if (passMatch) result.passportNumber = passMatch[1].toUpperCase();
+        }
+
+        // Gender fallback
+        const sexMatch = text.match(/\b(?:Sex|Gender|جنس)\s*[:\-]?\s*(M|F|Male|Female|مرد|عورت)\b/i);
+        if (sexMatch) {
+            const s = sexMatch[1].toUpperCase();
+            result.gender = (s.startsWith('F') || s.includes('عورت')) ? 'Female' : 'Male';
+        }
+
+        // Date of Birth fallback
+        if (!result.dob) {
+            const dobMatch = text.match(/\b(?:DOB|Birth|Date of Birth|تاریخ\s*پیدائش)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
+            if (dobMatch) result.dob = normalizeDateString(dobMatch[1]);
+        }
+
+        // Date of Issue
+        const issueMatch = text.match(/\b(?:Date\s*of\s*Issue|Issue\s*Date|تاریخ\s*اجرا)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
+        if (issueMatch) result.issueDate = normalizeDateString(issueMatch[1]);
+
+        // Date of Expiry fallback
+        if (!result.expiryDate) {
+            const expMatch = text.match(/\b(?:Expiry|Valid Until|Date\s*of\s*Expiry|تاریخ\s*تنسیخ)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
+            if (expMatch) result.expiryDate = normalizeDateString(expMatch[1]);
+        }
 
         return result;
     }
@@ -1174,6 +1350,19 @@
 
     function normalizeDateString(dStr) {
         if (!dStr) return '';
+        dStr = dStr.trim();
+        const months = {
+            'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05', 'jun': '06',
+            'jul': '07', 'aug': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'
+        };
+        const textMatch = dStr.match(/^(\d{1,2})[\s\-]([A-Za-z]{3})[\s\-](\d{4})$/);
+        if (textMatch) {
+            const dd = textMatch[1].padStart(2, '0');
+            const mm = months[textMatch[2].toLowerCase()] || '01';
+            const yyyy = textMatch[3];
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
         const parts = dStr.split(/[\/\-.]/);
         if (parts.length === 3) {
             if (parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
@@ -1185,7 +1374,7 @@
     // IDENTITY VERIFICATION LOGIC
     function verifyPassportIdentity(parsed) {
         const targetUpper = currentScanPersonName.toUpperCase().trim();
-        const scannedUpper = (document.getElementById('scan_field_name').value || parsed.fullName || '').toUpperCase().trim();
+        const scannedUpper = (document.getElementById('scan_field_name').value || (parsed ? parsed.fullName : '') || '').toUpperCase().trim();
 
         const resultBox = document.getElementById('verificationResultBox');
         const overrideBox = document.getElementById('overrideBox');
@@ -1194,7 +1383,6 @@
         let matched = false;
 
         if (!scannedUpper) {
-            // Scanner did not detect name text, allow with neutral confirmation
             matched = true;
             resultBox.innerHTML = `
                 <div class="alert alert-info py-2 px-3 fs-12 mb-2">
@@ -1207,7 +1395,6 @@
             return;
         }
 
-        // Compare words / tokens
         const targetWords = targetUpper.split(/\s+/).filter(w => w.length > 1);
         const scannedWords = scannedUpper.split(/\s+/).filter(w => w.length > 1);
 
@@ -1225,7 +1412,6 @@
         }
 
         if (matched) {
-            // MATCH!
             isNameMatched = true;
             overrideBox.classList.add('d-none');
             btnSave.disabled = false;
@@ -1241,7 +1427,6 @@
                     </div>
                 </div>`;
         } else {
-            // MISMATCH!
             isNameMatched = false;
             overrideBox.classList.remove('d-none');
             btnSave.disabled = true;
@@ -1283,9 +1468,13 @@
         formData.append('file', currentScanFile);
         formData.append('_token', csrfToken);
         formData.append('scanned_name', document.getElementById('scan_field_name').value);
+        formData.append('given_name', document.getElementById('scan_field_given_name').value);
+        formData.append('surname', document.getElementById('scan_field_surname').value);
+        formData.append('father_name', document.getElementById('scan_field_father_name').value);
         formData.append('passport_number', document.getElementById('scan_field_passport_no').value);
         formData.append('gender', document.getElementById('scan_field_gender').value);
         formData.append('dob', document.getElementById('scan_field_dob').value);
+        formData.append('date_of_issue', document.getElementById('scan_field_issue_date').value);
         formData.append('passport_expiry_date', document.getElementById('scan_field_expiry').value);
         formData.append('force_override', document.getElementById('overrideCheck').checked ? '1' : '0');
 
@@ -1314,7 +1503,7 @@
                             <div class="btn-group btn-group-sm">
                                 <button type="button" class="btn btn-xs btn-light text-primary py-0 px-1 border"
                                         title="Scan & Replace Passport" style="cursor:pointer; font-size:10px;"
-                                        onclick="openPassportScanner(${data.person.id}, '${escapeHtml(data.person.full_name)}', '${data.person.passport_number || ''}', '${data.person.gender || 'Male'}', '${data.person.dob || ''}', '${data.person.passport_expiry_date || ''}')">
+                                        onclick="openPassportScanner(${data.person.id}, '${escapeHtml(data.person.full_name)}', '${data.person.passport_number || ''}', '${data.person.gender || 'Male'}', '${data.person.dob || ''}', '${data.person.passport_expiry_date || ''}', '${escapeHtml(data.person.given_name || '')}', '${escapeHtml(data.person.surname || '')}', '${escapeHtml(data.person.father_name || '')}', '${data.person.date_of_issue || ''}')">
                                     <i class="mdi mdi-camera-metering me-1"></i>Scan
                                 </button>
                                 <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
@@ -1325,14 +1514,45 @@
                         </div>`;
                 }
 
-                // 2. Update Row Details with Auto-Extracted Passport Number, Gender, etc.
-                const row = document.getElementById(`person_row_${currentScanPersonId}`);
-                if (row && data.person) {
-                    // Update passport display in row
-                    const passSpan = row.querySelector('span:has(strong)') || row;
-                    // Trigger a toast with full confirmation
-                    showToast('Passport Verified', `Passport verified and details auto-filled for ${data.person.full_name}! (Pass: ${data.person.passport_number || 'N/A'})`, 'success');
+                // 2. Update Row Details with Auto-Extracted Passport Number, Gender, Expiry Badge, Father Name
+                const nameEl = document.getElementById(`pilgrim_name_${currentScanPersonId}`);
+                if (nameEl && data.person.full_name) {
+                    nameEl.textContent = data.person.full_name;
                 }
+
+                const fatherEl = document.getElementById(`pilgrim_father_${currentScanPersonId}`);
+                if (fatherEl) {
+                    if (data.person.father_name) {
+                        fatherEl.innerHTML = `S/O, D/O, W/O: <strong>${escapeHtml(data.person.father_name)}</strong>`;
+                        fatherEl.classList.remove('d-none');
+                    } else {
+                        fatherEl.classList.add('d-none');
+                    }
+                }
+
+                const genderEl = document.getElementById(`pilgrim_gender_${currentScanPersonId}`);
+                if (genderEl && data.person.gender) {
+                    genderEl.textContent = data.person.gender;
+                }
+
+                const passSpan = document.getElementById(`pilgrim_pass_span_${currentScanPersonId}`);
+                if (passSpan && data.person.passport_number) {
+                    passSpan.innerHTML = `Pass: <strong>${escapeHtml(data.person.passport_number)}</strong>`;
+                }
+
+                const expBadge = document.getElementById(`pilgrim_expiry_badge_${currentScanPersonId}`);
+                if (expBadge && data.person.passport_expiry_date) {
+                    const expD = new Date(data.person.passport_expiry_date);
+                    const sixM = new Date();
+                    sixM.setMonth(sixM.getMonth() + 6);
+                    const isExp = expD < sixM;
+                    expBadge.innerHTML = `
+                        <span class="ms-1 badge ${isExp ? 'bg-danger' : 'bg-success'} px-1 py-0" style="font-size:9.5px;" title="${isExp ? 'Hajj requires minimum 6 months passport validity!' : 'Valid for Hajj'}">
+                            Exp: ${data.person.passport_expiry_date} ${isExp ? '⚠️' : '✓'}
+                        </span>`;
+                }
+
+                showToast('Passport Verified', `Passport verified and details auto-filled for ${data.person.full_name}! (Pass: ${data.person.passport_number || 'N/A'})`, 'success');
 
                 if (scannerModalInstance) {
                     scannerModalInstance.hide();

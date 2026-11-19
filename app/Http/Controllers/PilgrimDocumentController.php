@@ -87,6 +87,19 @@ class PilgrimDocumentController extends Controller
             $personsQuery->where(function ($q) {
                 $q->whereNull('portal_password')->orWhere('portal_password', '');
             });
+        } elseif ($docFilter === 'invalid_passport_expiry') {
+            $hajjCutoff = now()->addMonths(6)->toDateString();
+            $personsQuery->whereNotNull('passport_image')->where('passport_image', '!=', '')
+                ->where(function ($q) use ($hajjCutoff) {
+                    $q->whereNull('passport_expiry_date')
+                      ->orWhere('passport_expiry_date', '')
+                      ->orWhere('passport_expiry_date', '<', $hajjCutoff);
+                });
+        } elseif ($docFilter === 'valid_passport_expiry') {
+            $hajjCutoff = now()->addMonths(6)->toDateString();
+            $personsQuery->whereNotNull('passport_image')->where('passport_image', '!=', '')
+                ->whereNotNull('passport_expiry_date')->where('passport_expiry_date', '!=', '')
+                ->where('passport_expiry_date', '>=', $hajjCutoff);
         } elseif ($docFilter === 'complete') {
             $personsQuery->whereNotNull('passport_image')->where('passport_image', '!=', '')
                 ->whereNotNull('photo')->where('photo', '!=', '')
@@ -140,10 +153,16 @@ class PilgrimDocumentController extends Controller
             return [
                 'id' => $p->id,
                 'full_name' => $p->full_name,
+                'given_name' => $p->given_name,
+                'surname' => $p->surname,
+                'father_name' => $p->father_name,
                 'gender' => $p->gender,
+                'dob' => $p->dob,
                 'hajj_id' => $p->hajj_id,
                 'hb_number' => $p->hb_number,
                 'passport_number' => $p->passport_number,
+                'date_of_issue' => $p->date_of_issue ?? $p->passport_issue_date,
+                'passport_expiry_date' => $p->passport_expiry_date,
                 'cnic' => $p->cnic,
                 'phone' => $p->phone,
                 'passport' => $p->passport_image ? asset($p->passport_image) : null,
@@ -271,9 +290,13 @@ class PilgrimDocumentController extends Controller
         ]);
 
         $scannedName = trim($request->input('scanned_name', ''));
+        $givenName = trim($request->input('given_name', ''));
+        $surname = trim($request->input('surname', ''));
+        $fatherName = trim($request->input('father_name', ''));
         $passportNo = trim($request->input('passport_number', ''));
         $gender = trim($request->input('gender', ''));
         $dob = trim($request->input('dob', ''));
+        $issueDate = trim($request->input('date_of_issue', ''));
         $expiryDate = trim($request->input('passport_expiry_date', ''));
         $forceOverride = $request->boolean('force_override', false);
 
@@ -323,6 +346,20 @@ class PilgrimDocumentController extends Controller
 
         // Auto-fill person details from scanned passport
         $person->passport_image = $relativePath;
+        if (!empty($givenName)) {
+            $person->given_name = $givenName;
+        }
+        if (!empty($surname)) {
+            $person->surname = $surname;
+        }
+        if (!empty($fatherName)) {
+            $person->father_name = $fatherName;
+        }
+        if (!empty($scannedName)) {
+            $person->full_name = $scannedName;
+        } elseif (!empty($givenName) || !empty($surname)) {
+            $person->full_name = trim(($givenName ?: '') . ' ' . ($surname ?: ''));
+        }
         if (!empty($passportNo)) {
             $person->passport_number = $passportNo;
         }
@@ -331,6 +368,10 @@ class PilgrimDocumentController extends Controller
         }
         if (!empty($dob)) {
             $person->dob = $dob;
+        }
+        if (!empty($issueDate)) {
+            $person->date_of_issue = $issueDate;
+            $person->passport_issue_date = $issueDate;
         }
         if (!empty($expiryDate)) {
             $person->passport_expiry_date = $expiryDate;
@@ -351,9 +392,13 @@ class PilgrimDocumentController extends Controller
             'person' => [
                 'id' => $person->id,
                 'full_name' => $person->full_name,
+                'given_name' => $person->given_name,
+                'surname' => $person->surname,
+                'father_name' => $person->father_name,
                 'passport_number' => $person->passport_number,
                 'gender' => $person->gender,
                 'dob' => $person->dob,
+                'date_of_issue' => $person->date_of_issue,
                 'passport_expiry_date' => $person->passport_expiry_date,
             ]
         ]);

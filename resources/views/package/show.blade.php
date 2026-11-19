@@ -35,6 +35,13 @@
         // ══════════════════════════════════════════════════════
         $tiers = collect([]);
 
+        $cleanDaysText = function($val) {
+            if (!$val) return '';
+            $val = trim((string)$val);
+            $clean = trim(preg_replace('/days?$/i', '', $val));
+            return $clean !== '' ? ($clean . ' DAYS') : '';
+        };
+
         if ($isHajj) {
             $hasMaktabC = ($package->maktab_c_quad_pkr > 0 || $package->maktab_c_triple_pkr > 0 || $package->maktab_c_double_pkr > 0 || $package->price_sharing > 0);
             $hasMaktabA = ($package->maktab_a_quad_pkr > 0 || $package->maktab_a_triple_pkr > 0 || $package->maktab_a_double_pkr > 0);
@@ -47,7 +54,7 @@
 
                 $tiers->push([
                     'title'        => 'MAKTAB C ' . ($package->camp_zone ? '— ZONE ' . $package->camp_zone : '— STANDARD CAMP'),
-                    'badge'        => 'MAKTAB C' . ($package->stay_duration ? ' • ' . $package->stay_duration . ' DAYS' : ($package->days ? ' • ' . $package->days . ' DAYS' : '')),
+                    'badge'        => 'MAKTAB C' . ($package->stay_duration ? ' • ' . $cleanDaysText($package->stay_duration) : ($package->days ? ' • ' . $cleanDaysText($package->days) : '')),
                     'date_badge'   => $travelDate1,
                     'price_sharing'=> $cSharing,
                     'price_quad'   => $cQuad,
@@ -66,7 +73,7 @@
 
                 $tiers->push([
                     'title'        => 'MAKTAB A ' . ($package->camp_zone ? '— ZONE ' . $package->camp_zone : '— VIP EXECUTIVE'),
-                    'badge'        => 'MAKTAB A (VIP)' . ($package->stay_duration ? ' • ' . $package->stay_duration . ' DAYS' : ($package->days ? ' • ' . $package->days . ' DAYS' : '')),
+                    'badge'        => 'MAKTAB A (VIP)' . ($package->stay_duration ? ' • ' . $cleanDaysText($package->stay_duration) : ($package->days ? ' • ' . $cleanDaysText($package->days) : '')),
                     'date_badge'   => $travelDate2,
                     'price_sharing'=> $aSharing,
                     'price_quad'   => $aQuad,
@@ -79,7 +86,7 @@
 
             // Fallback for single Hajj package (shows real package rates)
             if ($tiers->isEmpty()) {
-                $tierDays = $package->stay_duration ? ($package->stay_duration . ' DAYS') : ($package->days ? ($package->days . ' DAYS') : ($calcDays ? $calcDays . ' DAYS' : 'PACKAGE'));
+                $tierDays = $cleanDaysText($package->stay_duration) ?: ($cleanDaysText($package->days) ?: ($cleanDaysText($calcDays) ?: 'PACKAGE'));
 
                 $tierTitle = $package->package_title ?: ($package->stay_type ? $package->stay_type . ' — ' . $tierDays : 'HAJJ PACKAGE — ' . $tierDays);
 
@@ -115,7 +122,7 @@
             }
 
             if ($tiers->isEmpty()) {
-                $durTitle = ($package->days ? $package->days . ' DAYS' : ($package->stay_duration ? $package->stay_duration . ' DAYS' : 'UMRAH PACKAGE'));
+                $durTitle = $cleanDaysText($package->days) ?: ($cleanDaysText($package->stay_duration) ?: 'UMRAH PACKAGE');
                 $tiers->push([
                     'title'        => $durTitle . ' UMRAH PACKAGE',
                     'badge'        => $durTitle,
@@ -871,13 +878,39 @@
                                         $nText = $acc->nights . ' NIGHTS';
                                     } elseif ($acc->days > 0) {
                                         $nText = $acc->days . ' DAYS';
-                                    } elseif ($acc->check_in && $acc->check_out) {
-                                        $diff = \Carbon\Carbon::parse($acc->check_in)->diffInDays(\Carbon\Carbon::parse($acc->check_out));
-                                        $nText = ($diff > 0 ? $diff : 1) . ' NIGHTS';
-                                    } elseif (!empty($acc->note)) {
-                                        $nText = $acc->note;
                                     } else {
-                                        $nText = 'HOTEL STAY';
+                                        $hNights = null;
+                                        if (!empty($acc->note) && !empty($acc->sharing)) {
+                                            $n1 = strtolower(trim((string)$acc->note));
+                                            $n2 = strtolower(trim((string)$acc->sharing));
+                                            $d1 = null; $m1 = null; $d2 = null; $m2 = null;
+                                            if (preg_match('/(\d{1,2})\s*(?:-\s*\d{1,2})?\s*(?:zil|zul|zi)\s*([a-z]+)/i', $n1, $m)) {
+                                                $d1 = (int)$m[1];
+                                                $m1 = str_contains($m[2], 'qad') ? 'qadh' : (str_contains($m[2], 'haj') ? 'hajj' : null);
+                                            }
+                                            if (preg_match('/(\d{1,2})\s*(?:-\s*\d{1,2})?\s*(?:zil|zul|zi)\s*([a-z]+)/i', $n2, $m)) {
+                                                $d2 = (int)$m[1];
+                                                $m2 = str_contains($m[2], 'qad') ? 'qadh' : (str_contains($m[2], 'haj') ? 'hajj' : null);
+                                            }
+                                            if ($d1 && $d2 && $m1 && $m2) {
+                                                if ($m1 === $m2 && $d2 > $d1) {
+                                                    $hNights = $d2 - $d1;
+                                                } elseif ($m1 === 'qadh' && $m2 === 'hajj') {
+                                                    $hNights = (30 - $d1) + $d2;
+                                                }
+                                            }
+                                        }
+
+                                        if ($hNights && $hNights > 0) {
+                                            $nText = $hNights . ' NIGHTS';
+                                        } elseif ($acc->check_in && $acc->check_out) {
+                                            $diff = \Carbon\Carbon::parse($acc->check_in)->diffInDays(\Carbon\Carbon::parse($acc->check_out));
+                                            $nText = ($diff > 0 ? $diff : 1) . ' NIGHTS';
+                                        } elseif (!empty($acc->note)) {
+                                            $nText = $acc->note;
+                                        } else {
+                                            $nText = 'HOTEL STAY';
+                                        }
                                     }
 
                                     // Thumbnail & label
@@ -922,7 +955,7 @@
                             <div class="hotel-item-box" style="grid-column: 1 / -1;">
                                 <img src="{{ asset('assets/images/packages/flyer_assets/kaaba_thumb.png') }}" alt="Hotel" class="hotel-thumb-img">
                                 <div class="hotel-info-col">
-                                    <span class="hotel-city-nights">{{ strtoupper($package->destination_city ?: ($isHajj ? 'MAKKAH / MADINAH' : 'HOTEL')) }} &mdash; {{ $package->stay_duration ?: ($package->days ?: 30) }} DAYS</span>
+                                    <span class="hotel-city-nights">{{ strtoupper($package->destination_city ?: ($isHajj ? 'MAKKAH / MADINAH' : 'HOTEL')) }} &mdash; {{ $cleanDaysText($package->stay_duration ?: ($package->days ?: 30)) }}</span>
                                     <h3 class="hotel-name-h3">{{ $package->primary_hotel }}</h3>
                                     <span class="hotel-distance-pill">
                                         <i class="mdi mdi-hotel"></i> {{ $package->hotel_star_rating ? $package->hotel_star_rating . ' STAR HOTEL' : 'CONFIRMED HOTEL' }}

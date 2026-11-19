@@ -333,15 +333,23 @@
                                                     </select>
                                                     <input type="text" name="accommodations[{{ $idx }}][package_a][hotel]" class="form-control form-control-sm acc-hotel-input" placeholder="Hotel / Building Name" value="{{ $curHotel }}">
                                                 </div>
-                                                <div class="col-md-3">
+                                                <div class="col-md-2">
                                                     <label class="form-label fw-bold small">Arrival Date & Hijri</label>
                                                     <input type="date" name="accommodations[{{ $idx }}][check_in]" class="form-control form-control-sm mb-1" value="{{ $acc['check_in'] ?? '' }}">
                                                     <input type="text" name="accommodations[{{ $idx }}][note]" class="form-control form-control-sm" placeholder="Hijri e.g. 21 - 22 Zil Qadh 1448" value="{{ $acc['note'] ?? '' }}">
                                                 </div>
-                                                <div class="col-md-3">
+                                                <div class="col-md-2">
                                                     <label class="form-label fw-bold small">Departure Date & Hijri</label>
                                                     <input type="date" name="accommodations[{{ $idx }}][check_out]" class="form-control form-control-sm mb-1" value="{{ $acc['check_out'] ?? '' }}">
                                                     <input type="text" name="accommodations[{{ $idx }}][sharing]" class="form-control form-control-sm" placeholder="Hijri e.g. 29 Zil Qadh 1448" value="{{ $acc['sharing'] ?? '' }}">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label fw-bold small text-primary"><i class="mdi mdi-moon-waning-crescent me-1"></i>Nights</label>
+                                                    <div class="input-group input-group-sm mb-1">
+                                                        <input type="number" name="accommodations[{{ $idx }}][nights]" class="form-control form-control-sm acc-nights-input fw-bold text-center" placeholder="Auto" value="{{ $acc['nights'] ?? '' }}" min="0">
+                                                        <span class="input-group-text px-2 py-0" style="font-size:11px;">Nights</span>
+                                                    </div>
+                                                    <small class="text-muted d-block text-truncate" style="font-size:10px;">Auto or edit manual</small>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="form-label fw-bold small">Meal Plan (Meal Plan CRUD)</label>
@@ -670,6 +678,55 @@
             }
         }
 
+        function addDaysToDateString(dateStr, days) {
+            if (!dateStr || isNaN(days)) return '';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return '';
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10) - 1;
+            const d = parseInt(parts[2], 10);
+            const dt = new Date(Date.UTC(y, m, d + days, 12, 0, 0));
+            if (isNaN(dt.getTime())) return '';
+            const yyyy = dt.getUTCFullYear();
+            const mm = String(dt.getUTCMonth() + 1).padStart(2, '0');
+            const dd = String(dt.getUTCDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function calculateDaysDiff(dateStr1, dateStr2) {
+            if (!dateStr1 || !dateStr2) return null;
+            const p1 = dateStr1.split('-');
+            const p2 = dateStr2.split('-');
+            if (p1.length !== 3 || p2.length !== 3) return null;
+            const d1 = Date.UTC(parseInt(p1[0], 10), parseInt(p1[1], 10) - 1, parseInt(p1[2], 10), 12, 0, 0);
+            const d2 = Date.UTC(parseInt(p2[0], 10), parseInt(p2[1], 10) - 1, parseInt(p2[2], 10), 12, 0, 0);
+            const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+            return diff > 0 ? diff : null;
+        }
+
+        function calculateHijriNights(hStr1, hStr2) {
+            if (!hStr1 || !hStr2) return null;
+            const parse = (str) => {
+                const norm = str.toLowerCase().replace(/zul|zi/g, 'zil').replace(/qad[a-z]*/g, 'qadh').replace(/haj[a-z]*/g, 'hajj');
+                const m = norm.match(/(\d{1,2})\s*(?:-\s*\d{1,2})?\s*(zil\s*qadh|zil\s*hajj|shawwal|muharram|safar)/);
+                if (m) {
+                    return { day: parseInt(m[1], 10), month: m[2].replace(/\s+/g, '') };
+                }
+                return null;
+            };
+            const a = parse(hStr1);
+            const b = parse(hStr2);
+            if (!a || !b) return null;
+            if (a.month === b.month && b.day > a.day) {
+                return b.day - a.day;
+            } else if (a.month === 'zilqadh' && b.month === 'zilhajj') {
+                return (30 - a.day) + b.day;
+            } else if (a.month === 'shawwal' && b.month === 'zilqadh') {
+                return (30 - a.day) + b.day;
+            }
+            return null;
+        }
+
         function bindAccommodationRowEvents(rowEl) {
             const placeSel = rowEl.querySelector('.acc-place-select');
             const placeInput = rowEl.querySelector('.acc-place-input');
@@ -697,36 +754,105 @@
                 });
             }
 
-            // Auto Hijri Date Calculation for Arrival & Departure in Stay Schedule
+            // Two-Way Interactive Sync: Dates, Hijri Dates, and Nights
             const checkInEl = rowEl.querySelector('input[type="date"][name*="[check_in]"]');
             const arrivalHijriEl = rowEl.querySelector('input[type="text"][name*="[note]"]');
             const checkOutEl = rowEl.querySelector('input[type="date"][name*="[check_out]"]');
             const departureHijriEl = rowEl.querySelector('input[type="text"][name*="[sharing]"]');
+            const nightsInput = rowEl.querySelector('input[name*="[nights]"]');
 
-            if (checkInEl && arrivalHijriEl) {
-                const autoFillArrivalHijri = function() {
-                    if (checkInEl.value) {
-                        const h = gregorianToHijri(checkInEl.value);
-                        if (h) {
-                            arrivalHijriEl.value = h;
+            // 1. When Nights is edited manually (e.g. user types 10, 12, 14):
+            if (nightsInput) {
+                const handleNightsChanged = function() {
+                    const n = parseInt(nightsInput.value, 10);
+                    if (!isNaN(n) && n >= 0) {
+                        if (checkInEl && checkInEl.value) {
+                            const newCheckOut = addDaysToDateString(checkInEl.value, n);
+                            if (newCheckOut && checkOutEl) {
+                                checkOutEl.value = newCheckOut;
+                                if (departureHijriEl) {
+                                    departureHijriEl.value = gregorianToHijri(newCheckOut);
+                                }
+                            }
                         }
                     }
                 };
-                checkInEl.addEventListener('change', autoFillArrivalHijri);
-                checkInEl.addEventListener('input', autoFillArrivalHijri);
+                nightsInput.addEventListener('input', handleNightsChanged);
+                nightsInput.addEventListener('change', handleNightsChanged);
             }
 
-            if (checkOutEl && departureHijriEl) {
-                const autoFillDepartureHijri = function() {
-                    if (checkOutEl.value) {
-                        const h = gregorianToHijri(checkOutEl.value);
-                        if (h) {
-                            departureHijriEl.value = h;
+            // 2. When Check-in date changes:
+            if (checkInEl) {
+                const handleCheckInChanged = function() {
+                    if (checkInEl.value) {
+                        if (arrivalHijriEl) {
+                            const h = gregorianToHijri(checkInEl.value);
+                            if (h) arrivalHijriEl.value = h;
+                        }
+                        const curNights = nightsInput ? parseInt(nightsInput.value, 10) : 0;
+                        if (curNights > 0 && checkOutEl) {
+                            const newCheckOut = addDaysToDateString(checkInEl.value, curNights);
+                            if (newCheckOut) {
+                                checkOutEl.value = newCheckOut;
+                                if (departureHijriEl) {
+                                    departureHijriEl.value = gregorianToHijri(newCheckOut);
+                                }
+                            }
+                        } else if (checkOutEl && checkOutEl.value && nightsInput) {
+                            const diff = calculateDaysDiff(checkInEl.value, checkOutEl.value);
+                            if (diff !== null) nightsInput.value = diff;
                         }
                     }
                 };
-                checkOutEl.addEventListener('change', autoFillDepartureHijri);
-                checkOutEl.addEventListener('input', autoFillDepartureHijri);
+                checkInEl.addEventListener('change', handleCheckInChanged);
+                checkInEl.addEventListener('input', handleCheckInChanged);
+            }
+
+            // 3. When Check-out date changes:
+            if (checkOutEl) {
+                const handleCheckOutChanged = function() {
+                    if (checkOutEl.value) {
+                        if (departureHijriEl) {
+                            const h = gregorianToHijri(checkOutEl.value);
+                            if (h) departureHijriEl.value = h;
+                        }
+                        if (checkInEl && checkInEl.value && nightsInput) {
+                            const diff = calculateDaysDiff(checkInEl.value, checkOutEl.value);
+                            if (diff !== null) {
+                                nightsInput.value = diff;
+                            }
+                        }
+                    }
+                };
+                checkOutEl.addEventListener('change', handleCheckOutChanged);
+                checkOutEl.addEventListener('input', handleCheckOutChanged);
+            }
+
+            // 4. When Departure Hijri changes:
+            if (departureHijriEl) {
+                departureHijriEl.addEventListener('input', function() {
+                    if (arrivalHijriEl && arrivalHijriEl.value && departureHijriEl.value && nightsInput) {
+                        const hDiff = calculateHijriNights(arrivalHijriEl.value, departureHijriEl.value);
+                        if (hDiff !== null && hDiff > 0) {
+                            nightsInput.value = hDiff;
+                            if (checkInEl && checkInEl.value && checkOutEl) {
+                                const newCheckOut = addDaysToDateString(checkInEl.value, hDiff);
+                                if (newCheckOut) checkOutEl.value = newCheckOut;
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Initial auto-fill for nights if missing or 0 on existing row
+            if (nightsInput && (!nightsInput.value || nightsInput.value === '0')) {
+                if (checkInEl && checkOutEl && checkInEl.value && checkOutEl.value) {
+                    const diff = calculateDaysDiff(checkInEl.value, checkOutEl.value);
+                    if (diff !== null) nightsInput.value = diff;
+                } else if (arrivalHijriEl && departureHijriEl && arrivalHijriEl.value && departureHijriEl.value) {
+                    const hDiff = calculateHijriNights(arrivalHijriEl.value, departureHijriEl.value);
+                    if (hDiff !== null) nightsInput.value = hDiff;
+                }
             }
 
             // Initial filter if place is preset
@@ -789,15 +915,23 @@
                         </select>
                         <input type="text" name="accommodations[${idx}][package_a][hotel]" class="form-control form-control-sm acc-hotel-input" placeholder="Hotel / Building Name">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold small">Arrival Date & Hijri</label>
                         <input type="date" name="accommodations[${idx}][check_in]" class="form-control form-control-sm mb-1">
                         <input type="text" name="accommodations[${idx}][note]" class="form-control form-control-sm" placeholder="Hijri e.g. 21 - 22 Zil Qadh 1448">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold small">Departure Date & Hijri</label>
                         <input type="date" name="accommodations[${idx}][check_out]" class="form-control form-control-sm mb-1">
                         <input type="text" name="accommodations[${idx}][sharing]" class="form-control form-control-sm" placeholder="Hijri e.g. 29 Zil Qadh 1448">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold small text-primary"><i class="mdi mdi-moon-waning-crescent me-1"></i>Nights</label>
+                        <div class="input-group input-group-sm mb-1">
+                            <input type="number" name="accommodations[${idx}][nights]" class="form-control form-control-sm acc-nights-input fw-bold text-center" placeholder="Auto" min="0">
+                            <span class="input-group-text px-2 py-0" style="font-size:11px;">Nights</span>
+                        </div>
+                        <small class="text-muted d-block text-truncate" style="font-size:10px;">Auto or edit manual</small>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold small">Meal Plan (Meal Plan CRUD)</label>
