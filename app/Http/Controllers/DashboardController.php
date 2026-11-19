@@ -28,34 +28,23 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $package = 'hajj';
-        $year = (int) $request->get('year', session('dashboard_year', Carbon::now()->year));
+
+        $activeHajjYear = (int) active_hajj_year();
+        $seasonYears = \App\Models\HajjSeason::orderByDesc('year')->pluck('year')->map(fn($y) => (int)$y)->toArray();
+
+        if (!empty($seasonYears)) {
+            $availableYears = $seasonYears;
+        } else {
+            $availableYears = [$activeHajjYear];
+        }
+
+        $year = (int) $request->get('year', session('dashboard_year', $activeHajjYear));
+        if (!in_array($year, $availableYears)) {
+            $year = $availableYears[0] ?? $activeHajjYear;
+        }
 
         session(['dashboard_package' => 'hajj']);
         session(['dashboard_year'    => $year]);
-
-        $bookingYears = Booking::where('package_type', $package)
-            ->selectRaw('package_year as yr')
-            ->distinct()
-            ->orderByDesc('yr')
-            ->pluck('yr')
-            ->toArray();
-
-        $expenseYears = ExpenseTransaction::where('hajj_umrah', $package)
-            ->selectRaw('year as yr')
-            ->distinct()
-            ->orderByDesc('yr')
-            ->pluck('yr')
-            ->toArray();
-
-        $availableYears = collect(array_merge($bookingYears, $expenseYears))
-            ->unique()
-            ->sortDesc()
-            ->values()
-            ->toArray();
-
-        if (!in_array(Carbon::now()->year, $availableYears)) {
-            array_unshift($availableYears, Carbon::now()->year);
-        }
 
         $now           = Carbon::now();
         $weekAgo       = Carbon::now()->subDays(7);

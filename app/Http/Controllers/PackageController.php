@@ -23,16 +23,33 @@ class PackageController extends Controller
         $package = 'hajj';
         session(['dashboard_package' => 'hajj']);
 
-        $packages = Package::where(function ($q) {
+        $activeYear = active_hajj_year();
+        $selectedYear = $request->get('year', $activeYear);
+
+        $query = Package::where(function ($q) {
             $q->where('package_type', 'hajj')
               ->orWhereNull('package_type')
               ->orWhere('package_type', '');
-        })->latest()->paginate(20);
+        });
+
+        if ($selectedYear !== 'all') {
+            $query->where(function ($q) use ($selectedYear) {
+                $q->where('gregorian_year', $selectedYear)
+                  ->orWhere('year', $selectedYear);
+            });
+        }
+
+        $packages = $query->latest()->paginate(20);
 
         $hajjCount = Package::where(function ($q) {
             $q->where('package_type', 'hajj')
               ->orWhereNull('package_type')
               ->orWhere('package_type', '');
+        })->when($selectedYear !== 'all', function ($q) use ($selectedYear) {
+            $q->where(function ($sq) use ($selectedYear) {
+                $sq->where('gregorian_year', $selectedYear)
+                   ->orWhere('year', $selectedYear);
+            });
         })->count();
 
         $trashCount = Package::onlyTrashed()->where(function ($q) {
@@ -41,7 +58,9 @@ class PackageController extends Controller
               ->orWhere('package_type', '');
         })->count();
 
-        return view('package.index', compact('packages', 'trashCount', 'package', 'hajjCount'));
+        $allSeasons = \App\Models\HajjSeason::orderByDesc('year')->get();
+
+        return view('package.index', compact('packages', 'trashCount', 'package', 'hajjCount', 'selectedYear', 'activeYear', 'allSeasons'));
     }
 
     public function getNextCode(Request $request)
@@ -112,6 +131,16 @@ class PackageController extends Controller
             if (empty($package->package_type)) {
                 $package->package_type = 'hajj';
             }
+
+            // Auto-stamp active Hajj Season into the database without requiring frontend input
+            $activeYear = active_hajj_year();
+            $activeHijri = active_hijri_year();
+            $package->year = $activeYear;
+            $package->gregorian_year = $activeYear;
+            if (empty($package->hijri_year)) {
+                $package->hijri_year = $activeHijri;
+            }
+
             if (empty($package->maktab) && !empty($package->camp_category)) {
                 $cat = (stripos($package->camp_category, 'maktab') === false && strlen(trim($package->camp_category)) <= 5)
                     ? 'Maktab ' . strtoupper(trim($package->camp_category))
@@ -192,6 +221,15 @@ class PackageController extends Controller
             $package->fill($data['package']);
             if (empty($package->package_type)) {
                 $package->package_type = 'hajj';
+            }
+            if (empty($package->year)) {
+                $package->year = $package->gregorian_year ?: active_hajj_year();
+            }
+            if (empty($package->gregorian_year)) {
+                $package->gregorian_year = $package->year ?: active_hajj_year();
+            }
+            if (empty($package->hijri_year)) {
+                $package->hijri_year = active_hijri_year();
             }
             if (empty($package->maktab) && !empty($package->camp_category)) {
                 $cat = (stripos($package->camp_category, 'maktab') === false && strlen(trim($package->camp_category)) <= 5)

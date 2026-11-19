@@ -68,6 +68,10 @@ class HajjApplicationController extends Controller
             $validated['photo'] = 'uploads/hajj_applications/' . $filename;
         }
 
+        if (empty($validated['year'])) {
+            $validated['year'] = active_hajj_year();
+        }
+
         if (empty($validated['package_name']) && !empty($validated['package_id'])) {
             $pkg = Package::find($validated['package_id']);
             if ($pkg) {
@@ -97,7 +101,15 @@ class HajjApplicationController extends Controller
     public function index(Request $request)
     {
         $this->authorize('hajj_application_view');
+
+        $activeYear = active_hajj_year();
+        $selectedYear = $request->get('year', $activeYear);
+
         $query = HajjApplication::with('package')->latest();
+
+        if ($selectedYear !== 'all') {
+            $query->where('year', $selectedYear);
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;

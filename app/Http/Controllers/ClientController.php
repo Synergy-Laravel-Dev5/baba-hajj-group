@@ -18,7 +18,7 @@ class ClientController extends Controller
     {
         $this->authorize('client_view');
         $package = session('dashboard_package', 'hajj');
-        $year    = (int) session('dashboard_year', Carbon::now()->year);
+        $year    = (int) session('dashboard_year', active_hajj_year());
 
         $clients = Client::with('company')
             ->where(function ($query) use ($package, $year) {

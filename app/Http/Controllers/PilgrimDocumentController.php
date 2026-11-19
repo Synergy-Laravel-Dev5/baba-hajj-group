@@ -21,6 +21,7 @@ class PilgrimDocumentController extends Controller
         $search = trim($request->get('search', ''));
         $docFilter = $request->get('doc_filter', 'all');
         $packageType = $request->get('package_type', session('dashboard_package', 'all'));
+        $year = $request->get('year', active_hajj_year());
 
         // 1. Fetch bookings list for selector
         $bookingsQuery = Booking::with(['client', 'package', 'persons'])
@@ -28,6 +29,10 @@ class PilgrimDocumentController extends Controller
 
         if ($packageType !== 'all' && in_array($packageType, ['hajj', 'umrah'])) {
             $bookingsQuery->where('package_type', $packageType);
+        }
+
+        if ($year !== 'all') {
+            $bookingsQuery->where('package_year', $year);
         }
 
         $allBookings = $bookingsQuery->get(['id', 'client_id', 'package_id', 'package_name', 'package_type', 'package_year', 'created_at', 'no_of_pax']);
@@ -43,10 +48,17 @@ class PilgrimDocumentController extends Controller
 
         if (!empty($bookingId)) {
             $personsQuery->where('booking_id', $bookingId);
-        } elseif ($packageType !== 'all' && in_array($packageType, ['hajj', 'umrah'])) {
-            $personsQuery->whereHas('booking', function ($q) use ($packageType) {
-                $q->where('package_type', $packageType);
-            });
+        } else {
+            if ($packageType !== 'all' && in_array($packageType, ['hajj', 'umrah'])) {
+                $personsQuery->whereHas('booking', function ($q) use ($packageType) {
+                    $q->where('package_type', $packageType);
+                });
+            }
+            if ($year !== 'all') {
+                $personsQuery->whereHas('booking', function ($q) use ($year) {
+                    $q->where('package_year', $year);
+                });
+            }
         }
 
         if (!empty($search)) {

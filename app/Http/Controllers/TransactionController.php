@@ -19,7 +19,7 @@ class TransactionController extends Controller
     {
         $this->authorize('client_Transactions_view');
         $package = session('dashboard_package', 'hajj');
-        $year    = (int) session('dashboard_year', Carbon::now()->year);
+        $year    = (int) $request->get('year', session('dashboard_year', active_hajj_year()));
 
         $query = Transaction::with(['client', 'company', 'booking'])
             ->whereHas('booking', function ($q) use ($package, $year) {

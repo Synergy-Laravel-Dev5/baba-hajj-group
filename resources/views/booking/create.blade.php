@@ -188,7 +188,7 @@
                                 {{-- HIDDEN PACKAGE TYPE (Contextually defined) --}}
                                 <input type="hidden" name="package_type" id="package_type" value="{{ $packageType }}">
 
-                                <div class="col-md-6">
+                                <div class="col-md-8">
                                     <label class="form-label fw-bold">
                                         <i class="mdi mdi-cube-send me-1 text-primary"></i>Select {{ ucfirst($packageType) }} Package <span class="text-danger">*</span>
                                     </label>
@@ -211,14 +211,9 @@
                                     <small class="text-muted" id="pkg_filter_hint">Showing {{ $packages->count() }} {{ strtoupper($packageType) }} package(s). Selecting will auto-populate pricing, stay schedule and dates.</small>
                                 </div>
 
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Package Year <span class="text-danger">*</span></label>
-                                    <input type="number" name="package_year" id="package_year" class="form-control"
-                                        value="{{ old('package_year', date('Y')) }}" min="2000"
-                                        max="{{ date('Y') + 5 }}" required>
-                                </div>
+                                <input type="hidden" name="package_year" id="package_year" value="{{ old('package_year', active_hajj_year()) }}">
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label fw-semibold">Booking Status</label>
                                     <select name="status" class="form-select" data-placeholder="Booking Status">
                                         <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Pending</option>

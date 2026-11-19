@@ -404,3 +404,75 @@ if (!function_exists('current_hijri_date')) {
         }
     }
 }
+
+if (!function_exists('active_hajj_season')) {
+    /**
+     * Get the active HajjSeason model instance
+     */
+    function active_hajj_season(): ?\App\Models\HajjSeason
+    {
+        try {
+            if (class_exists(\App\Models\HajjSeason::class) && Schema::hasTable('hajj_seasons')) {
+                return \App\Models\HajjSeason::getActive();
+            }
+        } catch (\Throwable $e) {}
+        return null;
+    }
+}
+
+if (!function_exists('active_hajj_year')) {
+    /**
+     * Get the active Hajj Season Year (e.g. '2027')
+     */
+    function active_hajj_year(): string
+    {
+        try {
+            $season = active_hajj_season();
+            if ($season && !empty($season->year)) {
+                return (string) $season->year;
+            }
+        } catch (\Throwable $e) {}
+
+        if (function_exists('session') && session()->has('dashboard_year')) {
+            return (string) session('dashboard_year');
+        }
+
+        return (string) date('Y');
+    }
+}
+
+if (!function_exists('active_hijri_year')) {
+    /**
+     * Get the active Hajj Season Hijri Year (e.g. '1448')
+     */
+    function active_hijri_year($withSuffix = false): string
+    {
+        try {
+            $season = active_hajj_season();
+            if ($season && !empty($season->hijri_year)) {
+                $hYear = preg_replace('/[^0-9]/', '', (string)$season->hijri_year);
+                return $withSuffix ? ($hYear . 'H') : $hYear;
+            }
+        } catch (\Throwable $e) {}
+
+        return (string) current_hijri_year($withSuffix);
+    }
+}
+
+if (!function_exists('active_hajj_season_name')) {
+    /**
+     * Get the active Hajj Season display name (e.g. 'Hajj Season 2027 (1448H)')
+     */
+    function active_hajj_season_name(): string
+    {
+        try {
+            $season = active_hajj_season();
+            if ($season && !empty($season->name)) {
+                return (string) $season->name;
+            }
+        } catch (\Throwable $e) {}
+
+        return 'Hajj Season ' . active_hajj_year();
+    }
+}
+

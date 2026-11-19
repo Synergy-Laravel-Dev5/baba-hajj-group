@@ -24,7 +24,10 @@ class BookingController extends Controller
     {
         $this->authorize('booking_view');
         $package = 'hajj';
-        $year    = (int) $request->get('year', session('dashboard_year', Carbon::now()->year));
+
+        $activeYear = (int) active_hajj_year();
+        $selectedYear = $request->has('year') ? ($request->year === 'all' ? 'all' : (int)$request->year) : (int)session('dashboard_year', $activeYear);
+        $year = $selectedYear;
 
         // Save selected package context to session
         session(['dashboard_package' => 'hajj']);
@@ -33,6 +36,10 @@ class BookingController extends Controller
             ->where(function ($q) {
                 $q->whereRaw('LOWER(COALESCE(package_type, "hajj")) = ?', ['hajj']);
             });
+
+        if ($selectedYear !== 'all') {
+            $query->where('package_year', $selectedYear);
+        }
 
         if ($request->filled('prefix')) {
             $pfx = trim($request->prefix);
@@ -53,6 +60,8 @@ class BookingController extends Controller
         $totalPax = $bookings->sum(function ($b) {
             return max($b->persons->count(), (int)($b->no_of_pax ?: 0));
         });
+
+        $allSeasons = \App\Models\HajjSeason::orderByDesc('year')->get();
 
         $allPackages = \App\Models\Package::where(function ($q) {
             $q->where('package_type', 'hajj')
@@ -101,7 +110,7 @@ class BookingController extends Controller
         return view('booking.index', compact(
             'bookings', 'trashCount', 'package', 'year', 'totalPax',
             'hajjCount', 'allPrefixes', 'allPackages', 'packagePrefixesMap',
-            'selectedPackageId', 'selectedPrefix'
+            'selectedPackageId', 'selectedPrefix', 'allSeasons'
         ));
     }
 
@@ -254,6 +263,7 @@ class BookingController extends Controller
             $request->except(['persons', 'hotels', 'transports', 'visas', 'flight_persons', '_token']),
             [
                 'package_id'      => $request->package_id ?: null,
+                'package_year'    => (int) active_hajj_year(),
                 'booking_for'     => 'client',
                 'client_id'       => $clientId,
                 'company_id'      => $companyId,
@@ -642,6 +652,7 @@ class BookingController extends Controller
             ]),
             [
                 'package_id'      => $request->package_id ?: null,
+                'package_year'    => $booking->package_year ?: (int) active_hajj_year(),
                 'booking_for'     => 'client',
                 'client_id'       => $clientId,
                 'company_id'      => $companyId,

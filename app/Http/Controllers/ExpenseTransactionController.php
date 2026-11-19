@@ -14,11 +14,11 @@ class ExpenseTransactionController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('expense_transaction_view');
         $package = session('dashboard_package', 'hajj');
-        $year    = (int) session('dashboard_year', Carbon::now()->year);
+        $year    = (int) $request->get('year', session('dashboard_year', active_hajj_year()));
 
         $transactions = ExpenseTransaction::with('expense')
             ->where('hajj_umrah', $package)
@@ -39,6 +39,9 @@ class ExpenseTransactionController extends Controller
     public function store(Request $request)
     {
         $this->authorize('expense_transaction_create');
+        if (!$request->filled('year')) {
+            $request->merge(['year' => (int) active_hajj_year()]);
+        }
         $request->validate([
             'expense_id'    => 'required|exists:expenses,id',
             'hajj_umrah'    => 'required|in:hajj,umrah',

@@ -43,6 +43,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>#</th>
+                                        <th>Season</th>
                                         <th>Package Name</th>
                                         <th>Code</th>
                                         <th>Maktab</th>
@@ -55,6 +56,11 @@
                                     @forelse ($packages as $package)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
+                                            <td>
+                                                <span class="badge {{ ($package->gregorian_year ?: $package->year) == active_hajj_year() ? 'bg-success' : 'bg-secondary' }} fw-bold">
+                                                    {{ $package->gregorian_year ?: ($package->year ?: '—') }}
+                                                </span>
+                                            </td>
                                             <td>
                                                 <strong>{{ $package->package_title ? $package->package_title . ($package->name ? ' - ' . $package->name : '') : $package->name }}</strong>
                                             </td>

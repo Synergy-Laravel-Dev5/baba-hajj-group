@@ -43,6 +43,7 @@ use App\Http\Controllers\HotelPersonReportController;
 use App\Http\Controllers\BusAssignmentController;
 use App\Http\Controllers\PilgrimPassController;
 use App\Http\Controllers\PilgrimDocumentController;
+use App\Http\Controllers\HajjSeasonController;
 use App\Http\Controllers\HotelSaleController;
 use App\Http\Controllers\MobileOps\GalleryController;
 use App\Http\Controllers\MobileOps\HajjBookController;
@@ -356,6 +357,15 @@ Route::middleware('auth')->group(function () {
                 Route::delete('delete/{id}', 'destroy')->name('package.delete');
                 Route::get('trash', 'trash')->name('package.trash');
                 Route::get('restore/{id}', 'restore')->name('package.restore');
+            });
+
+        Route::controller(HajjSeasonController::class)
+            ->prefix('hajj-seasons')->group(function () {
+                Route::get('/', 'index')->name('hajj-season.index');
+                Route::post('store', 'store')->name('hajj-season.store');
+                Route::put('update/{id}', 'update')->name('hajj-season.update');
+                Route::post('activate/{id}', 'setActive')->name('hajj-season.activate');
+                Route::delete('delete/{id}', 'destroy')->name('hajj-season.delete');
             });
 
         Route::controller(HajjApplicationController::class)
