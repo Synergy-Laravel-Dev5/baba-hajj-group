@@ -206,7 +206,7 @@
                                                             @endcan
 
                                                             <!-- UPLOAD DOCUMENTS -->
-                                                            <a href="{{ route('documents.index', ['booking_id' => $booking->id]) }}"
+                                                            <a href="{{ Route::has('documents.index') ? route('documents.index', ['booking_id' => $booking->id]) : url('admin/documents?booking_id=' . $booking->id) }}"
                                                                 class="btn btn-sm btn-outline-primary"
                                                                 title="Upload Documents & Passwords">
                                                                 <i class="mdi mdi-folder-upload-outline"></i>

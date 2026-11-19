@@ -328,7 +328,7 @@
                     @endcan
                     @canany(['booking_view', 'booking_create', 'booking_edit'])
                         <li class="{{ request()->routeIs('documents.*') ? 'active' : '' }}">
-                            <a href="{{ route('documents.index', ['package_type' => session('dashboard_package', 'hajj')]) }}">
+                            <a href="{{ Route::has('documents.index') ? route('documents.index', ['package_type' => session('dashboard_package', 'hajj')]) : url('admin/documents') }}">
                                 <i data-feather="upload-cloud"></i>
                                 <span>Upload Documents</span>
                             </a>

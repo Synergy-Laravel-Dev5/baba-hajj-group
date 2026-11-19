@@ -48,7 +48,7 @@
             <!-- 1. FILTER & BOOKING SELECTOR CARD -->
             <div class="card mb-3 border shadow-sm">
                 <div class="card-body p-3">
-                    <form action="{{ route('documents.index') }}" method="GET" id="filterForm">
+                    <form action="{{ Route::has('documents.index') ? route('documents.index') : url('admin/documents') }}" method="GET" id="filterForm">
                         <div class="row g-2 align-items-center">
 
                             <!-- Booking Select Dropdown -->
@@ -104,7 +104,7 @@
                                 <button type="submit" class="btn btn-sm btn-primary flex-fill">
                                     <i class="mdi mdi-filter"></i> Apply
                                 </button>
-                                <a href="{{ route('documents.index') }}" class="btn btn-sm btn-outline-secondary" title="Reset Filters">
+                                <a href="{{ Route::has('documents.index') ? route('documents.index') : url('admin/documents') }}" class="btn btn-sm btn-outline-secondary" title="Reset Filters">
                                     <i class="mdi mdi-refresh"></i>
                                 </a>
                             </div>
