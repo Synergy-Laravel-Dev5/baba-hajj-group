@@ -57,7 +57,7 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>
-                                                <span class="badge {{ ($package->gregorian_year ?: $package->year) == active_hajj_year() ? 'bg-success' : 'bg-secondary' }} fw-bold">
+                                                <span class="badge {{ ($package->gregorian_year ?: $package->year) == (function_exists('active_hajj_year') ? active_hajj_year() : date('Y')) ? 'bg-success' : 'bg-secondary' }} fw-bold">
                                                     {{ $package->gregorian_year ?: ($package->year ?: '—') }}
                                                 </span>
                                             </td>

@@ -11,7 +11,11 @@
                     <div class="topbar-portal-pill d-none d-sm-inline-flex ms-1">
                         <span class="portal-pulse-gold"></span>
                         <span class="portal-brand-text">BABA HAJJ GROUP</span>
-                        <span class="portal-badge-year" title="Active Hajj Season: {{ active_hajj_season_name() }}">{{ active_hajj_year() }}</span>
+                        @php
+                            $activeHYear = function_exists('active_hajj_year') ? active_hajj_year() : date('Y');
+                            $activeHName = function_exists('active_hajj_season_name') ? active_hajj_season_name() : ('Hajj Season ' . $activeHYear);
+                        @endphp
+                        <span class="portal-badge-year" title="Active Hajj Season: {{ $activeHName }}">{{ $activeHYear }}</span>
                     </div>
 
                     <div class="topbar-search-wrap d-none d-lg-block ms-2">
@@ -237,9 +241,9 @@
                             <ul class="nav-second-level">
                                 @canany(['package_view', 'hajj_season_view'])
                                 <li>
-                                    <a class="tp-link d-flex align-items-center justify-content-between" href="{{ route('hajj-season.index') }}">
+                                    <a class="tp-link d-flex align-items-center justify-content-between" href="{{ Route::has('hajj-season.index') ? route('hajj-season.index') : url('hajj-season') }}">
                                         <span><i class="mdi mdi-calendar-star me-1 text-warning"></i> Hajj Seasons</span>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-1 py-0 fs-10 rounded-pill">{{ active_hajj_year() }}</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-1 py-0 fs-10 rounded-pill">{{ function_exists('active_hajj_year') ? active_hajj_year() : date('Y') }}</span>
                                     </a>
                                 </li>
                                 @endcanany
