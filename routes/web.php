@@ -83,6 +83,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/change-password', [AuthController::class, 'changePassword'])->name('change.password');
     Route::post('/change-password', [AuthController::class, 'changePasswordPost'])->name('change.password.post');
 
+    // Direct root aliases for Hajj Season
+    Route::get('/hajj-season', [HajjSeasonController::class, 'index']);
+    Route::get('/hajj-seasons', [HajjSeasonController::class, 'index']);
+
     Route::prefix('admin')->group(function () {
         Route::controller(RoleController::class)
             ->prefix('role')
@@ -366,6 +370,15 @@ Route::middleware('auth')->group(function () {
                 Route::put('update/{id}', 'update')->name('hajj-season.update');
                 Route::post('activate/{id}', 'setActive')->name('hajj-season.activate');
                 Route::delete('delete/{id}', 'destroy')->name('hajj-season.delete');
+            });
+
+        Route::controller(HajjSeasonController::class)
+            ->prefix('hajj-season')->group(function () {
+                Route::get('/', 'index');
+                Route::post('store', 'store');
+                Route::put('update/{id}', 'update');
+                Route::post('activate/{id}', 'setActive');
+                Route::delete('delete/{id}', 'destroy');
             });
 
         Route::controller(HajjApplicationController::class)

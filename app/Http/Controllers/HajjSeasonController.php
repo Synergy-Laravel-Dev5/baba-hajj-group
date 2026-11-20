@@ -14,7 +14,7 @@ class HajjSeasonController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Request $request)
+    public function index(?Request $request = null)
     {
         $this->authorize('hajj_season_view');
 
