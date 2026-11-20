@@ -296,6 +296,11 @@ class BookingController extends Controller
         $bookingData['app_password'] = \Illuminate\Support\Facades\Hash::make($plainAppPassword);
         $bookingData['app_password_plain'] = $plainAppPassword;
 
+        // Auto-generate sequential invoice number if not already set
+        if (empty($bookingData['voucher_number'])) {
+            $bookingData['voucher_number'] = Booking::generateNextInvoiceNo();
+        }
+
         DB::beginTransaction();
         try {
             $booking = Booking::create($bookingData);
@@ -687,6 +692,11 @@ class BookingController extends Controller
             $plainAppPassword = '123456@';
             $bookingData['app_password']       = Hash::make($plainAppPassword);
             $bookingData['app_password_plain'] = $plainAppPassword;
+        }
+
+        // Ensure booking has an invoice / voucher number
+        if (empty($booking->voucher_number) && empty($bookingData['voucher_number'])) {
+            $bookingData['voucher_number'] = 'INV-' . str_pad($booking->id, 5, '0', STR_PAD_LEFT);
         }
 
         DB::beginTransaction();

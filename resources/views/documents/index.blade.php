@@ -447,34 +447,52 @@
                                             @endif
                                         </td>
 
-                                        <!-- 5. EMAIL & PASSWORD (Nusuk / App / Portal Login) -->
+                                        <!-- 5. EMAIL & PASSWORD (Read-Only Display; Edit in Manage Modal) -->
                                         <td>
-                                            <div class="credentials-box p-1 rounded bg-light border" id="cred_group_{{ $p->id }}" style="min-width: 215px;">
-                                                <!-- Email Field -->
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text bg-white px-2 text-muted" title="Portal / Nusuk Email" style="font-size:11px;">
-                                                        <i class="mdi mdi-email-outline"></i>
-                                                    </span>
-                                                    <input type="text" id="email_input_{{ $p->id }}" class="form-control form-control-sm bg-white"
-                                                           placeholder="Email / User..." value="{{ $p->portal_email ?? '' }}" style="font-size:11px;">
-                                                    <button class="btn btn-outline-secondary btn-sm px-2" type="button" onclick="copyCred('email', {{ $p->id }})" title="Copy Email">
-                                                        <i class="mdi mdi-content-copy"></i>
-                                                    </button>
+                                            <div class="credentials-display p-1 rounded bg-light border" style="min-width: 215px; font-size: 11.5px;">
+                                                <!-- Email Display -->
+                                                <div class="d-flex align-items-center justify-content-between px-2 py-1 bg-white rounded border mb-1" style="min-height: 28px;">
+                                                    <div class="d-flex align-items-center text-truncate me-1" style="max-width: 175px;" title="{{ $p->portal_email ?: 'No Email' }}">
+                                                        <i class="mdi mdi-email-outline text-primary me-1" style="font-size: 13px;"></i>
+                                                        @if(!empty($p->portal_email))
+                                                            <span class="text-dark fw-semibold text-truncate" style="font-size: 11px;">{{ $p->portal_email }}</span>
+                                                        @else
+                                                            <span class="text-muted fst-italic" style="font-size: 11px;">No Email</span>
+                                                        @endif
+                                                    </div>
+                                                    @if(!empty($p->portal_email))
+                                                        <button class="btn btn-link text-secondary p-0 lh-1" type="button"
+                                                                onclick="copyCredText('{{ addslashes($p->portal_email) }}', 'Email')"
+                                                                title="Copy Email" style="font-size: 13px;">
+                                                            <i class="mdi mdi-content-copy"></i>
+                                                        </button>
+                                                    @endif
                                                 </div>
 
-                                                <!-- Password Field -->
-                                                <div class="input-group input-group-sm">
-                                                    <span class="input-group-text bg-white px-2 text-muted" title="Portal / Nusuk Password" style="font-size:11px;">
-                                                        <i class="mdi mdi-lock-outline"></i>
-                                                    </span>
-                                                    <input type="password" id="pw_input_{{ $p->id }}" class="form-control form-control-sm font-monospace bg-white"
-                                                           placeholder="Password..." value="{{ $p->portal_password ?? '' }}" style="font-size:11px;">
-                                                    <button class="btn btn-outline-secondary btn-sm px-2 btn-pw-toggle" type="button" onclick="togglePasswordVisibility({{ $p->id }})" title="Show/Hide">
-                                                        <i class="mdi mdi-eye-outline" id="pw_icon_{{ $p->id }}"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline-primary btn-sm px-2" type="button" onclick="saveCredentialsInline({{ $p->id }})" title="Save Email & Password">
-                                                        <i class="mdi mdi-check"></i>
-                                                    </button>
+                                                <!-- Password Display -->
+                                                <div class="d-flex align-items-center justify-content-between px-2 py-1 bg-white rounded border" style="min-height: 28px;">
+                                                    <div class="d-flex align-items-center text-truncate me-1">
+                                                        <i class="mdi mdi-lock-outline text-danger me-1" style="font-size: 13px;"></i>
+                                                        @if(!empty($p->portal_password))
+                                                            <span class="font-monospace text-dark fw-bold" id="pw_display_{{ $p->id }}" data-pw="{{ $p->portal_password }}" data-shown="0" style="font-size: 11px; letter-spacing: 1px;">••••••••</span>
+                                                        @else
+                                                            <span class="text-muted fst-italic" style="font-size: 11px;">No Password</span>
+                                                        @endif
+                                                    </div>
+                                                    @if(!empty($p->portal_password))
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button class="btn btn-link text-secondary p-0 lh-1" type="button"
+                                                                    onclick="toggleDisplayPassword({{ $p->id }})"
+                                                                    title="Show / Hide Password" style="font-size: 13px;">
+                                                                <i class="mdi mdi-eye-outline" id="pw_eye_icon_{{ $p->id }}"></i>
+                                                            </button>
+                                                            <button class="btn btn-link text-secondary p-0 lh-1" type="button"
+                                                                    onclick="copyCredText('{{ addslashes($p->portal_password) }}', 'Password')"
+                                                                    title="Copy Password" style="font-size: 13px;">
+                                                                <i class="mdi mdi-content-copy"></i>
+                                                            </button>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </td>
@@ -915,7 +933,57 @@
         });
     }
 
-    // 5. PASSWORD SHOW / HIDE
+    // 5. PASSWORD DISPLAY & COPY HELPERS (READ-ONLY IN TABLE)
+    function copyCredText(text, label) {
+        if (!text) {
+            showToast('Empty', `No ${label} available to copy`, 'warning');
+            return;
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied!', `${label} copied to clipboard`, 'info');
+            }).catch(() => {
+                fallbackCopy(text, label);
+            });
+        } else {
+            fallbackCopy(text, label);
+        }
+    }
+
+    function fallbackCopy(text, label) {
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast('Copied!', `${label} copied to clipboard`, 'info');
+    }
+
+    function toggleDisplayPassword(personId) {
+        const span = document.getElementById(`pw_display_${personId}`);
+        const icon = document.getElementById(`pw_eye_icon_${personId}`);
+        if (!span) return;
+        const isShown = span.getAttribute('data-shown') === '1';
+        const realPw = span.getAttribute('data-pw');
+        if (isShown) {
+            span.textContent = '••••••••';
+            span.setAttribute('data-shown', '0');
+            if (icon) {
+                icon.classList.remove('mdi-eye-off-outline');
+                icon.classList.add('mdi-eye-outline');
+            }
+        } else {
+            span.textContent = realPw;
+            span.setAttribute('data-shown', '1');
+            if (icon) {
+                icon.classList.remove('mdi-eye-outline');
+                icon.classList.add('mdi-eye-off-outline');
+            }
+        }
+    }
+
+    // 5b. PASSWORD SHOW / HIDE (LEGACY / MODAL)
     function togglePasswordVisibility(personId) {
         const input = document.getElementById(`pw_input_${personId}`);
         const icon = document.getElementById(`pw_icon_${personId}`);

@@ -102,7 +102,8 @@
                                             <tr>
                                                 <th class="text-center" style="width: 55px;">S:NO</th>
                                                 <th class="text-center" style="width: 110px;">Booking Date</th>
-                                                <th class="text-center" style="width: 110px;">Prefix</th>
+                                                <th class="text-center" style="width: 105px;">Prefix</th>
+                                                <th class="text-center" style="width: 115px;">Invoice No</th>
                                                 <th style="min-width: 160px;">Client / Company</th>
                                                 <th style="min-width: 180px;">Package Type</th>
                                                 <th class="text-center" style="width: 90px;">No of Pax</th>
@@ -143,6 +144,15 @@
                                                         @endif
                                                     </td>
 
+                                                    <td class="text-center">
+                                                        <a href="{{ route('booking.invoice', $booking->id) }}" target="_blank"
+                                                            class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 text-decoration-none"
+                                                            style="font-size:11.5px; font-weight:700; letter-spacing:0.5px;"
+                                                            title="View & Print Official Invoice">
+                                                            <i class="mdi mdi-receipt me-1"></i>{{ $booking->invoice_no }}
+                                                        </a>
+                                                    </td>
+
                                                     <td>
                                                         <strong>
                                                             {{ $booking->client->name ?? ($booking->company->company_name ?? 'N/A') }}
@@ -159,11 +169,6 @@
 
                                                     <td>
                                                         <div>
-                                                            @if ($booking->package && ($booking->package->code || $booking->package->package_number))
-                                                                <span class="badge bg-dark text-light me-1" style="font-size:10px;">
-                                                                    {{ $booking->package->code ?? $booking->package->package_number }}
-                                                                </span>
-                                                            @endif
                                                             <span class="badge bg-primary">
                                                                 {{ $booking->package->package_title ?? $booking->package->name ?? $booking->package_name ?? ucfirst($booking->package_type) }}
                                                             </span>
@@ -172,9 +177,9 @@
                                                                     <i class="mdi mdi-tent"></i> {{ $booking->camp }}
                                                                 </span>
                                                             @endif
-                                                            @if ($booking->qurbani_charges > 0 || ($booking->qurbani_option && $booking->qurbani_option !== 'not_included'))
-                                                                <span class="badge bg-success-subtle text-success border border-success-subtle d-block mt-1" style="font-size:10px;">
-                                                                    <i class="mdi mdi-sheep"></i> {{ ucfirst(str_replace('_', ' ', $booking->qurbani_option)) }}
+                                                            @if ($booking->room_type_summary)
+                                                                <span class="badge bg-secondary-subtle text-dark border border-secondary-subtle d-block mt-1 text-truncate" style="font-size:10.5px; max-width:180px;" title="{{ $booking->room_type_summary }}">
+                                                                    <i class="mdi mdi-bed text-primary me-1"></i> {{ $booking->room_type_summary }}
                                                                 </span>
                                                             @endif
                                                         </div>
@@ -261,7 +266,7 @@
                                         </tbody>
                                         <tfoot class="table-light fw-bold">
                                             <tr>
-                                                <td colspan="5" class="text-end text-uppercase" style="font-size:12px; letter-spacing:0.5px;">Grand Total:</td>
+                                                <td colspan="6" class="text-end text-uppercase" style="font-size:12px; letter-spacing:0.5px;">Grand Total:</td>
                                                 <td class="text-primary fw-bold fs-13 text-center">
                                                     <i class="mdi mdi-account-group me-1"></i>{{ $totalPax ?? $bookings->sum('no_of_pax') }}
                                                 </td>

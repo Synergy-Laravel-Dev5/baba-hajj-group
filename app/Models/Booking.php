@@ -112,7 +112,8 @@ class Booking extends Model
             $prefix = 'AZ';
         }
 
-        $query = self::query();
+        // Include trashed bookings so codes in Trash are never reused or rolled back
+        $query = self::withTrashed();
         if ($packageId) {
             $query->where('package_id', $packageId);
         }
@@ -138,9 +139,129 @@ class Booking extends Model
             }
         }
 
+        // Also check any BookingPerson with this prefix across all records (including trashed)
+        $allPrefixCodes = BookingPerson::whereNotNull('hb_number')
+            ->where('hb_number', '!=', '')
+            ->where(function ($q) use ($prefix) {
+                $q->where('hb_number', 'like', $prefix . ' %')
+                  ->orWhere('hb_number', 'like', $prefix . '%');
+            })
+            ->pluck('hb_number');
+
+        foreach ($allPrefixCodes as $c) {
+            if (preg_match('/^' . preg_quote($prefix, '/') . '[-_\s]?(\d+)$/i', trim($c), $match)) {
+                $num = (int) $match[1];
+                if ($num > $maxNum) {
+                    $maxNum = $num;
+                }
+            }
+        }
+
         $next = max($maxNum, $bookingIds->count()) + 1;
 
         return $prefix . ' ' . str_pad($next, 2, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Auto-generate sequential invoice number (e.g. "INV-00001", "INV-00002")
+     */
+    public static function generateNextInvoiceNo(): string
+    {
+        $lastBooking = static::withTrashed()
+            ->whereNotNull('voucher_number')
+            ->where('voucher_number', '!=', '')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $nextNum = 1;
+        if ($lastBooking && preg_match('/(\d+)/', $lastBooking->voucher_number, $matches)) {
+            $nextNum = (int) $matches[1] + 1;
+        } else {
+            $maxId = (int) static::withTrashed()->max('id');
+            $nextNum = max(1, $maxId + 1);
+        }
+
+        return 'INV-' . str_pad($nextNum, 5, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Accessor for Invoice Number (fallback to INV-{id})
+     */
+    public function getInvoiceNoAttribute(): string
+    {
+        if (!empty($this->voucher_number)) {
+            return $this->voucher_number;
+        }
+        return 'INV-' . str_pad($this->id ?: 1, 5, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Accessor for formatted Room Type Summary (e.g. "Quad (2 Pax)", "Triple (1 Pax)")
+     */
+    public function getRoomTypeSummaryAttribute(): ?string
+    {
+        $types = [];
+
+        $rb = $this->room_breakdown;
+        if (is_string($rb)) {
+            $rb = json_decode($rb, true);
+        }
+
+        if (is_array($rb)) {
+            $paxByType = [
+                'Sharing' => 0,
+                'Quad'    => 0,
+                'Triple'  => 0,
+                'Double'  => 0,
+                'Single'  => 0,
+            ];
+
+            foreach ($rb as $key => $val) {
+                $count = (int) $val;
+                if ($count <= 0) continue;
+
+                $lower = strtolower($key);
+                if (str_contains($lower, 'sharing')) {
+                    $paxByType['Sharing'] += $count;
+                } elseif (str_contains($lower, 'quad')) {
+                    $paxByType['Quad'] += $count;
+                } elseif (str_contains($lower, 'triple')) {
+                    $paxByType['Triple'] += $count;
+                } elseif (str_contains($lower, 'double')) {
+                    $paxByType['Double'] += $count;
+                } elseif (str_contains($lower, 'single')) {
+                    $paxByType['Single'] += $count;
+                }
+            }
+
+            foreach ($paxByType as $t => $cnt) {
+                if ($cnt > 0) {
+                    $types[] = "{$t} ({$cnt} Pax)";
+                }
+            }
+        }
+
+        if (empty($types)) {
+            $hotels = $this->relationLoaded('hotels') ? $this->hotels : $this->hotels;
+            if ($hotels && $hotels->isNotEmpty()) {
+                $hotelTypes = $hotels->pluck('room_type')->filter()->unique();
+                foreach ($hotelTypes as $ht) {
+                    $types[] = ucfirst(strtolower($ht));
+                }
+            }
+        }
+
+        if (empty($types)) {
+            $persons = $this->relationLoaded('persons') ? $this->persons : $this->persons;
+            if ($persons && $persons->isNotEmpty()) {
+                $personTypes = $persons->pluck('room_type')->filter()->unique();
+                foreach ($personTypes as $pt) {
+                    $types[] = ucfirst(strtolower($pt));
+                }
+            }
+        }
+
+        return !empty($types) ? implode(', ', $types) : null;
     }
 
     public function package()
