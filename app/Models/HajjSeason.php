@@ -29,6 +29,52 @@ class HajjSeason extends Model
     ];
 
     /**
+     * Get active year (strictly defaults to 2027, never 2026)
+     */
+    public static function getActiveYear(): string
+    {
+        try {
+            $season = static::where('is_active', true)->where('year', '!=', '2026')->first();
+            if ($season && !empty($season->year)) {
+                return (string) $season->year;
+            }
+        } catch (\Throwable $e) {}
+
+        return '2027';
+    }
+
+    /**
+     * Get active season name
+     */
+    public static function getActiveSeasonName(): string
+    {
+        try {
+            $season = static::where('is_active', true)->where('year', '!=', '2026')->first();
+            if ($season && !empty($season->name)) {
+                return (string) $season->name;
+            }
+        } catch (\Throwable $e) {}
+
+        return 'Hajj Season 2027 (1448H)';
+    }
+
+    /**
+     * Get active Hijri year (e.g. 1448 or 1448H)
+     */
+    public static function getActiveHijriYear(bool $withSuffix = false): string
+    {
+        try {
+            $season = static::where('is_active', true)->where('year', '!=', '2026')->first();
+            if ($season && !empty($season->hijri_year)) {
+                $hYear = preg_replace('/[^0-9]/', '', (string)$season->hijri_year);
+                return $withSuffix ? ($hYear . 'H') : $hYear;
+            }
+        } catch (\Throwable $e) {}
+
+        return $withSuffix ? '1448H' : '1448';
+    }
+
+    /**
      * Get the currently active Hajj Season (cached or fetched)
      */
     public static function getActive(): self

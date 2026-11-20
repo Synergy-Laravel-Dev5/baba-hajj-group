@@ -25,7 +25,7 @@ return new class extends Migration
                 $table->timestamps();
             });
 
-            // Insert initial default seasons (2027 as active, 2026 as inactive)
+            // Insert initial default season (2027 as active)
             DB::table('hajj_seasons')->insert([
                 [
                     'year'        => '2027',
@@ -35,17 +35,6 @@ return new class extends Migration
                     'start_date'  => '2027-04-01',
                     'end_date'    => '2027-06-30',
                     'notes'       => 'Default Active Hajj Season',
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
-                ],
-                [
-                    'year'        => '2026',
-                    'hijri_year'  => '1447',
-                    'name'        => 'Hajj Season 2026 (1447H)',
-                    'is_active'   => false,
-                    'start_date'  => '2026-05-01',
-                    'end_date'    => '2026-07-31',
-                    'notes'       => 'Previous Hajj Season',
                     'created_at'  => now(),
                     'updated_at'  => now(),
                 ],

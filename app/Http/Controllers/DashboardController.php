@@ -29,8 +29,12 @@ class DashboardController extends Controller
     {
         $package = 'hajj';
 
-        $activeHajjYear = (int) active_hajj_year();
-        $seasonYears = \App\Models\HajjSeason::orderByDesc('year')->pluck('year')->map(fn($y) => (int)$y)->toArray();
+        $activeHajjYear = (int) (function_exists('active_hajj_year') ? active_hajj_year() : \App\Models\HajjSeason::getActiveYear());
+        $seasonYears = \App\Models\HajjSeason::where('is_active', true)
+            ->where('year', '!=', '2026')
+            ->pluck('year')
+            ->map(fn($y) => (int)$y)
+            ->toArray();
 
         if (!empty($seasonYears)) {
             $availableYears = $seasonYears;
@@ -38,8 +42,19 @@ class DashboardController extends Controller
             $availableYears = [$activeHajjYear];
         }
 
-        $year = (int) $request->get('year', session('dashboard_year', $activeHajjYear));
-        if (!in_array($year, $availableYears)) {
+        // Strictly eliminate 2026 from available years
+        $availableYears = array_values(array_filter($availableYears, fn($y) => (int)$y !== 2026));
+        if (empty($availableYears)) {
+            $availableYears = [2027];
+        }
+
+        $sessionYear = session('dashboard_year');
+        if ($sessionYear && (int)$sessionYear === 2026) {
+            $sessionYear = $activeHajjYear;
+        }
+
+        $year = (int) $request->get('year', $sessionYear ?: $activeHajjYear);
+        if ($year === 2026 || !in_array($year, $availableYears)) {
             $year = $availableYears[0] ?? $activeHajjYear;
         }
 

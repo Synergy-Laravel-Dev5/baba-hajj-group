@@ -748,19 +748,28 @@
                         </div>
 
                         {{-- Year Selector --}}
-                        <form method="GET" action="{{ route('dashboard') }}" id="yearForm" class="m-0">
-                            <input type="hidden" name="package" value="hajj">
-                            <div class="dash-select-wrap">
-                                <i class="ri-calendar-line text-muted me-1"></i>
-                                <select name="year" onchange="document.getElementById('yearForm').submit()">
-                                    @foreach ($availableYears as $yr)
-                                        <option value="{{ $yr }}" {{ $yr == $year ? 'selected' : '' }}>
-                                            Year {{ $yr }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                        @if (count($availableYears) > 1)
+                            <form method="GET" action="{{ route('dashboard') }}" id="yearForm" class="m-0">
+                                <input type="hidden" name="package" value="hajj">
+                                <div class="dash-select-wrap">
+                                    <i class="ri-calendar-line text-muted me-1"></i>
+                                    <select name="year" onchange="document.getElementById('yearForm').submit()">
+                                        @foreach ($availableYears as $yr)
+                                            @if ((int)$yr !== 2026)
+                                                <option value="{{ $yr }}" {{ $yr == $year ? 'selected' : '' }}>
+                                                    Year {{ $yr }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </form>
+                        @else
+                            <div class="dash-select-wrap px-2 py-1">
+                                <i class="ri-calendar-line text-primary me-1"></i>
+                                <span class="fw-bold" style="font-size:12px;">Year {{ $year }}</span>
                             </div>
-                        </form>
+                        @endif
 
                         {{-- Primary Action: New Booking --}}
                         {{-- @can('booking_create')

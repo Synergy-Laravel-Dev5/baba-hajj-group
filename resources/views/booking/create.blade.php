@@ -211,7 +211,7 @@
                                     <small class="text-muted" id="pkg_filter_hint">Showing {{ $packages->count() }} {{ strtoupper($packageType) }} package(s). Selecting will auto-populate pricing, stay schedule and dates.</small>
                                 </div>
 
-                                <input type="hidden" name="package_year" id="package_year" value="{{ old('package_year', function_exists('active_hajj_year') ? active_hajj_year() : date('Y')) }}">
+                                <input type="hidden" name="package_year" id="package_year" value="{{ old('package_year', function_exists('active_hajj_year') ? active_hajj_year() : \App\Models\HajjSeason::getActiveYear()) }}">
 
                                 <div class="col-md-4">
                                     <label class="form-label fw-semibold">Booking Status</label>

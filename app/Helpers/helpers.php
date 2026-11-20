@@ -422,22 +422,21 @@ if (!function_exists('active_hajj_season')) {
 
 if (!function_exists('active_hajj_year')) {
     /**
-     * Get the active Hajj Season Year (e.g. '2027')
+     * Get the active Hajj Season Year (defaults to '2027', never 2026)
      */
     function active_hajj_year(): string
     {
         try {
-            $season = active_hajj_season();
-            if ($season && !empty($season->year)) {
-                return (string) $season->year;
+            if (class_exists(\App\Models\HajjSeason::class)) {
+                return \App\Models\HajjSeason::getActiveYear();
             }
         } catch (\Throwable $e) {}
 
-        if (function_exists('session') && session()->has('dashboard_year')) {
+        if (function_exists('session') && session()->has('dashboard_year') && (int)session('dashboard_year') !== 2026) {
             return (string) session('dashboard_year');
         }
 
-        return (string) date('Y');
+        return '2027';
     }
 }
 
@@ -448,10 +447,8 @@ if (!function_exists('active_hijri_year')) {
     function active_hijri_year($withSuffix = false): string
     {
         try {
-            $season = active_hajj_season();
-            if ($season && !empty($season->hijri_year)) {
-                $hYear = preg_replace('/[^0-9]/', '', (string)$season->hijri_year);
-                return $withSuffix ? ($hYear . 'H') : $hYear;
+            if (class_exists(\App\Models\HajjSeason::class)) {
+                return \App\Models\HajjSeason::getActiveHijriYear($withSuffix);
             }
         } catch (\Throwable $e) {}
 
@@ -466,13 +463,12 @@ if (!function_exists('active_hajj_season_name')) {
     function active_hajj_season_name(): string
     {
         try {
-            $season = active_hajj_season();
-            if ($season && !empty($season->name)) {
-                return (string) $season->name;
+            if (class_exists(\App\Models\HajjSeason::class)) {
+                return \App\Models\HajjSeason::getActiveSeasonName();
             }
         } catch (\Throwable $e) {}
 
-        return 'Hajj Season ' . active_hajj_year();
+        return 'Hajj Season 2027 (1448H)';
     }
 }
 
