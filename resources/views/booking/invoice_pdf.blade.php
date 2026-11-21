@@ -519,6 +519,15 @@
                     <td class="text-right">- {{ number_format($booking->discount, 0) }}</td>
                 </tr>
             @endif
+
+            @if(($booking->flight_charges_less ?? 0) > 0)
+                <tr style="color: #991b1b;">
+                    <td><strong>Flight Charges Less (Airfare Deduction)</strong></td>
+                    <td class="text-center">—</td>
+                    <td class="text-center">—</td>
+                    <td class="text-right">- {{ number_format($booking->flight_charges_less, 0) }}</td>
+                </tr>
+            @endif
         </tbody>
     </table>
 

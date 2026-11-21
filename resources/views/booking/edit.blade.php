@@ -62,6 +62,8 @@
                     <span>|</span>
                     <span>Flight: <strong id="bar_flight">{{ number_format($booking->flight_charges, 2) }}</strong></span>
                     <span>|</span>
+                    <span class="text-danger">Flight Less: <strong id="bar_flight_less">{{ number_format($booking->flight_charges_less ?? 0, 2) }}</strong></span>
+                    <span>|</span>
                     <span>Qurbani: <strong id="bar_qurbani">{{ number_format($booking->qurbani_charges ?? 0, 2) }}</strong></span>
                     <span>|</span>
                     <span class="text-danger">Discount: <strong id="bar_discount">{{ number_format($booking->discount ?? 0, 2) }}</strong></span>
@@ -1505,6 +1507,14 @@
                                         placeholder="Enter flight charges" step="0.01">
                                 </div>
                                 <div class="col-md-2">
+                                    <label class="form-label fw-bold text-danger"><i class="mdi mdi-airplane-minus me-1"></i>Flight Charges Less</label>
+                                    <input type="number" name="flight_charges_less" id="flight_charges_less"
+                                        class="form-control calc border-danger text-danger fw-bold"
+                                        value="{{ old('flight_charges_less', $booking->flight_charges_less ?: '') }}"
+                                        placeholder="0.00" step="0.01">
+                                    <small class="text-danger">Minus from Total Costing</small>
+                                </div>
+                                <div class="col-md-2">
                                     <label class="form-label">Other Charges</label>
                                     <input type="number" name="other_charges" id="other_charges"
                                         class="form-control calc"
@@ -1537,6 +1547,7 @@
                                                     <th>Pkg × Pax</th>
                                                     <th>Visa</th>
                                                     <th>Flight</th>
+                                                    <th class="text-danger">Flight Less (-)</th>
                                                     <th>Qurbani</th>
                                                     <th>Other</th>
                                                     <th class="text-info">Commission</th>
@@ -1550,6 +1561,7 @@
                                                     <td id="sum_pkg">{{ number_format(($booking->package_cost ?? 0) * ($booking->no_of_pax ?? 0), 2) }}</td>
                                                     <td id="sum_visa">{{ number_format($booking->visa_charges ?? 0, 2) }}</td>
                                                     <td id="sum_flight">{{ number_format($booking->flight_charges ?? 0, 2) }}</td>
+                                                    <td class="text-danger fw-bold" id="sum_flight_less">{{ ($booking->flight_charges_less ?? 0) > 0 ? ('-' . number_format($booking->flight_charges_less, 2)) : '0.00' }}</td>
                                                     <td id="sum_qurbani">{{ number_format($booking->qurbani_charges ?? 0, 2) }}</td>
                                                     <td id="sum_other">{{ number_format($booking->other_charges ?? 0, 2) }}</td>
                                                     <td class="text-info fw-bold" id="sum_commission">{{ number_format($booking->commission ?? 0, 2) }}</td>
@@ -3476,6 +3488,7 @@
             const pkg = parseFloat(document.getElementById('package_cost').value) || 0;
             const visa = parseFloat(document.getElementById('visa_charges').value) || 0;
             const flight = parseFloat(document.getElementById('flight_charges').value) || 0;
+            const flightLess = parseFloat(document.getElementById('flight_charges_less')?.value) || 0;
             const qurbani = parseFloat(document.getElementById('qurbani_charges')?.value) || 0;
             const commission = parseFloat(document.getElementById('commission')?.value) || 0;
             const other = parseFloat(document.getElementById('other_charges').value) || 0;
@@ -3484,7 +3497,7 @@
 
             const pkgTotal = pkg * pax;
             const subtotal = pkgTotal + visa + flight + qurbani + other;
-            const total = Math.max(0, subtotal - discount);
+            const total = Math.max(0, subtotal - discount - flightLess);
             const balance = total - received - transactionsPaid;
 
             document.getElementById('total_amount').value = total.toFixed(2);
@@ -3494,6 +3507,7 @@
             if (document.getElementById('bar_adult')) document.getElementById('bar_adult').textContent = pkgTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('bar_visa')) document.getElementById('bar_visa').textContent = visa.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('bar_flight')) document.getElementById('bar_flight').textContent = flight.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            if (document.getElementById('bar_flight_less')) document.getElementById('bar_flight_less').textContent = flightLess > 0 ? ('-' + flightLess.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})) : '0.00';
             if (document.getElementById('bar_qurbani')) document.getElementById('bar_qurbani').textContent = qurbani.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('bar_discount')) document.getElementById('bar_discount').textContent = discount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('bar_total')) document.getElementById('bar_total').textContent = total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -3504,6 +3518,7 @@
             if (document.getElementById('sum_commission')) document.getElementById('sum_commission').textContent = commission.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('sum_visa')) document.getElementById('sum_visa').textContent = visa.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('sum_flight')) document.getElementById('sum_flight').textContent = flight.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            if (document.getElementById('sum_flight_less')) document.getElementById('sum_flight_less').textContent = flightLess > 0 ? ('-' + flightLess.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})) : '0.00';
             if (document.getElementById('sum_qurbani')) document.getElementById('sum_qurbani').textContent = qurbani.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('sum_other')) document.getElementById('sum_other').textContent = other.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             if (document.getElementById('sum_discount')) document.getElementById('sum_discount').textContent = discount > 0 ? ('-' + discount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})) : '0.00';

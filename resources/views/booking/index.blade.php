@@ -120,6 +120,13 @@
                                                     $hbList = $booking->persons->pluck('hb_number')->filter()->map(function($val) {
                                                         return \App\Models\BookingPerson::formatHbNumber($val);
                                                     })->filter()->unique()->values();
+
+                                                    if ($hbList->isEmpty()) {
+                                                        $fallbackPfx = $booking->booking_prefix;
+                                                        if (!empty($fallbackPfx)) {
+                                                            $hbList = collect([$fallbackPfx]);
+                                                        }
+                                                    }
                                                     $bookingPkgId = $booking->package_id ?? 0;
                                                 @endphp
                                                 <tr data-package-id="{{ $bookingPkgId }}"

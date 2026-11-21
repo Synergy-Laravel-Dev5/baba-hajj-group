@@ -66,6 +66,7 @@ class Booking extends Model
         'package_cost',
         'visa_charges',
         'flight_charges',
+        'flight_charges_less',
         'other_charges',
         'discount',
         'commission',
@@ -193,6 +194,44 @@ class Booking extends Model
             return $this->voucher_number;
         }
         return 'INV-' . str_pad($this->id ?: 1, 5, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Accessor for Booking Prefix (e.g. "AZ 01", "AZ 03")
+     */
+    public function getBookingPrefixAttribute(): string
+    {
+        if ($this->relationLoaded('persons')) {
+            $personHb = $this->persons->pluck('hb_number')->filter()->first();
+        } else {
+            $personHb = $this->persons()->whereNotNull('hb_number')->where('hb_number', '!=', '')->value('hb_number');
+        }
+
+        if (!empty($personHb)) {
+            return \App\Models\BookingPerson::formatHbNumber($personHb);
+        }
+
+        if ($this->package_id) {
+            $package = $this->relationLoaded('package') ? $this->package : Package::find($this->package_id);
+            $rawCode = $package ? ($package->code ?: ($package->package_number ?: 'AZ')) : 'AZ';
+            $prefix = 'AZ';
+            if (preg_match('/^([A-Za-z\s_-]+)/', $rawCode, $m)) {
+                $prefix = strtoupper(trim(preg_replace('/[-_\s]+$/', '', $m[1])));
+            }
+            if (empty($prefix)) {
+                $prefix = 'AZ';
+            }
+
+            // Count bookings (including trashed so deleted prefixes are never reused)
+            $order = self::withTrashed()
+                ->where('package_id', $this->package_id)
+                ->where('id', '<=', $this->id)
+                ->count();
+
+            return $prefix . ' ' . str_pad(max(1, $order), 2, '0', STR_PAD_LEFT);
+        }
+
+        return 'AZ ' . str_pad($this->id ?: 1, 2, '0', STR_PAD_LEFT);
     }
 
     /**

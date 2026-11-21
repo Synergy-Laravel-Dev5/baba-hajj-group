@@ -86,23 +86,41 @@ class BookingController extends Controller
             })
             ->filter()
             ->unique()
-            ->sort()
             ->values()
             ->all();
+
+            // Include prefixes from active bookings
+            $pkgBookings = $bookings->where('package_id', $pkg->id);
+            foreach ($pkgBookings as $pb) {
+                $pfx = $pb->booking_prefix;
+                if (!empty($pfx) && !in_array($pfx, $pfxList)) {
+                    $pfxList[] = $pfx;
+                }
+            }
+            sort($pfxList);
 
             $packagePrefixesMap[$pkg->id] = $pfxList;
         }
 
         $allPrefixes = \App\Models\BookingPerson::whereNotNull('hb_number')
             ->where('hb_number', '!=', '')
+            ->whereHas('booking')
             ->pluck('hb_number')
             ->map(function ($val) {
                 return \App\Models\BookingPerson::formatHbNumber($val);
             })
             ->filter()
             ->unique()
-            ->sort()
-            ->values();
+            ->values()
+            ->all();
+
+        foreach ($bookings as $b) {
+            $pfx = $b->booking_prefix;
+            if (!empty($pfx) && !in_array($pfx, $allPrefixes)) {
+                $allPrefixes[] = $pfx;
+            }
+        }
+        sort($allPrefixes);
 
         $selectedPackageId = $request->get('package_id');
         $selectedPrefix    = $request->get('prefix');
@@ -244,39 +262,42 @@ class BookingController extends Controller
         $packageCost    = (float) ($request->package_cost ?? 0);
         $noOfPax        = max(1, (int) ($request->no_of_pax ?: 1));
         $visaCharges    = (float) ($request->visa_charges ?? 0);
-        $flightCharges  = (float) ($request->flight_charges ?? 0);
-        $otherCharges   = (float) ($request->other_charges ?? 0);
-        $qurbaniCharges = (float) ($request->qurbani_charges ?? 0);
-        $discount       = (float) ($request->discount ?? 0);
-        $commission     = (float) ($request->commission ?? 0);
-        $totalReceived  = (float) ($request->total_received ?? 0);
+        $flightCharges      = (float) ($request->flight_charges ?? 0);
+        $flightChargesLess  = (float) ($request->flight_charges_less ?? 0);
+        $otherCharges       = (float) ($request->other_charges ?? 0);
+        $qurbaniCharges     = (float) ($request->qurbani_charges ?? 0);
+        $discount           = (float) ($request->discount ?? 0);
+        $commission         = (float) ($request->commission ?? 0);
+        $totalReceived      = (float) ($request->total_received ?? 0);
 
         $total = ($packageCost * $noOfPax)
             + $visaCharges
             + $flightCharges
             + $otherCharges
             + $qurbaniCharges
-            - $discount;
+            - $discount
+            - $flightChargesLess;
         $balance = $total - $totalReceived;
 
         $bookingData = array_merge(
             $request->except(['persons', 'hotels', 'transports', 'visas', 'flight_persons', '_token']),
             [
-                'package_id'      => $request->package_id ?: null,
-                'package_year'    => (int) active_hajj_year(),
-                'booking_for'     => 'client',
-                'client_id'       => $clientId,
-                'company_id'      => $companyId,
-                'package_type'    => $request->package_type ?? 'hajj',
-                'camp'            => $request->camp ?: null,
-                'room_breakdown'  => $request->room_breakdown ?: null,
-                'qurbani_option'  => $request->qurbani_option ?? 'not_included',
-                'qurbani_qty'     => (int) ($request->qurbani_qty ?? 0),
-                'qurbani_charges' => $qurbaniCharges,
-                'package_cost'    => $packageCost,
-                'no_of_pax'       => $noOfPax,
-                'visa_charges'    => $visaCharges,
-                'flight_charges'  => $flightCharges,
+                'package_id'          => $request->package_id ?: null,
+                'package_year'        => (int) active_hajj_year(),
+                'booking_for'         => 'client',
+                'client_id'           => $clientId,
+                'company_id'          => $companyId,
+                'package_type'        => $request->package_type ?? 'hajj',
+                'camp'                => $request->camp ?: null,
+                'room_breakdown'      => $request->room_breakdown ?: null,
+                'qurbani_option'      => $request->qurbani_option ?? 'not_included',
+                'qurbani_qty'         => (int) ($request->qurbani_qty ?? 0),
+                'qurbani_charges'     => $qurbaniCharges,
+                'package_cost'        => $packageCost,
+                'no_of_pax'           => $noOfPax,
+                'visa_charges'        => $visaCharges,
+                'flight_charges'      => $flightCharges,
+                'flight_charges_less' => $flightChargesLess,
                 'other_charges'   => $otherCharges,
                 'discount'        => $discount,
                 'commission'      => $commission,
@@ -412,6 +433,42 @@ class BookingController extends Controller
                             ]
                         );
                     }
+                }
+            }
+
+            // Ensure booking always has person records matching no_of_pax with assigned prefix
+            if ($booking->persons()->count() === 0) {
+                $bookingHbNumber = $request->booking_code;
+                if (empty($bookingHbNumber) && !empty($booking->package_id)) {
+                    $bookingHbNumber = \App\Models\Booking::generateNextPackageBookingCode($booking->package_id, $booking->id);
+                }
+                if (empty($bookingHbNumber)) {
+                    $bookingHbNumber = $booking->booking_prefix ?: 'AZ 01';
+                }
+
+                $paxCount = max(1, (int) ($booking->no_of_pax ?: 1));
+                $clientName = $booking->client?->name ?? ($booking->company?->company_name ?? 'Passenger 1');
+
+                for ($i = 0; $i < $paxCount; $i++) {
+                    $pName = ($i === 0) ? $clientName : ('Passenger ' . ($i + 1));
+                    $pPhone = ($i === 0) ? ($booking->phone ?? $booking->client?->phone) : null;
+                    $pCnic = ($i === 0) ? ($booking->cnic ?? $booking->client?->cnic) : null;
+
+                    $createdP = $booking->persons()->create([
+                        'full_name'     => $pName,
+                        'phone'         => $pPhone,
+                        'cnic'          => $pCnic,
+                        'hb_number'     => $bookingHbNumber,
+                        'hajj_id'       => \App\Models\BookingPerson::generateNextHajjId(),
+                        'ticket_status' => 'on_ticket',
+                    ]);
+
+                    \App\Models\PersonDocument::updateOrCreate(
+                        ['person_id' => $createdP->id],
+                        [
+                            'booking_id' => $booking->id,
+                        ]
+                    );
                 }
             }
 
@@ -626,20 +683,22 @@ class BookingController extends Controller
 
         $packageCost    = (float) ($request->package_cost ?? 0);
         $noOfPax        = max(1, (int) ($request->no_of_pax ?: 1));
-        $visaCharges    = (float) ($request->visa_charges ?? 0);
-        $flightCharges  = (float) ($request->flight_charges ?? 0);
-        $otherCharges   = (float) ($request->other_charges ?? 0);
-        $qurbaniCharges = (float) ($request->qurbani_charges ?? 0);
-        $discount       = (float) ($request->discount ?? 0);
-        $commission     = (float) ($request->commission ?? 0);
-        $totalReceived  = (float) ($request->total_received ?? 0);
+        $visaCharges        = (float) ($request->visa_charges ?? 0);
+        $flightCharges      = (float) ($request->flight_charges ?? 0);
+        $flightChargesLess  = (float) ($request->flight_charges_less ?? 0);
+        $otherCharges       = (float) ($request->other_charges ?? 0);
+        $qurbaniCharges     = (float) ($request->qurbani_charges ?? 0);
+        $discount           = (float) ($request->discount ?? 0);
+        $commission         = (float) ($request->commission ?? 0);
+        $totalReceived      = (float) ($request->total_received ?? 0);
 
         $total = ($packageCost * $noOfPax)
             + $visaCharges
             + $flightCharges
             + $otherCharges
             + $qurbaniCharges
-            - $discount;
+            - $discount
+            - $flightChargesLess;
         $balance = $total - $totalReceived;
 
 
@@ -656,21 +715,22 @@ class BookingController extends Controller
                 'app_password_plain'
             ]),
             [
-                'package_id'      => $request->package_id ?: null,
-                'package_year'    => $booking->package_year ?: (int) active_hajj_year(),
-                'booking_for'     => 'client',
-                'client_id'       => $clientId,
-                'company_id'      => $companyId,
-                'package_type'    => $request->package_type ?? ($booking->package_type ?? 'hajj'),
-                'camp'            => $request->camp ?: null,
-                'room_breakdown'  => $request->room_breakdown ?: null,
-                'qurbani_option'  => $request->qurbani_option ?? 'not_included',
-                'qurbani_qty'     => (int) ($request->qurbani_qty ?? 0),
-                'qurbani_charges' => $qurbaniCharges,
-                'package_cost'    => $packageCost,
-                'no_of_pax'       => $noOfPax,
-                'visa_charges'    => $visaCharges,
-                'flight_charges'  => $flightCharges,
+                'package_id'          => $request->package_id ?: null,
+                'package_year'        => $booking->package_year ?: (int) active_hajj_year(),
+                'booking_for'         => 'client',
+                'client_id'           => $clientId,
+                'company_id'          => $companyId,
+                'package_type'        => $request->package_type ?? ($booking->package_type ?? 'hajj'),
+                'camp'                => $request->camp ?: null,
+                'room_breakdown'      => $request->room_breakdown ?: null,
+                'qurbani_option'      => $request->qurbani_option ?? 'not_included',
+                'qurbani_qty'         => (int) ($request->qurbani_qty ?? 0),
+                'qurbani_charges'     => $qurbaniCharges,
+                'package_cost'        => $packageCost,
+                'no_of_pax'           => $noOfPax,
+                'visa_charges'        => $visaCharges,
+                'flight_charges'      => $flightCharges,
+                'flight_charges_less' => $flightChargesLess,
                 'other_charges'   => $otherCharges,
                 'discount'        => $discount,
                 'commission'      => $commission,
@@ -1063,7 +1123,8 @@ class BookingController extends Controller
                 + ($booking->flight_charges ?? 0)
                 + ($booking->other_charges ?? 0)
                 + ($booking->qurbani_charges ?? 0)
-                - ($booking->discount ?? 0);
+                - ($booking->discount ?? 0)
+                - ($booking->flight_charges_less ?? 0);
             $booking->total_amount = $total;
             $booking->balance = $total - ($booking->total_received ?? 0);
         }

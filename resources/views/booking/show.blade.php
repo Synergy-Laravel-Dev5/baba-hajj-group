@@ -1625,6 +1625,13 @@
                     <td><strong>- PKR {{ number_format($booking->discount, 0) }}</strong></td>
                 </tr>
                 @endif
+                @if (($booking->flight_charges_less ?? 0) > 0)
+                <tr style="color: var(--red);">
+                    <td><strong><i class="mdi mdi-airplane-minus me-1"></i>Flight Charges Less</strong></td>
+                    <td>Airfare / Ticket Deduction</td>
+                    <td><strong>- PKR {{ number_format($booking->flight_charges_less, 0) }}</strong></td>
+                </tr>
+                @endif
                 <tr class="total-row">
                     <td>Total Amount</td>
                     <td>Net Booking Amount</td>
