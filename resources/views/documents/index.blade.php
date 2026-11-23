@@ -1451,7 +1451,7 @@
         // 1. Parse MRZ Line 1 (Names)
         if (l1) {
             // Strip leading P<PAK or PPAK or P<XXX
-            let line1Content = l1.replace(/^P<?[A-Z]{3}<?/, '');
+            let line1Content = l1.replace(/^P[<]?[A-Z]{3}[<]?/, '');
             let parts = line1Content.split(/<{2,}|<[LCK]|[LCK]<|[LCK]{2,}/);
             let surname = cleanMrzName(parts[0] || '');
             let givenName = cleanMrzName(parts[1] || '');
