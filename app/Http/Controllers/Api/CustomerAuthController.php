@@ -113,7 +113,7 @@ class CustomerAuthController extends Controller
         if (!Hash::check($password, $booking->app_password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Incorrect password.'
+                'message' => 'Incorrect password. The password you entered is not valid for this booking.'
             ], 401);
         }
 

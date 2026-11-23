@@ -528,9 +528,13 @@
 
                 <!-- PAGINATION -->
                 @if($persons->hasPages())
-                    <div class="card-footer bg-white py-2 px-3 border-top d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Showing {{ $persons->firstItem() }} to {{ $persons->lastItem() }} of {{ $persons->total() }} pilgrims</small>
-                        {{ $persons->links() }}
+                    <div class="card-footer bg-white py-3 px-3 border-top d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div class="text-muted fs-12">
+                            Showing <strong>{{ $persons->firstItem() }}</strong> to <strong>{{ $persons->lastItem() }}</strong> of <strong>{{ $persons->total() }}</strong> pilgrims
+                        </div>
+                        <div class="pagination-wrapper">
+                            {{ $persons->appends(request()->query())->links('pagination::bootstrap-5') }}
+                        </div>
                     </div>
                 @endif
             </div>
@@ -1112,6 +1116,8 @@
     }
 
     function resetPassportScanner() {
+        currentScanFile = null;
+        isNameMatched = false;
         document.getElementById('scannerFileInput').value = '';
         document.getElementById('dropZonePrompt').classList.remove('d-none');
         document.getElementById('scanPreviewBox').classList.add('d-none');
@@ -1119,7 +1125,20 @@
         document.getElementById('scanStatusContainer').classList.add('d-none');
         document.getElementById('overrideBox').classList.add('d-none');
         document.getElementById('overrideCheck').checked = false;
+        const inlineChk = document.getElementById('inlineOverrideCheck');
+        if (inlineChk) inlineChk.checked = false;
         document.getElementById('btnConfirmPassportSave').disabled = true;
+
+        document.getElementById('scan_field_given_name').value = '';
+        document.getElementById('scan_field_surname').value = '';
+        document.getElementById('scan_field_father_name').value = '';
+        document.getElementById('scan_field_name').value = '';
+        document.getElementById('scan_field_passport_no').value = '';
+        document.getElementById('scan_field_gender').value = 'Male';
+        document.getElementById('scan_field_dob').value = '';
+        document.getElementById('scan_field_issue_date').value = '';
+        document.getElementById('scan_field_expiry').value = '';
+        document.getElementById('scan_hajj_validity_container').innerHTML = '';
 
         document.getElementById('verificationResultBox').innerHTML = `
             <div class="alert alert-secondary py-2 px-3 fs-12 mb-2">
@@ -1201,13 +1220,83 @@
         if (!isPdf) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('scanPreviewImg').src = e.target.result;
-                runPassportOCR(e.target.result);
+                const imageSrc = e.target.result;
+                document.getElementById('scanPreviewImg').src = imageSrc;
+                startPassportScanning(imageSrc);
             };
             reader.readAsDataURL(currentScanFile);
         } else {
             document.getElementById('scanPreviewImg').src = 'https://cdn-icons-png.flaticon.com/512/337/337946.png';
             simulateOrServerPassportScan(currentScanFile);
+        }
+    }
+
+    function startPassportScanning(imageSrc) {
+        const container = document.getElementById('scanStatusContainer');
+        container.classList.remove('d-none');
+        document.getElementById('scanProgressBar').style.width = '25%';
+        document.getElementById('scanProgressPct').textContent = '25%';
+        document.getElementById('scanStatusText').innerHTML = `<i class="mdi mdi-barcode-scan me-1"></i>Scanning 2D Barcode (PDF417)...`;
+
+        // 1. Try decoding 2D Barcode (PDF417) first
+        tryScanBarcode(imageSrc, function(barcodeText) {
+            if (barcodeText) {
+                const parsed = parseMRZAndPassport(barcodeText);
+                if (parsed.fullName || parsed.passportNumber) {
+                    document.getElementById('scanProgressBar').style.width = '100%';
+                    document.getElementById('scanProgressPct').textContent = '100%';
+                    document.getElementById('scanStatusText').innerHTML = `<i class="mdi mdi-check-circle text-success me-1"></i>Barcode decoded successfully!`;
+                    setTimeout(() => {
+                        document.getElementById('scanLaserLine').classList.add('d-none');
+                        document.getElementById('scanStatusContainer').classList.add('d-none');
+                        applyParsedPassportDetails(parsed);
+                    }, 350);
+                    return;
+                }
+            }
+
+            // 2. Barcode not detected or incomplete: fallback to High-Precision OCR
+            runPassportOCR(imageSrc);
+        });
+    }
+
+    function tryScanBarcode(imageSrc, callback) {
+        if (typeof ZXing === 'undefined') {
+            callback(null);
+            return;
+        }
+
+        try {
+            const hints = new Map();
+            const formats = [
+                ZXing.BarcodeFormat.PDF_417,
+                ZXing.BarcodeFormat.QR_CODE,
+                ZXing.BarcodeFormat.DATA_MATRIX,
+                ZXing.BarcodeFormat.CODE_128,
+                ZXing.BarcodeFormat.CODE_39
+            ];
+            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+            hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+
+            const reader = new ZXing.BrowserMultiFormatReader(hints);
+            const img = new Image();
+            img.onload = function() {
+                reader.decodeFromImageElement(img)
+                    .then(res => {
+                        if (res && res.text) {
+                            callback(res.text);
+                        } else {
+                            callback(null);
+                        }
+                    })
+                    .catch(err => {
+                        callback(null);
+                    });
+            };
+            img.onerror = function() { callback(null); };
+            img.src = imageSrc;
+        } catch (e) {
+            callback(null);
         }
     }
 
@@ -1225,7 +1314,7 @@
     function runPassportOCR(imageSrc) {
         const container = document.getElementById('scanStatusContainer');
         container.classList.remove('d-none');
-        document.getElementById('scanStatusText').innerHTML = `<i class="mdi mdi-loading mdi-spin me-1"></i>Initializing Tesseract OCR engine...`;
+        document.getElementById('scanStatusText').innerHTML = `<i class="mdi mdi-loading mdi-spin me-1"></i>Scanning Passport MRZ via OCR engine...`;
 
         if (typeof Tesseract === 'undefined') {
             simulateOrServerPassportScan(currentScanFile);
@@ -1238,7 +1327,8 @@
         .then(({ data: { text } }) => {
             document.getElementById('scanLaserLine').classList.add('d-none');
             document.getElementById('scanStatusContainer').classList.add('d-none');
-            processScannedPassportText(text);
+            const parsed = parseMRZAndPassport(text);
+            applyParsedPassportDetails(parsed);
         })
         .catch(err => {
             console.warn('Tesseract client OCR failed, falling back:', err);
@@ -1259,13 +1349,12 @@
             document.getElementById('scanStatusContainer').classList.add('d-none');
 
             const cleanFileName = file.name.replace(/[_\-.]/g, ' ').toUpperCase();
-            processScannedPassportText("PASSPORT " + cleanFileName);
+            const parsed = parseMRZAndPassport("PASSPORT " + cleanFileName);
+            applyParsedPassportDetails(parsed);
         }, 1200);
     }
 
-    function processScannedPassportText(rawText) {
-        const parsed = parseMRZAndPassport(rawText);
-
+    function applyParsedPassportDetails(parsed) {
         if (parsed.givenName) document.getElementById('scan_field_given_name').value = parsed.givenName;
         if (parsed.surname) document.getElementById('scan_field_surname').value = parsed.surname;
         if (parsed.fatherName) document.getElementById('scan_field_father_name').value = parsed.fatherName;
@@ -1296,6 +1385,23 @@
         return cleaned;
     }
 
+    // CLEAN MRZ NAME SEGMENT (Handles OCR noise like LLLLLLLLL instead of <<<<<<)
+    function cleanMrzName(val) {
+        if (!val) return '';
+        let s = val.replace(/[«‹\(\{\}\)\[\]]/g, '<');
+        // Trailing chevrons first
+        s = s.replace(/[<]+$/g, '');
+        // Strip 3 or more consecutive Ls, Cs, or Ks (OCR chevron noise)
+        s = s.replace(/[LCK]{3,}/gi, '');
+        // Strip trailing noise or spaces
+        s = s.replace(/[<_\-\s]+$/g, '');
+        // Convert remaining chevrons to spaces
+        s = s.replace(/<+/g, ' ');
+        // Remove non-alpha
+        s = s.replace(/[^A-Za-z\s]/g, ' ');
+        return s.replace(/\s+/g, ' ').trim();
+    }
+
     // MRZ & TEXT PARSER
     function parseMRZAndPassport(text) {
         let result = {
@@ -1307,41 +1413,90 @@
             gender: 'Male',
             dob: '',
             issueDate: '',
-            expiryDate: ''
+            expiryDate: '',
+            cnic: ''
         };
 
         if (!text) return result;
 
-        const rawLines = text.split('\n').map(l => l.trim());
-        const mrzLines = rawLines.map(l => l.replace(/\s+/g, '')).filter(l => l.length >= 25 && l.includes('<'));
+        const rawLines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        const normLines = [];
+        for (let l of rawLines) {
+            let clean = l.replace(/\s+/g, '').toUpperCase();
+            clean = clean.replace(/[«‹\(\{\}\)\[\]]/g, '<');
+            if (clean.length >= 20) {
+                normLines.push(clean);
+            }
+        }
 
-        // 1. Try MRZ Parsing (standard 2-line ICAO Doc 9303 Type 3)
-        for (let i = 0; i < mrzLines.length - 1; i++) {
-            let l1 = mrzLines[i].toUpperCase();
-            let l2 = mrzLines[i+1].toUpperCase();
+        let l1 = '';
+        let l2 = '';
 
-            if (l1.startsWith('P<') || l1.startsWith('P') || l2.length >= 35) {
-                // Name in line 1: P<XXXSURNAME<<GIVEN<NAMES<<<<<<
-                const namePart = l1.substring(5).split('<<');
-                const surname = namePart[0] ? namePart[0].replace(/</g, ' ').trim() : '';
-                const givenName = namePart[1] ? namePart[1].replace(/</g, ' ').trim() : '';
-
-                result.surname = surname;
-                result.givenName = givenName;
-                result.fullName = (givenName + ' ' + surname).trim() || surname;
-
-                // Line 2: Passport No (first 9 chars), nationality (10-13), DOB (13-19), Sex (20), Expiry (21-27)
-                result.passportNumber = l2.substring(0, 9).replace(/</g, '').trim();
-                const sexChar = l2.charAt(20);
-                result.gender = (sexChar === 'F') ? 'Female' : 'Male';
-
-                result.dob = formatYYMMDD(l2.substring(13, 19), true);
-                result.expiryDate = formatYYMMDD(l2.substring(21, 27), false);
+        // Find Line 1: starts with P<, PPAK, P[A-Z]{3}, or contains << or <L
+        for (let line of normLines) {
+            if (/^P[<A-Z0-9]{3,5}/.test(line) || /<{2,}|<[LCK]|[LCK]<|[LCK]{2,}/.test(line)) {
+                l1 = line;
                 break;
             }
         }
 
-        // 2. Visual Inspection Zone (VIZ) extraction from raw text
+        // Find Line 2: contains dates and gender (6 digits + M/F + 6 digits) or starts with passport number pattern
+        for (let line of normLines) {
+            if (line !== l1 && (/\d{6}\d?[MF]\d{6}/.test(line) || /^[A-Z]{1,2}\d{7}/.test(line))) {
+                l2 = line;
+                break;
+            }
+        }
+
+        // 1. Parse MRZ Line 1 (Names)
+        if (l1) {
+            // Strip leading P<PAK or PPAK or P<XXX
+            let line1Content = l1.replace(/^P<?[A-Z]{3}<?/, '');
+            let parts = line1Content.split(/<{2,}|<[LCK]|[LCK]<|[LCK]{2,}/);
+            let surname = cleanMrzName(parts[0] || '');
+            let givenName = cleanMrzName(parts[1] || '');
+
+            result.surname = surname;
+            result.givenName = givenName;
+            result.fullName = (givenName + ' ' + surname).trim() || surname;
+        }
+
+        // 2. Parse MRZ Line 2 (Passport No, DOB, Sex, Expiry)
+        if (l2) {
+            // Passport number: 1-2 letters + 7 digits
+            const passMatch = l2.match(/^([A-Z]{1,2}\d{7})/i);
+            if (passMatch) {
+                result.passportNumber = passMatch[1].toUpperCase();
+            } else {
+                const rawPass = l2.substring(0, 9).replace(/</g, '').trim();
+                if (rawPass.length >= 7) result.passportNumber = rawPass.toUpperCase();
+            }
+
+            // DOB & Gender & Expiry
+            const dateMatch = l2.match(/(\d{6})\d?([MF])(\d{6})/i);
+            if (dateMatch) {
+                result.dob = formatYYMMDD(dateMatch[1], true);
+                result.gender = (dateMatch[2].toUpperCase() === 'F') ? 'Female' : 'Male';
+                result.expiryDate = formatYYMMDD(dateMatch[3], false);
+            } else {
+                // Fallback fixed offsets
+                if (l2.length >= 27) {
+                    result.dob = formatYYMMDD(l2.substring(13, 19), true);
+                    const sexChar = l2.charAt(20).toUpperCase();
+                    result.gender = (sexChar === 'F') ? 'Female' : 'Male';
+                    result.expiryDate = formatYYMMDD(l2.substring(21, 27), false);
+                }
+            }
+
+            // CNIC extraction from line 2 (Pakistani passport has 13 digits: e.g. 4220153729570)
+            const cnicMatch = l2.match(/(\d{13})/);
+            if (cnicMatch) {
+                const rawCnic = cnicMatch[1];
+                result.cnic = rawCnic.substring(0, 5) + '-' + rawCnic.substring(5, 12) + '-' + rawCnic.substring(12, 13);
+            }
+        }
+
+        // 3. Visual Inspection Zone (VIZ) fallbacks
         // Father / Husband Name
         const fatherMatch = text.match(/(?:Father(?:'s)?(?:\s*\/\s*Husband)?\s*Name|Father\s*Name|Husband\s*Name|نام\s*والد|نام\s*شوہر)\s*[:\-]?\s*([A-Za-z\s]+)/i);
         if (fatherMatch && fatherMatch[1]) {
@@ -1369,9 +1524,15 @@
             }
         }
 
-        // Full name combine if not present
+        // Full name fallback
         if (!result.fullName && (result.givenName || result.surname)) {
-            result.fullName = (result.givenName + ' ' + result.surname).trim();
+            result.fullName = ((result.givenName || '') + ' ' + (result.surname || '')).trim();
+        } else if (!result.fullName) {
+            const nameMatch = text.match(/(?:Name|Full\s*Name|نام)\s*[:\-]?\s*([A-Za-z\s]+)/i);
+            if (nameMatch && nameMatch[1]) {
+                const n = cleanExtractedName(nameMatch[1]);
+                if (n && n.length > 2) result.fullName = n;
+            }
         }
 
         // Passport Number fallback
@@ -1381,21 +1542,25 @@
         }
 
         // Gender fallback
-        const sexMatch = text.match(/\b(?:Sex|Gender|جنس)\s*[:\-]?\s*(M|F|Male|Female|مرد|عورت)\b/i);
-        if (sexMatch) {
-            const s = sexMatch[1].toUpperCase();
-            result.gender = (s.startsWith('F') || s.includes('عورت')) ? 'Female' : 'Male';
+        if (!result.gender) {
+            const sexMatch = text.match(/\b(?:Sex|Gender|جنس)\s*[:\-]?\s*(M|F|Male|Female|مرد|عورت)\b/i);
+            if (sexMatch) {
+                const s = sexMatch[1].toUpperCase();
+                result.gender = (s.startsWith('F') || s.includes('عورت')) ? 'Female' : 'Male';
+            }
         }
 
-        // Date of Birth fallback
+        // DOB fallback
         if (!result.dob) {
             const dobMatch = text.match(/\b(?:DOB|Birth|Date of Birth|تاریخ\s*پیدائش)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
             if (dobMatch) result.dob = normalizeDateString(dobMatch[1]);
         }
 
-        // Date of Issue
-        const issueMatch = text.match(/\b(?:Date\s*of\s*Issue|Issue\s*Date|تاریخ\s*اجرا)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
-        if (issueMatch) result.issueDate = normalizeDateString(issueMatch[1]);
+        // Date of Issue fallback
+        if (!result.issueDate) {
+            const issueMatch = text.match(/\b(?:Date\s*of\s*Issue|Issue\s*Date|تاریخ\s*اجرا)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
+            if (issueMatch) result.issueDate = normalizeDateString(issueMatch[1]);
+        }
 
         // Date of Expiry fallback
         if (!result.expiryDate) {
@@ -1455,9 +1620,9 @@
             resultBox.innerHTML = `
                 <div class="alert alert-info py-2 px-3 fs-12 mb-2">
                     <i class="mdi mdi-information-outline me-1"></i>
-                    <strong>Passport Scanned:</strong> Please confirm details for pilgrim <u>${currentScanPersonName}</u>.
+                    <strong>Passport Uploaded:</strong> Scanned text did not detect a clear name. Please confirm or enter details for pilgrim <u>${currentScanPersonName}</u> manually.
                 </div>`;
-            overrideBox.classList.add('d-none');
+            if (overrideBox) overrideBox.classList.add('d-none');
             btnSave.disabled = false;
             isNameMatched = true;
             return;
@@ -1481,45 +1646,68 @@
 
         if (matched) {
             isNameMatched = true;
-            overrideBox.classList.add('d-none');
+            if (overrideBox) overrideBox.classList.add('d-none');
             btnSave.disabled = false;
 
             resultBox.innerHTML = `
-                <div class="alert alert-success border-success py-2 px-3 fs-12 mb-2">
+                <div class="alert alert-success border-success py-2 px-3 fs-12 mb-2 shadow-sm rounded-3">
                     <div class="d-flex align-items-center">
-                        <i class="mdi mdi-check-decagram fs-18 text-success me-2"></i>
+                        <i class="mdi mdi-check-decagram fs-20 text-success me-2"></i>
                         <div>
-                            <strong>Identity Verified!</strong><br>
-                            Scanned name <u>"${scannedUpper}"</u> matches pilgrim <strong>"${currentScanPersonName}"</strong>.
+                            <strong class="text-success fs-13">Identity Verified!</strong><br>
+                            Passport identity <u>"${scannedUpper}"</u> matches target pilgrim <strong>"${currentScanPersonName}"</strong>.
                         </div>
                     </div>
                 </div>`;
         } else {
             isNameMatched = false;
-            overrideBox.classList.remove('d-none');
+            if (overrideBox) overrideBox.classList.remove('d-none');
             btnSave.disabled = true;
 
             resultBox.innerHTML = `
-                <div class="alert alert-danger border-danger py-2 px-3 fs-12 mb-2">
-                    <div class="d-flex align-items-center mb-1">
-                        <i class="mdi mdi-alert-octagon fs-20 text-danger me-2"></i>
-                        <strong class="fs-13 text-danger">PASSPORT MISMATCH DETECTED!</strong>
+                <div class="alert alert-danger border-danger p-3 fs-12 mb-2 shadow-sm rounded-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="mdi mdi-alert-octagon fs-24 text-danger me-2"></i>
+                        <div>
+                            <strong class="fs-13 text-danger d-block">Invalid Passport! This is not the passport of this pilgrim.</strong>
+                            <span class="text-muted fs-11">The uploaded document identity does not match the target pilgrim in this booking.</span>
+                        </div>
                     </div>
-                    <div class="mb-1">
-                        Passport belongs to: <strong class="text-danger">${scannedUpper || 'Unknown Person'}</strong>
+                    <div class="bg-white rounded p-2 border border-danger-subtle mb-2">
+                        <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                            <span class="text-muted fs-11">Target Pilgrim in System:</span>
+                            <strong class="text-dark fs-12">${currentScanPersonName}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <span class="text-muted fs-11">Uploaded Passport Belongs To:</span>
+                            <strong class="text-danger fs-12">${scannedUpper || 'Unknown Person'}</strong>
+                        </div>
                     </div>
-                    <div class="mb-1">
-                        Target Pilgrim is: <strong>${currentScanPersonName}</strong>
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pt-2 border-top border-danger-subtle">
+                        <button type="button" class="btn btn-xs btn-outline-danger" onclick="document.getElementById('scannerFileInput').click()">
+                            <i class="mdi mdi-file-replace-outline me-1"></i>Select Correct Passport File
+                        </button>
+                        <div class="form-check m-0">
+                            <input class="form-check-input" type="checkbox" id="inlineOverrideCheck" onchange="handleInlineOverride(this.checked)">
+                            <label class="form-check-label fs-11 text-danger fw-bold" for="inlineOverrideCheck">
+                                Confirm this passport belongs to ${currentScanPersonName} (Override Mismatch)
+                            </label>
+                        </div>
                     </div>
-                    <small class="text-muted d-block mt-1">
-                        ⚠️ System has flagged this file to prevent assigning the wrong person's passport to ${currentScanPersonName}.
-                    </small>
                 </div>`;
         }
     }
 
+    function handleInlineOverride(checked) {
+        const bottomCheck = document.getElementById('overrideCheck');
+        if (bottomCheck) bottomCheck.checked = checked;
+        document.getElementById('btnConfirmPassportSave').disabled = !checked && !isNameMatched;
+    }
+
     function toggleSaveButtonState() {
         const override = document.getElementById('overrideCheck').checked;
+        const inlineCheck = document.getElementById('inlineOverrideCheck');
+        if (inlineCheck) inlineCheck.checked = override;
         document.getElementById('btnConfirmPassportSave').disabled = !override && !isNameMatched;
     }
 
@@ -1642,8 +1830,32 @@
         return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 </script>
+<script src="{{ asset('assets/libs/zxing/zxing.min.js') }}"></script>
+<script>
+    if (typeof ZXing === 'undefined') {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+        document.head.appendChild(s);
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
+.pagination-wrapper .pagination {
+    margin-bottom: 0;
+    gap: 3px;
+}
+.pagination-wrapper .page-item .page-link {
+    border-radius: 6px;
+    font-size: 12.5px;
+    padding: 0.35rem 0.75rem;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+.pagination-wrapper .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
 @keyframes laserMove {
     0% { top: 0%; opacity: 0.8; }
     50% { top: 95%; opacity: 1; }

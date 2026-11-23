@@ -335,7 +335,7 @@ class PilgrimDocumentController extends Controller
             return response()->json([
                 'success' => false,
                 'mismatch' => true,
-                'message' => "Passport Mismatch: Scanned passport belongs to '{$scannedName}', but current pilgrim is '{$person->full_name}'.",
+                'message' => "Invalid Passport! This is not the passport of this pilgrim. Uploaded passport belongs to '{$scannedName}', but target pilgrim is '{$person->full_name}'.",
                 'scanned_name' => $scannedName,
                 'target_name' => $person->full_name,
             ], 422);
