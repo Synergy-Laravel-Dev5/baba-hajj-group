@@ -372,18 +372,15 @@
                                                             })">
                                                         <i class="mdi mdi-eye me-1"></i>View
                                                     </button>
-                                                    <div class="btn-group btn-group-sm">
-                                                        <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
-                                                                title="Delete Passport" onclick="deleteDoc({{ $p->id }}, 'passport')" style="font-size:10px;">
-                                                            <i class="mdi mdi-trash-can-outline"></i>
-                                                        </button>
-                                                    </div>
+                                                    <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
+                                                            title="Delete Passport" onclick="deleteDoc({{ $p->id }}, 'passport')" style="font-size:10px;">
+                                                        <i class="mdi mdi-trash-can-outline"></i>
+                                                    </button>
                                                 </div>
                                             @else
-                                                <label class="btn btn-sm btn-outline-secondary py-1 px-2 border-dashed w-100" style="cursor:pointer; font-size:11px;">
-                                                    <i class="mdi mdi-file-document-outline me-1 text-info"></i>Upload
-                                                    <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'passport')" accept="image/*,.pdf">
-                                                </label>
+                                                <span class="badge bg-light text-muted border px-2 py-1 fs-11 fw-normal">
+                                                    <i class="mdi mdi-minus me-1"></i>Not Uploaded
+                                                </span>
                                             @endif
                                         </td>
 
@@ -395,22 +392,15 @@
                                                     <img src="{{ $picUrl }}?v={{ time() }}" alt="Photo"
                                                          class="rounded border shadow-sm" style="width:36px; height:36px; object-fit:cover; cursor:pointer;"
                                                          onclick="previewDocument('{{ $picUrl }}', 'Picture - {{ addslashes($p->full_name) }}')">
-                                                    <div class="btn-group btn-group-sm">
-                                                        <label class="btn btn-xs btn-light text-primary py-0 px-1 border" title="Change Photo" style="cursor:pointer; font-size:10px;">
-                                                            <i class="mdi mdi-camera"></i>
-                                                            <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'picture')" accept="image/*">
-                                                        </label>
-                                                        <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
-                                                                title="Delete Photo" onclick="deleteDoc({{ $p->id }}, 'picture')" style="font-size:10px;">
-                                                            <i class="mdi mdi-trash-can-outline"></i>
-                                                        </button>
-                                                    </div>
+                                                    <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
+                                                            title="Delete Photo" onclick="deleteDoc({{ $p->id }}, 'picture')" style="font-size:10px;">
+                                                        <i class="mdi mdi-trash-can-outline"></i>
+                                                    </button>
                                                 </div>
                                             @else
-                                                <label class="btn btn-sm btn-outline-secondary py-1 px-2 border-dashed w-100" style="cursor:pointer; font-size:11px;">
-                                                    <i class="mdi mdi-camera me-1 text-success"></i>Upload
-                                                    <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'picture')" accept="image/*">
-                                                </label>
+                                                <span class="badge bg-light text-muted border px-2 py-1 fs-11 fw-normal">
+                                                    <i class="mdi mdi-minus me-1"></i>Not Uploaded
+                                                </span>
                                             @endif
                                         </td>
 
@@ -423,22 +413,15 @@
                                                             onclick="previewDocument('{{ $medUrl }}', 'Medical - {{ addslashes($p->full_name) }}')">
                                                         <i class="mdi mdi-eye me-1"></i>Medical
                                                     </button>
-                                                    <div class="btn-group btn-group-sm">
-                                                        <label class="btn btn-xs btn-light text-primary py-0 px-1 border" title="Replace Medical" style="cursor:pointer; font-size:10px;">
-                                                            <i class="mdi mdi-upload"></i>
-                                                            <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'medical')" accept="image/*,.pdf">
-                                                        </label>
-                                                        <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
-                                                                title="Delete Medical" onclick="deleteDoc({{ $p->id }}, 'medical')" style="font-size:10px;">
-                                                            <i class="mdi mdi-trash-can-outline"></i>
-                                                        </button>
-                                                    </div>
+                                                    <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
+                                                            title="Delete Medical" onclick="deleteDoc({{ $p->id }}, 'medical')" style="font-size:10px;">
+                                                        <i class="mdi mdi-trash-can-outline"></i>
+                                                    </button>
                                                 </div>
                                             @else
-                                                <label class="btn btn-sm btn-outline-secondary py-1 px-2 border-dashed w-100" style="cursor:pointer; font-size:11px;">
-                                                    <i class="mdi mdi-hospital-box-outline me-1 text-warning"></i>Upload
-                                                    <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'medical')" accept="image/*,.pdf">
-                                                </label>
+                                                <span class="badge bg-light text-muted border px-2 py-1 fs-11 fw-normal">
+                                                    <i class="mdi mdi-minus me-1"></i>Not Uploaded
+                                                </span>
                                             @endif
                                         </td>
 
@@ -452,22 +435,15 @@
                                                             onclick="previewDocument('{{ $idDocUrl }}', 'ID - {{ addslashes($p->full_name) }}')">
                                                         <i class="mdi mdi-eye me-1"></i>ID Card
                                                     </button>
-                                                    <div class="btn-group btn-group-sm">
-                                                        <label class="btn btn-xs btn-light text-primary py-0 px-1 border" title="Replace ID Document" style="cursor:pointer; font-size:10px;">
-                                                            <i class="mdi mdi-upload"></i>
-                                                            <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'id_document')" accept="image/*,.pdf">
-                                                        </label>
-                                                        <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
-                                                                title="Delete ID Document" onclick="deleteDoc({{ $p->id }}, 'id_document')" style="font-size:10px;">
-                                                            <i class="mdi mdi-trash-can-outline"></i>
-                                                        </button>
-                                                    </div>
+                                                    <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
+                                                            title="Delete ID Document" onclick="deleteDoc({{ $p->id }}, 'id_document')" style="font-size:10px;">
+                                                        <i class="mdi mdi-trash-can-outline"></i>
+                                                    </button>
                                                 </div>
                                             @else
-                                                <label class="btn btn-sm btn-outline-secondary py-1 px-2 border-dashed w-100" style="cursor:pointer; font-size:11px;">
-                                                    <i class="mdi mdi-card-account-details-outline me-1" style="color:#8b5cf6;"></i>Upload
-                                                    <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'id_document')" accept="image/*,.pdf">
-                                                </label>
+                                                <span class="badge bg-light text-muted border px-2 py-1 fs-11 fw-normal">
+                                                    <i class="mdi mdi-minus me-1"></i>Not Uploaded
+                                                </span>
                                             @endif
                                         </td>
 
@@ -1184,16 +1160,14 @@
                                     onclick="previewDocument('${data.file_url}', '${labelText}')">
                                 <i class="mdi mdi-eye me-1"></i>View
                             </button>
-                            <div class="btn-group btn-group-sm">
-                                <label class="btn btn-xs btn-light text-primary py-0 px-1 border" title="Replace" style="cursor:pointer; font-size:10px;">
-                                    <i class="mdi mdi-upload"></i>
-                                    <input type="file" class="d-none" onchange="uploadSingleDoc(this, ${personId}, '${type}')" accept="image/*,.pdf">
-                                </label>
-                                <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
-                                        title="Delete" onclick="deleteDoc(${personId}, '${type}')" style="font-size:10px;">
-                                    <i class="mdi mdi-trash-can-outline"></i>
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-sm btn-${colorClass} py-0 px-2 fs-11"
+                                    onclick="previewDocument('${data.file_url}', '${labelText}')">
+                                <i class="mdi mdi-eye me-1"></i>View
+                            </button>
+                            <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
+                                    title="Delete" onclick="deleteDoc(${personId}, '${type}')" style="font-size:10px;">
+                                <i class="mdi mdi-trash-can-outline"></i>
+                            </button>
                         </div>`;
                 }
                 showToast('Success', data.message || 'File uploaded successfully!', 'success');
@@ -1225,12 +1199,10 @@
             if (data.success) {
                 const targetCell = document.getElementById(`cell_${type}_${personId}`);
                 if (targetCell) {
-                    const icon = type === 'passport' ? 'mdi-file-document-outline text-info' : (type === 'picture' ? 'mdi-camera text-success' : (type === 'medical' ? 'mdi-hospital-box-outline text-warning' : 'mdi-card-account-details-outline text-purple'));
                     targetCell.innerHTML = `
-                        <label class="btn btn-sm btn-outline-secondary py-1 px-2 border-dashed w-100" style="cursor:pointer; font-size:11px;">
-                            <i class="mdi ${icon} me-1"></i>Upload
-                            <input type="file" class="d-none" onchange="uploadSingleDoc(this, ${personId}, '${type}')" accept="${type === 'picture' ? 'image/*' : 'image/*,.pdf'}">
-                        </label>`;
+                        <span class="badge bg-light text-muted border px-2 py-1 fs-11 fw-normal">
+                            <i class="mdi mdi-minus me-1"></i>Not Uploaded
+                        </span>`;
                 }
                 showToast('Deleted', data.message, 'info');
             }
