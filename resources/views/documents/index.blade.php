@@ -242,7 +242,7 @@
                         <span class="badge bg-light text-dark border">{{ $persons->total() }} Records</span>
                     </div>
                     <div class="text-muted small">
-                        <i class="mdi mdi-information-outline text-info"></i> Upload directly via file buttons or use the quick <strong class="text-primary">"Manage"</strong> modal per pilgrim.
+                        <i class="mdi mdi-information-outline text-info"></i> Documents overview. To upload, scan, or update documents & credentials, click the <strong class="text-primary">"Manage"</strong> button per pilgrim.
                     </div>
                 </div>
 
@@ -300,6 +300,18 @@
                                                 </div>
                                                 <div class="flex-grow-1" style="line-height:1.25;">
                                                     <div class="fw-bold text-dark fs-13" id="pilgrim_name_{{ $p->id }}">{{ $p->full_name }}</div>
+                                                    @if(!empty($p->given_name) || !empty($p->surname))
+                                                        <div class="text-secondary" style="font-size:11px;" id="pilgrim_parts_{{ $p->id }}">
+                                                            @if(!empty($p->given_name))
+                                                                <span>Given: <strong class="text-dark">{{ $p->given_name }}</strong></span>
+                                                            @endif
+                                                            @if(!empty($p->surname))
+                                                                <span class="ms-1">· Surname: <strong class="text-dark">{{ $p->surname }}</strong></span>
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <div class="text-secondary d-none" style="font-size:11px;" id="pilgrim_parts_{{ $p->id }}"></div>
+                                                    @endif
                                                     @if(!empty($p->father_name))
                                                         <div class="text-muted" style="font-size:11px;" id="pilgrim_father_{{ $p->id }}">S/O, D/O, W/O: <strong>{{ $p->father_name }}</strong></div>
                                                     @else
@@ -316,9 +328,14 @@
                                                                 Pass: <strong>{{ $p->passport_number }}</strong>
                                                             @endif
                                                         </span>
-                                                        @if(!empty($p->cnic))
-                                                            <span class="ms-1">· CNIC: <strong>{{ $p->cnic }}</strong></span>
-                                                        @endif
+                                                        @php
+                                                            $displayCnic = $p->cnic ?: ($p->booking?->client?->cnic ?? null);
+                                                        @endphp
+                                                        <span id="pilgrim_cnic_span_{{ $p->id }}">
+                                                            @if(!empty($displayCnic))
+                                                                <span class="ms-1">· CNIC: <strong>{{ $displayCnic }}</strong></span>
+                                                            @endif
+                                                        </span>
                                                         @php
                                                             $isExp = !empty($p->passport_expiry_date) && \Carbon\Carbon::parse($p->passport_expiry_date)->lt(now()->addMonths(6));
                                                         @endphp
@@ -340,15 +357,22 @@
                                                 @php $passUrl = asset($p->passport_image); @endphp
                                                 <div class="d-inline-flex flex-column align-items-center gap-1">
                                                     <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 fs-11"
-                                                            onclick="previewDocument('{{ $passUrl }}', 'Passport - {{ addslashes($p->full_name) }}')">
+                                                            onclick="previewPassport('{{ $passUrl }}', {
+                                                                personId: {{ $p->id }},
+                                                                fullName: '{{ addslashes($p->full_name) }}',
+                                                                givenName: '{{ addslashes($p->given_name ?? '') }}',
+                                                                surname: '{{ addslashes($p->surname ?? '') }}',
+                                                                fatherName: '{{ addslashes($p->father_name ?? '') }}',
+                                                                passportNumber: '{{ addslashes($p->passport_number ?? '') }}',
+                                                                cnic: '{{ addslashes($displayCnic ?? '') }}',
+                                                                gender: '{{ addslashes($p->gender ?? 'Male') }}',
+                                                                dob: '{{ addslashes($p->dob ?? '') }}',
+                                                                dateOfIssue: '{{ addslashes($p->date_of_issue ?? $p->passport_issue_date ?? '') }}',
+                                                                expiryDate: '{{ addslashes($p->passport_expiry_date ?? '') }}'
+                                                            })">
                                                         <i class="mdi mdi-eye me-1"></i>View
                                                     </button>
                                                     <div class="btn-group btn-group-sm">
-                                                        <button type="button" class="btn btn-xs btn-light text-primary py-0 px-1 border"
-                                                                title="Scan & Replace Passport" style="cursor:pointer; font-size:10px;"
-                                                                onclick="openPassportScanner({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->passport_number ?? '') }}', '{{ addslashes($p->gender ?? 'Male') }}', '{{ addslashes($p->dob ?? '') }}', '{{ addslashes($p->passport_expiry_date ?? '') }}', '{{ addslashes($p->given_name ?? '') }}', '{{ addslashes($p->surname ?? '') }}', '{{ addslashes($p->father_name ?? '') }}', '{{ addslashes($p->date_of_issue ?? $p->passport_issue_date ?? '') }}')">
-                                                            <i class="mdi mdi-camera-metering me-1"></i>Scan
-                                                        </button>
                                                         <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
                                                                 title="Delete Passport" onclick="deleteDoc({{ $p->id }}, 'passport')" style="font-size:10px;">
                                                             <i class="mdi mdi-trash-can-outline"></i>
@@ -356,10 +380,10 @@
                                                     </div>
                                                 </div>
                                             @else
-                                                <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 border-dashed w-100" style="font-size:11px;"
-                                                        onclick="openPassportScanner({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->passport_number ?? '') }}', '{{ addslashes($p->gender ?? 'Male') }}', '{{ addslashes($p->dob ?? '') }}', '{{ addslashes($p->passport_expiry_date ?? '') }}', '{{ addslashes($p->given_name ?? '') }}', '{{ addslashes($p->surname ?? '') }}', '{{ addslashes($p->father_name ?? '') }}', '{{ addslashes($p->date_of_issue ?? $p->passport_issue_date ?? '') }}')">
-                                                    <i class="mdi mdi-camera-metering me-1 text-primary"></i>Scan & Upload
-                                                </button>
+                                                <label class="btn btn-sm btn-outline-secondary py-1 px-2 border-dashed w-100" style="cursor:pointer; font-size:11px;">
+                                                    <i class="mdi mdi-file-document-outline me-1 text-info"></i>Upload
+                                                    <input type="file" class="d-none" onchange="uploadSingleDoc(this, {{ $p->id }}, 'passport')" accept="image/*,.pdf">
+                                                </label>
                                             @endif
                                         </td>
 
@@ -501,7 +525,7 @@
                                         <td class="text-center">
                                             <div class="d-flex align-items-center justify-content-center gap-1">
                                                 <button type="button" class="btn btn-xs btn-primary py-1 px-2 fs-11"
-                                                        onclick="openEditAllModal({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->portal_email ?? '') }}', '{{ addslashes($p->portal_password ?? '') }}')"
+                                                        onclick="openEditAllModal({{ $p->id }}, '{{ addslashes($p->full_name) }}', '{{ addslashes($p->portal_email ?? '') }}', '{{ addslashes($p->portal_password ?? '') }}', '{{ addslashes($p->cnic ?? '') }}', '{{ !empty($p->passport_image) && file_exists(public_path($p->passport_image)) ? asset($p->passport_image) : '' }}', '{{ !empty($p->photo) && file_exists(public_path($p->photo)) ? asset($p->photo) : '' }}', '{{ !empty($p->medical_document) && file_exists(public_path($p->medical_document)) ? asset($p->medical_document) : '' }}', '{{ !empty($p->id_document) && file_exists(public_path($p->id_document)) ? asset($p->id_document) : '' }}')"
                                                         title="Upload all documents & manage credentials">
                                                     <i class="mdi mdi-square-edit-outline me-1"></i>Manage
                                                 </button>
@@ -553,9 +577,48 @@
                 <h5 class="modal-title fs-14" id="previewModalTitle">Document Preview</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-0 text-center bg-light" style="min-height: 400px; display:flex; align-items:center; justify-content:center;">
-                <div id="previewContainer" style="width:100%; height:100%;">
-                    <!-- Dynamically populated -->
+            <div class="modal-body p-0 bg-light">
+                <!-- Person & Passport Details Card -->
+                <div id="previewDetailsCard" class="p-3 bg-white border-bottom d-none">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="mb-0 fw-bold text-primary">
+                            <i class="mdi mdi-passport me-1"></i>Passport & Identity Details
+                        </h6>
+                        <span id="previewPassportValidityBadge"></span>
+                    </div>
+                    <div class="row g-2 text-start fs-12">
+                        <div class="col-md-4 col-sm-6">
+                            <span class="text-muted d-block fs-11">Pilgrim Full Name</span>
+                            <strong class="text-dark" id="prev_full_name">-</strong>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <span class="text-muted d-block fs-11">Passport Number</span>
+                            <strong class="text-primary font-monospace fs-13" id="prev_pass_no">-</strong>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <span class="text-muted d-block fs-11">Father / Husband Name</span>
+                            <strong class="text-dark" id="prev_father_name">-</strong>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <span class="text-muted d-block fs-11">CNIC Number</span>
+                            <strong class="text-dark font-monospace" id="prev_cnic">-</strong>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <span class="text-muted d-block fs-11">Date of Birth / Gender</span>
+                            <strong class="text-dark" id="prev_dob_gender">-</strong>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <span class="text-muted d-block fs-11">Date of Issue / Expiry</span>
+                            <strong class="text-dark" id="prev_dates">-</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Viewer -->
+                <div class="text-center p-2" style="min-height: 400px; display:flex; align-items:center; justify-content:center;">
+                    <div id="previewContainer" style="width:100%; height:100%;">
+                        <!-- Dynamically populated -->
+                    </div>
                 </div>
             </div>
             <div class="modal-footer py-2 px-3 justify-content-between">
@@ -579,7 +642,7 @@
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-gradient bg-primary text-white py-2 px-3">
                 <h5 class="modal-title fs-15 d-flex align-items-center gap-2">
-                    <i class="mdi mdi-camera-metering"></i> Smart Passport Scanner & Verification
+                    <i class="mdi mdi-passport"></i> Passport Document & Identity Details
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="resetPassportScanner()"></button>
             </div>
@@ -597,22 +660,41 @@
                 </div>
 
                 <div class="row g-3">
-                    <!-- Left: Upload & Scanning Zone -->
+                    <!-- Left: Passport Document Display / Upload Zone -->
                     <div class="col-md-6 border-end">
-                        <label class="form-label fw-bold fs-12 mb-1">
-                            <i class="mdi mdi-upload me-1 text-primary"></i>Upload Passport (Image or PDF)
-                        </label>
-                        <div class="border rounded p-3 text-center bg-light position-relative" id="dropZone" style="min-height: 220px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('scannerFileInput').click()">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="form-label fw-bold fs-12 mb-0">
+                                <i class="mdi mdi-file-document-outline me-1 text-primary"></i>Passport Document
+                            </label>
+                            <span id="scanDocumentTypeBadge" class="badge bg-light text-secondary border fs-10">Document</span>
+                        </div>
+                        <div class="border rounded p-2 text-center bg-light position-relative" id="dropZone" style="min-height: 280px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
                             <input type="file" id="scannerFileInput" class="d-none" accept="image/*,.pdf" onchange="handlePassportFileSelected(this)">
-                            <div id="dropZonePrompt">
+                            <div id="dropZonePrompt" class="d-none p-4" style="cursor:pointer;" onclick="document.getElementById('scannerFileInput').click()">
                                 <i class="mdi mdi-file-document-outline fs-40 text-primary mb-1"></i>
                                 <div class="fw-bold fs-13 text-dark">Click or Drag & Drop Passport</div>
                                 <small class="text-muted d-block">Supports JPG, PNG, WEBP, PDF (Max 10MB)</small>
                             </div>
-                            <div id="scanPreviewBox" class="d-none w-100 position-relative">
-                                <img id="scanPreviewImg" src="" style="max-width:100%; max-height:190px; object-fit:contain; border-radius:4px;" class="shadow-sm">
+                            <div id="scanPreviewBox" class="w-100 position-relative text-center" style="min-height: 260px; display: flex; align-items: center; justify-content: center;">
+                                <img id="scanPreviewImg" src="" style="max-width:100%; max-height:360px; object-fit:contain; border-radius:4px;" class="shadow-sm">
+                                <iframe id="scanPreviewPdf" src="" style="width:100%; height:360px; border:none; border-radius:4px;" class="shadow-sm d-none"></iframe>
                                 <div id="scanLaserLine" class="d-none position-absolute w-100" style="height:3px; background:#10b981; box-shadow:0 0 10px #10b981; top:0;"></div>
                             </div>
+                        </div>
+
+                        <!-- Document Action Buttons (Download, View Full, Replace) -->
+                        <div id="scanDocActions" class="d-flex align-items-center justify-content-between mt-2 pt-1 border-top">
+                            <div class="d-flex gap-1">
+                                <a href="#" id="scanDocDownloadBtn" class="btn btn-xs btn-outline-primary" download target="_blank">
+                                    <i class="mdi mdi-download me-1"></i>Download
+                                </a>
+                                <a href="#" id="scanDocOpenBtn" class="btn btn-xs btn-outline-secondary" target="_blank">
+                                    <i class="mdi mdi-open-in-new me-1"></i>Full Size
+                                </a>
+                            </div>
+                            <button type="button" class="btn btn-xs btn-outline-warning" onclick="document.getElementById('scannerFileInput').click()">
+                                <i class="mdi mdi-file-replace-outline me-1"></i>Replace File
+                            </button>
                         </div>
 
                         <!-- Scan Status / Progress -->
@@ -627,40 +709,44 @@
                         </div>
                     </div>
 
-                    <!-- Right: Verification Result & Auto-Extracted Details -->
+                    <!-- Right: Verification Result & Details Form -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold fs-12 mb-1">
                             <i class="mdi mdi-shield-check-outline me-1 text-success"></i>Identity Verification & Details
                         </label>
 
-                        <!-- Verification Alert Box (Green match or Red Mismatch) -->
+                        <!-- Verification Alert Box -->
                         <div id="verificationResultBox">
-                            <div class="alert alert-secondary py-2 px-3 fs-12 mb-2">
-                                <i class="mdi mdi-information-outline me-1"></i> Upload a passport to scan and verify against the pilgrim's name.
+                            <div class="alert alert-success py-2 px-3 fs-12 mb-2 d-flex align-items-center justify-content-between">
+                                <div><i class="mdi mdi-check-decagram text-success me-1"></i><strong>Passport Document & Details</strong></div>
                             </div>
                         </div>
 
-                        <!-- Extracted Form Fields -->
+                        <!-- Extracted / Editable Form Fields -->
                         <div class="row g-2">
                             <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Given Name</label>
-                                <input type="text" id="scan_field_given_name" class="form-control form-control-sm text-dark" placeholder="e.g. MUHAMMAD HADI" oninput="updateFullNameFromParts()">
+                                <input type="text" id="scan_field_given_name" class="form-control form-control-sm text-dark fw-bold" placeholder="e.g. MUHAMMAD HADI" oninput="updateFullNameFromParts()">
                             </div>
                             <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Surname</label>
-                                <input type="text" id="scan_field_surname" class="form-control form-control-sm text-dark" placeholder="e.g. SIDDIQUI" oninput="updateFullNameFromParts()">
+                                <input type="text" id="scan_field_surname" class="form-control form-control-sm text-dark fw-bold" placeholder="e.g. SIDDIQUI" oninput="updateFullNameFromParts()">
                             </div>
                             <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Father / Husband Name</label>
-                                <input type="text" id="scan_field_father_name" class="form-control form-control-sm text-dark" placeholder="Auto-extracted or enter">
+                                <input type="text" id="scan_field_father_name" class="form-control form-control-sm text-dark" placeholder="Father or Husband Name">
                             </div>
                             <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Full Name</label>
-                                <input type="text" id="scan_field_name" class="form-control form-control-sm fw-bold text-dark" placeholder="Auto-extracted from passport" oninput="verifyPassportIdentityManually()">
+                                <input type="text" id="scan_field_name" class="form-control form-control-sm fw-bold text-dark" placeholder="Full Name" oninput="verifyPassportIdentityManually()">
                             </div>
                             <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Passport Number</label>
                                 <input type="text" id="scan_field_passport_no" class="form-control form-control-sm font-monospace text-primary fw-bold" placeholder="e.g. AB1234567">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fs-11 text-muted mb-0 fw-bold">CNIC Number</label>
+                                <input type="text" id="scan_field_cnic" class="form-control form-control-sm font-monospace text-dark fw-bold" placeholder="e.g. 42101-1234567-1">
                             </div>
                             <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Gender</label>
@@ -669,15 +755,15 @@
                                     <option value="Female">Female</option>
                                 </select>
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Date of Birth</label>
                                 <input type="date" id="scan_field_dob" class="form-control form-control-sm">
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Date of Issue</label>
                                 <input type="date" id="scan_field_issue_date" class="form-control form-control-sm">
                             </div>
-                            <div class="col-4">
+                            <div class="col-6">
                                 <label class="form-label fs-11 text-muted mb-0 fw-bold">Passport Expiry Date</label>
                                 <input type="date" id="scan_field_expiry" class="form-control form-control-sm" onchange="checkHajjValidityFromDate(this.value)">
                             </div>
@@ -700,9 +786,9 @@
                 </div>
             </div>
             <div class="modal-footer py-2 px-3 justify-content-between">
-                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" onclick="resetPassportScanner()">Cancel</button>
-                <button type="button" class="btn btn-sm btn-success" id="btnConfirmPassportSave" onclick="submitVerifiedPassport()" disabled>
-                    <i class="mdi mdi-check-circle me-1"></i>Confirm & Auto-Fill Details
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" onclick="resetPassportScanner()">Close</button>
+                <button type="button" class="btn btn-sm btn-success" id="btnConfirmPassportSave" onclick="submitVerifiedPassport()">
+                    <i class="mdi mdi-content-save-check me-1"></i>Save & Update Details
                 </button>
             </div>
         </div>
@@ -727,46 +813,78 @@
                     <div class="row g-3">
                         <!-- Passport -->
                         <div class="col-12">
-                            <label class="form-label fw-bold fs-12 mb-1">
-                                <i class="mdi mdi-file-document-outline text-info me-1"></i>1. Passport Document (PDF or Scan)
-                            </label>
-                            <input type="file" name="passport" class="form-control form-control-sm" accept="image/*,.pdf">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <label class="form-label fw-bold fs-12 mb-0">
+                                    <i class="mdi mdi-file-document-outline text-info me-1"></i>1. Passport Document (PDF or Scan)
+                                </label>
+                                <div id="manageCurrentPassport"></div>
+                            </div>
+                            <input type="file" name="passport" id="managePassportInput" class="form-control form-control-sm" accept="image/*,.pdf" onchange="handleManagePassportSelected(this)">
+                            <div id="managePassportScanStatus" class="mt-1 d-none fs-11"></div>
+                            <!-- Hidden auto-fill inputs from passport scanner -->
+                            <input type="hidden" name="scanned_name" id="manage_scanned_name">
+                            <input type="hidden" name="given_name" id="manage_given_name">
+                            <input type="hidden" name="surname" id="manage_surname">
+                            <input type="hidden" name="father_name" id="manage_father_name">
+                            <input type="hidden" name="passport_number" id="manage_passport_no">
+                            <input type="hidden" name="gender" id="manage_gender">
+                            <input type="hidden" name="dob" id="manage_dob">
+                            <input type="hidden" name="date_of_issue" id="manage_issue_date">
+                            <input type="hidden" name="passport_expiry_date" id="manage_expiry_date">
                         </div>
 
                         <!-- Picture -->
                         <div class="col-12">
-                            <label class="form-label fw-bold fs-12 mb-1">
-                                <i class="mdi mdi-camera text-success me-1"></i>2. Picture (Pilgrim Photo)
-                            </label>
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <label class="form-label fw-bold fs-12 mb-0">
+                                    <i class="mdi mdi-camera text-success me-1"></i>2. Picture (Pilgrim Photo)
+                                </label>
+                                <div id="manageCurrentPicture"></div>
+                            </div>
                             <input type="file" name="picture" class="form-control form-control-sm" accept="image/*">
                         </div>
 
                         <!-- Medical -->
                         <div class="col-12">
-                            <label class="form-label fw-bold fs-12 mb-1">
-                                <i class="mdi mdi-hospital-box-outline text-warning me-1"></i>3. Medical Certificate / Report
-                            </label>
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <label class="form-label fw-bold fs-12 mb-0">
+                                    <i class="mdi mdi-hospital-box-outline text-warning me-1"></i>3. Medical Certificate / Report
+                                </label>
+                                <div id="manageCurrentMedical"></div>
+                            </div>
                             <input type="file" name="medical" class="form-control form-control-sm" accept="image/*,.pdf">
                         </div>
 
                         <!-- ID -->
                         <div class="col-12">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <label class="form-label fw-bold fs-12 mb-0">
+                                    <i class="mdi mdi-card-account-details-outline text-purple me-1"></i>4. ID (CNIC / Smart Card)
+                                </label>
+                                <div id="manageCurrentId"></div>
+                            </div>
+                            <input type="file" name="id_document" id="manageIdInput" class="form-control form-control-sm" accept="image/*,.pdf" onchange="handleManageIdSelected(this)">
+                            <div id="manageIdScanStatus" class="mt-1 d-none fs-11"></div>
+                        </div>
+
+                        <!-- CNIC Number -->
+                        <div class="col-12">
                             <label class="form-label fw-bold fs-12 mb-1">
-                                <i class="mdi mdi-card-account-details-outline text-purple me-1"></i>4. ID (CNIC / Smart Card)
+                                <i class="mdi mdi-card-account-details text-primary me-1"></i>5. CNIC Number (Auto-extracted or Manual)
                             </label>
-                            <input type="file" name="id_document" class="form-control form-control-sm" accept="image/*,.pdf">
+                            <input type="text" name="cnic" id="manage_cnic" class="form-control form-control-sm font-monospace" placeholder="e.g. 42201-5372957-0">
                         </div>
 
                         <!-- Credentials: Email & Password -->
                         <div class="col-md-6 col-12">
                             <label class="form-label fw-bold fs-12 mb-1">
-                                <i class="mdi mdi-email-outline text-primary me-1"></i>5. Portal / Nusuk Email
+                                <i class="mdi mdi-email-outline text-primary me-1"></i>6. Portal / Nusuk Email
                             </label>
                             <input type="text" name="email" id="modalEmailInput" class="form-control form-control-sm" placeholder="e.g. pilgrim@gmail.com">
                         </div>
                         <div class="col-md-6 col-12">
                             <label class="form-label fw-bold fs-12 mb-1">
-                                <i class="mdi mdi-lock-outline text-danger me-1"></i>6. Portal / Nusuk Password
+                                <i class="mdi mdi-lock-outline text-danger me-1"></i>7. Portal / Nusuk Password
                             </label>
                             <input type="text" name="password" id="modalPasswordInput" class="form-control form-control-sm font-monospace" placeholder="e.g. Pass@1234">
                         </div>
@@ -793,6 +911,11 @@
     function previewDocument(url, title) {
         document.getElementById('previewModalTitle').textContent = title || 'Document Preview';
         document.getElementById('previewDownloadBtn').href = url;
+
+        // Hide passport details card for generic document previews
+        const detailsCard = document.getElementById('previewDetailsCard');
+        if (detailsCard) detailsCard.classList.add('d-none');
+
         const container = document.getElementById('previewContainer');
         container.innerHTML = '<div class="py-5 text-muted"><i class="mdi mdi-loading mdi-spin fs-24"></i> Loading document...</div>';
 
@@ -816,15 +939,182 @@
         modal.show();
     }
 
-    // 2. OPEN EDIT ALL MODAL
-    function openEditAllModal(personId, personName, currentEmail, currentPassword) {
+    // 1B. PREVIEW PASSPORT WITH FULL DETAILS MODAL
+    function previewPassport(url, data) {
+        if (typeof data === 'object') {
+            openPassportScanner(
+                data.personId,
+                data.fullName,
+                data.passportNumber,
+                data.gender,
+                data.dob,
+                data.expiryDate,
+                data.givenName,
+                data.surname,
+                data.fatherName,
+                data.dateOfIssue,
+                url,
+                data.cnic
+            );
+            return;
+        }
+        previewDocument(url, data || 'Passport');
+    }
+
+    // 2. OPEN EDIT ALL MODAL (MANAGE ALL DOCUMENTS & CREDENTIALS)
+    function openEditAllModal(personId, personName, currentEmail, currentPassword, currentCnic, passportUrl, photoUrl, medicalUrl, idDocUrl) {
         document.getElementById('modalPilgrimName').textContent = personName;
         const emailInput = document.getElementById('modalEmailInput');
         if (emailInput) emailInput.value = currentEmail || '';
         document.getElementById('modalPasswordInput').value = currentPassword || '';
+        const cnicInput = document.getElementById('manage_cnic');
+        if (cnicInput) cnicInput.value = currentCnic || '';
         document.getElementById('editAllForm').action = `{{ url('admin/documents/person') }}/${personId}/update-all`;
+
+        // Existing Document Status Indicators
+        setupExistingDocIndicator('manageCurrentPassport', passportUrl, 'Passport');
+        setupExistingDocIndicator('manageCurrentPicture', photoUrl, 'Picture', true);
+        setupExistingDocIndicator('manageCurrentMedical', medicalUrl, 'Medical');
+        setupExistingDocIndicator('manageCurrentId', idDocUrl, 'ID Card');
+
+        // Reset inputs & status
+        const pInput = document.getElementById('managePassportInput');
+        if (pInput) pInput.value = '';
+        const statusEl = document.getElementById('managePassportScanStatus');
+        if (statusEl) {
+            statusEl.innerHTML = '';
+            statusEl.classList.add('d-none');
+        }
+        const idInput = document.getElementById('manageIdInput');
+        if (idInput) idInput.value = '';
+        const idStatusEl = document.getElementById('manageIdScanStatus');
+        if (idStatusEl) {
+            idStatusEl.innerHTML = '';
+            idStatusEl.classList.add('d-none');
+        }
+        ['manage_scanned_name', 'manage_given_name', 'manage_surname', 'manage_father_name', 'manage_passport_no', 'manage_gender', 'manage_dob', 'manage_issue_date', 'manage_expiry_date'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+
         const modal = new bootstrap.Modal(document.getElementById('editAllModal'));
         modal.show();
+    }
+
+    function setupExistingDocIndicator(containerId, url, label, isImage) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        if (url) {
+            if (isImage) {
+                el.innerHTML = `<span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2 fs-11">
+                    <i class="mdi mdi-check-circle me-1"></i>Uploaded (<a href="${url}" target="_blank" class="text-success text-decoration-underline">View</a>)
+                </span>`;
+            } else {
+                el.innerHTML = `<span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2 fs-11">
+                    <i class="mdi mdi-check-circle me-1"></i>Uploaded (<a href="${url}" target="_blank" class="text-success text-decoration-underline">View</a>)
+                </span>`;
+            }
+        } else {
+            el.innerHTML = `<span class="badge bg-light text-muted border py-1 px-2 fs-11">Not uploaded</span>`;
+        }
+    }
+
+    function handleManagePassportSelected(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const statusEl = document.getElementById('managePassportScanStatus');
+        if (!statusEl) return;
+        statusEl.classList.remove('d-none');
+        statusEl.innerHTML = `<span class="text-primary"><i class="mdi mdi-loading mdi-spin me-1"></i>Scanning Passport MRZ & auto-extracting details...</span>`;
+
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        if (isPdf) {
+            statusEl.innerHTML = `<span class="badge bg-info-subtle text-info border border-info-subtle"><i class="mdi mdi-file-pdf-box me-1"></i>PDF document selected. Will upload and save.</span>`;
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (typeof Tesseract === 'undefined') {
+                statusEl.innerHTML = `<span class="text-muted"><i class="mdi mdi-check me-1"></i>File selected.</span>`;
+                return;
+            }
+
+            Tesseract.recognize(e.target.result, 'eng')
+                .then(({ data: { text } }) => {
+                    const parsed = parseMRZAndPassport(text);
+                    if (parsed.fullName || parsed.passportNumber) {
+                        if (parsed.fullName) document.getElementById('manage_scanned_name').value = parsed.fullName;
+                        if (parsed.givenName) document.getElementById('manage_given_name').value = parsed.givenName;
+                        if (parsed.surname) document.getElementById('manage_surname').value = parsed.surname;
+                        if (parsed.fatherName) document.getElementById('manage_father_name').value = parsed.fatherName;
+                        if (parsed.passportNumber) document.getElementById('manage_passport_no').value = parsed.passportNumber;
+                        if (parsed.gender) document.getElementById('manage_gender').value = parsed.gender;
+                        if (parsed.dob) document.getElementById('manage_dob').value = parsed.dob;
+                        if (parsed.issueDate) document.getElementById('manage_issue_date').value = parsed.issueDate;
+                        if (parsed.expiryDate) document.getElementById('manage_expiry_date').value = parsed.expiryDate;
+                        if (parsed.cnic) {
+                            const cnicEl = document.getElementById('manage_cnic');
+                            if (cnicEl && !cnicEl.value) cnicEl.value = parsed.cnic;
+                        }
+
+                        const pilgrimName = document.getElementById('modalPilgrimName').textContent.trim();
+                        statusEl.innerHTML = `<span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2">
+                            <i class="mdi mdi-check-circle me-1"></i><strong>Details Auto-Extracted:</strong> ${parsed.fullName || pilgrimName} (Pass: ${parsed.passportNumber || 'N/A'}, Exp: ${parsed.expiryDate || 'N/A'}${parsed.cnic ? ', CNIC: ' + parsed.cnic : ''})
+                        </span>`;
+                    } else {
+                        statusEl.innerHTML = `<span class="text-muted fs-11"><i class="mdi mdi-information-outline me-1"></i>Passport file selected. Click Save to upload.</span>`;
+                    }
+                })
+                .catch(err => {
+                    statusEl.innerHTML = `<span class="text-muted fs-11"><i class="mdi mdi-file-check me-1"></i>Passport file selected.</span>`;
+                });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // 2B. AUTO-SCAN CNIC / ID DOCUMENT IN MANAGE MODAL
+    function handleManageIdSelected(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const statusEl = document.getElementById('manageIdScanStatus');
+        if (!statusEl) return;
+        statusEl.classList.remove('d-none');
+        statusEl.innerHTML = `<span class="text-primary"><i class="mdi mdi-loading mdi-spin me-1"></i>Scanning ID/CNIC document...</span>`;
+
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        if (isPdf) {
+            statusEl.innerHTML = `<span class="badge bg-info-subtle text-info border border-info-subtle"><i class="mdi mdi-file-pdf-box me-1"></i>PDF ID document selected. Will upload and save.</span>`;
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (typeof Tesseract === 'undefined') {
+                statusEl.innerHTML = `<span class="text-muted"><i class="mdi mdi-check me-1"></i>File selected.</span>`;
+                return;
+            }
+
+            Tesseract.recognize(e.target.result, 'eng')
+                .then(({ data: { text } }) => {
+                    // Match 13 digits CNIC pattern: 42201-5372957-0 or 4220153729570
+                    const cnicMatch = text.match(/\b(\d{5})[\s\-]?(\d{7})[\s\-]?(\d{1})\b/);
+                    if (cnicMatch) {
+                        const formattedCnic = `${cnicMatch[1]}-${cnicMatch[2]}-${cnicMatch[3]}`;
+                        const cnicEl = document.getElementById('manage_cnic');
+                        if (cnicEl) cnicEl.value = formattedCnic;
+                        statusEl.innerHTML = `<span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2">
+                            <i class="mdi mdi-check-circle me-1"></i><strong>CNIC Detected:</strong> ${formattedCnic}
+                        </span>`;
+                    } else {
+                        statusEl.innerHTML = `<span class="text-muted fs-11"><i class="mdi mdi-information-outline me-1"></i>ID document selected. Click Save to upload.</span>`;
+                    }
+                })
+                .catch(err => {
+                    statusEl.innerHTML = `<span class="text-muted fs-11"><i class="mdi mdi-file-check me-1"></i>ID document selected.</span>`;
+                });
+        };
+        reader.readAsDataURL(file);
     }
 
     // 3. SINGLE DOCUMENT INSTANT AJAX UPLOAD
@@ -853,7 +1143,7 @@
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Refresh cell with view button
+                // Refresh cell with original format (View + Replace/Delete buttons, NO Scan button)
                 if (type === 'picture') {
                     targetCell.innerHTML = `
                         <div class="d-inline-flex flex-column align-items-center gap-1">
@@ -871,9 +1161,23 @@
                                 </button>
                             </div>
                         </div>`;
+                } else if (type === 'passport') {
+                    targetCell.innerHTML = `
+                        <div class="d-inline-flex flex-column align-items-center gap-1">
+                            <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 fs-11"
+                                    onclick="previewPassport('${data.file_url}', { personId: ${personId} })">
+                                <i class="mdi mdi-eye me-1"></i>View
+                            </button>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
+                                        title="Delete Passport" onclick="deleteDoc(${personId}, 'passport')" style="font-size:10px;">
+                                    <i class="mdi mdi-trash-can-outline"></i>
+                                </button>
+                            </div>
+                        </div>`;
                 } else {
-                    const labelText = type === 'passport' ? 'Passport' : (type === 'medical' ? 'Medical' : 'ID Card');
-                    const colorClass = type === 'passport' ? 'outline-info' : (type === 'medical' ? 'outline-warning text-dark' : 'outline-secondary');
+                    const labelText = type === 'medical' ? 'Medical' : 'ID Card';
+                    const colorClass = type === 'medical' ? 'outline-warning text-dark' : 'outline-secondary';
                     targetCell.innerHTML = `
                         <div class="d-inline-flex flex-column align-items-center gap-1">
                             <button type="button" class="btn btn-sm btn-${colorClass} py-0 px-2 fs-11"
@@ -1086,30 +1390,83 @@
     let isNameMatched = false;
     let scannerModalInstance = null;
 
-    function openPassportScanner(personId, personName, existingPass, existingGender, existingDob, existingExpiry, existingGiven, existingSurname, existingFather, existingIssue) {
+    function openPassportScanner(personId, personName, existingPass, existingGender, existingDob, existingExpiry, existingGiven, existingSurname, existingFather, existingIssue, existingDocUrl = '', existingCnic = '') {
         currentScanPersonId = personId;
         currentScanPersonName = personName;
         currentScanFile = null;
-        isNameMatched = false;
+        isNameMatched = true;
 
-        document.getElementById('scannerTargetNameDisplay').textContent = personName;
-        document.getElementById('scannerTargetIdDisplay').textContent = 'ID: #' + personId;
+        resetPassportScanner();
+
+        document.getElementById('scannerTargetNameDisplay').textContent = personName || 'Pilgrim';
+        document.getElementById('scannerTargetIdDisplay').textContent = personId ? 'ID: #' + personId : 'ID: —';
         document.getElementById('scannerTargetExistingPass').textContent = 'Current Pass: ' + (existingPass || 'None');
 
         // Pre-fill existing data in case scan is partial or viewing details
-        document.getElementById('scan_field_given_name').value = existingGiven || '';
-        document.getElementById('scan_field_surname').value = existingSurname || '';
-        document.getElementById('scan_field_father_name').value = existingFather || '';
-        document.getElementById('scan_field_name').value = personName || '';
-        document.getElementById('scan_field_passport_no').value = existingPass || '';
-        document.getElementById('scan_field_gender').value = existingGender || 'Male';
-        document.getElementById('scan_field_dob').value = existingDob || '';
-        document.getElementById('scan_field_issue_date').value = existingIssue || '';
-        document.getElementById('scan_field_expiry').value = existingExpiry || '';
+        if (existingGiven) document.getElementById('scan_field_given_name').value = existingGiven;
+        if (existingSurname) document.getElementById('scan_field_surname').value = existingSurname;
+        if (existingFather) document.getElementById('scan_field_father_name').value = existingFather;
+        if (personName) document.getElementById('scan_field_name').value = personName;
+        if (existingPass) document.getElementById('scan_field_passport_no').value = existingPass;
+        if (existingCnic) document.getElementById('scan_field_cnic').value = existingCnic;
+        if (existingGender) document.getElementById('scan_field_gender').value = (existingGender.toLowerCase() === 'female') ? 'Female' : 'Male';
+        if (existingDob) document.getElementById('scan_field_dob').value = existingDob;
+        if (existingIssue) document.getElementById('scan_field_issue_date').value = existingIssue;
+        if (existingExpiry) {
+            document.getElementById('scan_field_expiry').value = existingExpiry;
+            checkHajjValidityFromDate(existingExpiry);
+        }
 
-        checkHajjValidityFromDate(existingExpiry);
+        // Handle Left-Side Passport Document Display
+        if (existingDocUrl) {
+            document.getElementById('dropZonePrompt').classList.add('d-none');
+            document.getElementById('scanPreviewBox').classList.remove('d-none');
+            const docActions = document.getElementById('scanDocActions');
+            if (docActions) docActions.classList.remove('d-none');
 
-        resetPassportScanner();
+            const ext = existingDocUrl.split('.').pop().toLowerCase().split('?')[0];
+            const isPdf = ext === 'pdf';
+            const imgEl = document.getElementById('scanPreviewImg');
+            const pdfEl = document.getElementById('scanPreviewPdf');
+            const badgeEl = document.getElementById('scanDocumentTypeBadge');
+
+            if (isPdf) {
+                imgEl.classList.add('d-none');
+                pdfEl.classList.remove('d-none');
+                pdfEl.src = existingDocUrl;
+                if (badgeEl) badgeEl.textContent = 'PDF Document';
+            } else {
+                pdfEl.classList.add('d-none');
+                imgEl.classList.remove('d-none');
+                imgEl.src = existingDocUrl;
+                if (badgeEl) badgeEl.textContent = 'Image Document';
+            }
+
+            const dlBtn = document.getElementById('scanDocDownloadBtn');
+            if (dlBtn) dlBtn.href = existingDocUrl;
+            const openBtn = document.getElementById('scanDocOpenBtn');
+            if (openBtn) openBtn.href = existingDocUrl;
+
+            document.getElementById('verificationResultBox').innerHTML = `
+                <div class="alert alert-success py-2 px-3 fs-12 mb-2 d-flex align-items-center justify-content-between">
+                    <div><i class="mdi mdi-check-decagram text-success me-1"></i><strong>Passport Document & Details Verified</strong></div>
+                </div>`;
+
+            document.getElementById('btnConfirmPassportSave').disabled = false;
+        } else {
+            document.getElementById('dropZonePrompt').classList.remove('d-none');
+            document.getElementById('scanPreviewBox').classList.add('d-none');
+            const docActions = document.getElementById('scanDocActions');
+            if (docActions) docActions.classList.add('d-none');
+            const badgeEl = document.getElementById('scanDocumentTypeBadge');
+            if (badgeEl) badgeEl.textContent = 'No Document';
+
+            document.getElementById('verificationResultBox').innerHTML = `
+                <div class="alert alert-secondary py-2 px-3 fs-12 mb-2">
+                    <i class="mdi mdi-information-outline me-1"></i> Upload or drag & drop a passport to verify against this pilgrim.
+                </div>`;
+            document.getElementById('btnConfirmPassportSave').disabled = false;
+        }
 
         scannerModalInstance = new bootstrap.Modal(document.getElementById('passportScannerModal'));
         scannerModalInstance.show();
@@ -1121,19 +1478,24 @@
         document.getElementById('scannerFileInput').value = '';
         document.getElementById('dropZonePrompt').classList.remove('d-none');
         document.getElementById('scanPreviewBox').classList.add('d-none');
+        const imgEl = document.getElementById('scanPreviewImg');
+        if (imgEl) imgEl.src = '';
+        const pdfEl = document.getElementById('scanPreviewPdf');
+        if (pdfEl) pdfEl.src = '';
         document.getElementById('scanLaserLine').classList.add('d-none');
         document.getElementById('scanStatusContainer').classList.add('d-none');
         document.getElementById('overrideBox').classList.add('d-none');
         document.getElementById('overrideCheck').checked = false;
         const inlineChk = document.getElementById('inlineOverrideCheck');
         if (inlineChk) inlineChk.checked = false;
-        document.getElementById('btnConfirmPassportSave').disabled = true;
+        document.getElementById('btnConfirmPassportSave').disabled = false;
 
         document.getElementById('scan_field_given_name').value = '';
         document.getElementById('scan_field_surname').value = '';
         document.getElementById('scan_field_father_name').value = '';
         document.getElementById('scan_field_name').value = '';
         document.getElementById('scan_field_passport_no').value = '';
+        document.getElementById('scan_field_cnic').value = '';
         document.getElementById('scan_field_gender').value = 'Male';
         document.getElementById('scan_field_dob').value = '';
         document.getElementById('scan_field_issue_date').value = '';
@@ -1365,6 +1727,7 @@
         }
 
         if (parsed.passportNumber) document.getElementById('scan_field_passport_no').value = parsed.passportNumber;
+        if (parsed.cnic) document.getElementById('scan_field_cnic').value = parsed.cnic;
         if (parsed.gender) document.getElementById('scan_field_gender').value = parsed.gender;
         if (parsed.dob) document.getElementById('scan_field_dob').value = parsed.dob;
         if (parsed.issueDate) document.getElementById('scan_field_issue_date').value = parsed.issueDate;
@@ -1424,7 +1787,7 @@
         for (let l of rawLines) {
             let clean = l.replace(/\s+/g, '').toUpperCase();
             clean = clean.replace(/[«‹\(\{\}\)\[\]]/g, '<');
-            if (clean.length >= 20) {
+            if (clean.length >= 25) {
                 normLines.push(clean);
             }
         }
@@ -1432,29 +1795,73 @@
         let l1 = '';
         let l2 = '';
 
-        // Find Line 1: starts with P<, PPAK, P[A-Z]{3}, or contains << or <L
-        for (let line of normLines) {
-            if (/^P[<A-Z0-9]{3,5}/.test(line) || /<{2,}|<[LCK]|[LCK]<|[LCK]{2,}/.test(line)) {
+        // Search lines from bottom up (MRZ is always at the bottom of the passport page)
+        for (let i = normLines.length - 1; i >= 0; i--) {
+            const line = normLines[i];
+
+            // Check if Line 2 (contains DOB + Sex + Expiry pattern, or starts with passport number)
+            if (!l2 && (/\d{6}\d?[MF]\d{6}/.test(line) || /^[A-Z]{1,2}\d{7}/.test(line))) {
+                l2 = line;
+                continue;
+            }
+
+            // Check if Line 1 (starts with P, has country code, and has chevrons/name separator)
+            if (!l1 && /^P[<LCK\s]*[A-Z]{3}/.test(line) && (/<{1,}|<[LCK]|[LCK]<|[LCK]{2,}/.test(line))) {
                 l1 = line;
-                break;
+                continue;
             }
         }
 
-        // Find Line 2: contains dates and gender (6 digits + M/F + 6 digits) or starts with passport number pattern
-        for (let line of normLines) {
-            if (line !== l1 && (/\d{6}\d?[MF]\d{6}/.test(line) || /^[A-Z]{1,2}\d{7}/.test(line))) {
-                l2 = line;
-                break;
+        // Fallback forward search if bottom-up didn't find both:
+        if (!l1) {
+            for (let line of normLines) {
+                if (/^P[<LCK\s]*[A-Z]{3}/.test(line) || /<{2,}/.test(line)) {
+                    l1 = line;
+                    break;
+                }
+            }
+        }
+        if (!l2) {
+            for (let line of normLines) {
+                if (line !== l1 && (/\d{6}\d?[MF]\d{6}/.test(line) || /^[A-Z]{1,2}\d{7}/.test(line))) {
+                    l2 = line;
+                    break;
+                }
             }
         }
 
         // 1. Parse MRZ Line 1 (Names)
         if (l1) {
-            // Strip leading P<PAK or PPAK or P<XXX
-            let line1Content = l1.replace(/^P[<]?[A-Z]{3}[<]?/, '');
-            let parts = line1Content.split(/<{2,}|<[LCK]|[LCK]<|[LCK]{2,}/);
+            let countryCode = '';
+            let namePart = '';
+
+            const mrz1Match = l1.match(/^P[<LCK\s]*([A-Z]{3})[<LCK\s]*(.*)$/);
+            if (mrz1Match) {
+                countryCode = mrz1Match[1];
+                namePart = mrz1Match[2];
+            } else {
+                namePart = l1.replace(/^P[<LCK\s]*[A-Z]{3}[<LCK\s]*/, '');
+            }
+
+            // Strip trailing padding chevrons and OCR noise from end of namePart
+            namePart = namePart.replace(/[<LCK\s]+$/, '');
+
+            // First try splitting on 2 or more chevrons / OCR noise
+            let parts = namePart.split(/<{2,}|<[LCK]|[LCK]<|[LCK]{2,}/);
+
+            // If only 1 part was returned, split on single chevron if present
+            if (parts.length < 2 && namePart.includes('<')) {
+                parts = namePart.split(/<+/);
+            }
+
             let surname = cleanMrzName(parts[0] || '');
             let givenName = cleanMrzName(parts[1] || '');
+
+            // Guard: If surname is empty or equals document type "P" or country code
+            if (parts.length >= 3 && (/^(P|PA|PAK|[A-Z]{3})$/i.test(surname) || surname.length <= 1)) {
+                surname = cleanMrzName(parts[1] || '');
+                givenName = cleanMrzName(parts[2] || '');
+            }
 
             result.surname = surname;
             result.givenName = givenName;
@@ -1464,7 +1871,7 @@
         // 2. Parse MRZ Line 2 (Passport No, DOB, Sex, Expiry)
         if (l2) {
             // Passport number: 1-2 letters + 7 digits
-            const passMatch = l2.match(/^([A-Z]{1,2}\d{7})/i);
+            const passMatch = l2.match(/([A-Z]{1,2}\d{7})/i);
             if (passMatch) {
                 result.passportNumber = passMatch[1].toUpperCase();
             } else {
@@ -1497,30 +1904,30 @@
         }
 
         // 3. Visual Inspection Zone (VIZ) fallbacks
-        // Father / Husband Name
-        const fatherMatch = text.match(/(?:Father(?:'s)?(?:\s*\/\s*Husband)?\s*Name|Father\s*Name|Husband\s*Name|نام\s*والد|نام\s*شوہر)\s*[:\-]?\s*([A-Za-z\s]+)/i);
+        // Father / Husband Name (Supports English, French / Nom du pere, and Urdu)
+        const fatherMatch = text.match(/(?:Father(?:'s)?(?:\s*\/\s*Husband)?\s*Name|Nom\s*du\s*p[eè]re|Nom\s*de\s*l['’][eé]poux|Husband\s*Name|نام\s*والد|نام\s*شوہر)(?:[^\n\r:A-Za-z]*\/[^\n\r:]+)?\s*[:\-]?\s*([A-Za-z\s]{3,40})/i);
         if (fatherMatch && fatherMatch[1]) {
             const fName = cleanExtractedName(fatherMatch[1]);
-            if (fName && fName.length > 2) {
+            if (fName && fName.length > 2 && !/^(Nom|Father|Name|Date|Issue|Expiry)$/i.test(fName)) {
                 result.fatherName = fName;
             }
         }
 
-        // Given Name fallback
+        // Given Name fallback (Supports Given Names / Prenoms)
         if (!result.givenName) {
-            const gMatch = text.match(/(?:Given\s*Names?|First\s*Name)\s*[:\-]?\s*([A-Za-z\s]+)/i);
+            const gMatch = text.match(/(?:Given\s*Names?|Pr[eé]noms?|First\s*Name)\s*[:\-]?\s*([A-Za-z\s]+)/i);
             if (gMatch && gMatch[1]) {
                 const g = cleanExtractedName(gMatch[1]);
                 if (g && g.length > 1) result.givenName = g;
             }
         }
 
-        // Surname fallback
+        // Surname fallback (Supports Surname / Nom)
         if (!result.surname) {
-            const sMatch = text.match(/(?:Surname|Last\s*Name)\s*[:\-]?\s*([A-Za-z\s]+)/i);
+            const sMatch = text.match(/(?:Surname|Nom|Last\s*Name)\s*[:\-]?\s*([A-Za-z\s]+)/i);
             if (sMatch && sMatch[1]) {
                 const s = cleanExtractedName(sMatch[1]);
-                if (s && s.length > 1) result.surname = s;
+                if (s && s.length > 1 && !/^(Nom|Surname|Type|Code)$/i.test(s)) result.surname = s;
             }
         }
 
@@ -1535,37 +1942,46 @@
             }
         }
 
-        // Passport Number fallback
+        // Passport Number fallback (Supports Passport No / No du passeport)
         if (!result.passportNumber) {
-            const passMatch = text.match(/\b([A-Z]{1,2}[0-9]{7,9})\b/i);
+            const passMatch = text.match(/(?:Passport\s*No|No\s*du\s*passeport|\b)\s*[:\-]?\s*([A-Z]{1,2}[0-9]{7,9})\b/i);
             if (passMatch) result.passportNumber = passMatch[1].toUpperCase();
         }
 
         // Gender fallback
         if (!result.gender) {
-            const sexMatch = text.match(/\b(?:Sex|Gender|جنس)\s*[:\-]?\s*(M|F|Male|Female|مرد|عورت)\b/i);
+            const sexMatch = text.match(/\b(?:Sex|Sexe|Gender|جنس)\s*[:\-]?\s*(M|F|Male|Female|مرد|عورت)\b/i);
             if (sexMatch) {
                 const s = sexMatch[1].toUpperCase();
                 result.gender = (s.startsWith('F') || s.includes('عورت')) ? 'Female' : 'Male';
             }
         }
 
-        // DOB fallback
+        // DOB fallback (Supports Date of Birth / Date de naissance)
         if (!result.dob) {
-            const dobMatch = text.match(/\b(?:DOB|Birth|Date of Birth|تاریخ\s*پیدائش)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
+            const dobMatch = text.match(/(?:Date\s*of\s*Birth|Date\s*de\s*naissance|DOB|Birth|تاریخ\s*پیدائش)[^\d]{0,40}(\d{1,2}\s+[A-Za-z]{3}\s+\d{4}|\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2})/i);
             if (dobMatch) result.dob = normalizeDateString(dobMatch[1]);
         }
 
-        // Date of Issue fallback
+        // Date of Issue fallback (Supports Date of Issue / Date de delivrance)
         if (!result.issueDate) {
-            const issueMatch = text.match(/\b(?:Date\s*of\s*Issue|Issue\s*Date|تاریخ\s*اجرا)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
+            const issueMatch = text.match(/(?:Date\s*of\s*Issue|Date\s*de\s*d[eé]livrance|Issue\s*Date|تاریخ\s*اجرا)[^\d]{0,40}(\d{1,2}\s+[A-Za-z]{3}\s+\d{4}|\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2})/i);
             if (issueMatch) result.issueDate = normalizeDateString(issueMatch[1]);
         }
 
-        // Date of Expiry fallback
-        if (!result.expiryDate) {
-            const expMatch = text.match(/\b(?:Expiry|Valid Until|Date\s*of\s*Expiry|تاریخ\s*تنسیخ)\s*[:\-]?\s*([0-9]{2}[\/\-.][0-9]{2}[\/\-.][0-9]{4}|[0-9]{4}[\/\-.][0-9]{2}[\/\-.][0-9]{2}|[0-9]{2}\s+[A-Za-z]{3}\s+[0-9]{4})/i);
-            if (expMatch) result.expiryDate = normalizeDateString(expMatch[1]);
+        // Date of Expiry fallback (Supports Date of Expiry / Date d'expiration)
+        const expMatch = text.match(/(?:Date\s*of\s*Expiry|Date\s*d['’]expiration|Expiry|Valid\s*Until|تاریخ\s*تنسیخ)[^\d]{0,40}(\d{1,2}\s+[A-Za-z]{3}\s+\d{4}|\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2})/i);
+        if (expMatch) {
+            const vizExp = normalizeDateString(expMatch[1]);
+            if (vizExp) result.expiryDate = vizExp;
+        }
+
+        // CNIC fallback from VIZ / full text (e.g. 42201-5372957-0 or 4220153729570)
+        if (!result.cnic) {
+            const cnicMatch = text.match(/\b(\d{5})[\s\-]?(\d{7})[\s\-]?(\d{1})\b/);
+            if (cnicMatch) {
+                result.cnic = `${cnicMatch[1]}-${cnicMatch[2]}-${cnicMatch[3]}`;
+            }
         }
 
         return result;
@@ -1713,21 +2129,24 @@
 
     // SUBMIT VERIFIED PASSPORT & AUTO-FILL DETAILS
     function submitVerifiedPassport() {
-        if (!currentScanFile || !currentScanPersonId) return;
+        if (!currentScanPersonId) return;
 
         const btn = document.getElementById('btnConfirmPassportSave');
         const origBtnText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = `<i class="mdi mdi-loading mdi-spin me-1"></i>Saving & Auto-Filling...`;
+        btn.innerHTML = `<i class="mdi mdi-loading mdi-spin me-1"></i>Saving Details...`;
 
         const formData = new FormData();
-        formData.append('file', currentScanFile);
+        if (currentScanFile) {
+            formData.append('file', currentScanFile);
+        }
         formData.append('_token', csrfToken);
         formData.append('scanned_name', document.getElementById('scan_field_name').value);
         formData.append('given_name', document.getElementById('scan_field_given_name').value);
         formData.append('surname', document.getElementById('scan_field_surname').value);
         formData.append('father_name', document.getElementById('scan_field_father_name').value);
         formData.append('passport_number', document.getElementById('scan_field_passport_no').value);
+        formData.append('cnic', document.getElementById('scan_field_cnic').value);
         formData.append('gender', document.getElementById('scan_field_gender').value);
         formData.append('dob', document.getElementById('scan_field_dob').value);
         formData.append('date_of_issue', document.getElementById('scan_field_issue_date').value);
@@ -1753,15 +2172,22 @@
                     passCell.innerHTML = `
                         <div class="d-inline-flex flex-column align-items-center gap-1">
                             <button type="button" class="btn btn-sm btn-outline-info py-0 px-2 fs-11"
-                                    onclick="previewDocument('${data.file_url}', 'Passport - ${escapeHtml(data.person.full_name)}')">
+                                    onclick="previewPassport('${data.file_url}', {
+                                        personId: ${data.person.id},
+                                        fullName: '${escapeHtml(data.person.full_name)}',
+                                        passportNumber: '${data.person.passport_number || ''}',
+                                        gender: '${data.person.gender || 'Male'}',
+                                        dob: '${data.person.dob || ''}',
+                                        dateOfIssue: '${data.person.date_of_issue || ''}',
+                                        expiryDate: '${data.person.passport_expiry_date || ''}',
+                                        givenName: '${escapeHtml(data.person.given_name || '')}',
+                                        surname: '${escapeHtml(data.person.surname || '')}',
+                                        fatherName: '${escapeHtml(data.person.father_name || '')}',
+                                        cnic: '${data.person.cnic || ''}'
+                                    })">
                                 <i class="mdi mdi-eye me-1"></i>View
                             </button>
                             <div class="btn-group btn-group-sm">
-                                <button type="button" class="btn btn-xs btn-light text-primary py-0 px-1 border"
-                                        title="Scan & Replace Passport" style="cursor:pointer; font-size:10px;"
-                                        onclick="openPassportScanner(${data.person.id}, '${escapeHtml(data.person.full_name)}', '${data.person.passport_number || ''}', '${data.person.gender || 'Male'}', '${data.person.dob || ''}', '${data.person.passport_expiry_date || ''}', '${escapeHtml(data.person.given_name || '')}', '${escapeHtml(data.person.surname || '')}', '${escapeHtml(data.person.father_name || '')}', '${data.person.date_of_issue || ''}')">
-                                    <i class="mdi mdi-camera-metering me-1"></i>Scan
-                                </button>
                                 <button type="button" class="btn btn-xs btn-light text-danger py-0 px-1 border"
                                         title="Delete Passport" onclick="deleteDoc(${data.person.id}, 'passport')" style="font-size:10px;">
                                     <i class="mdi mdi-trash-can-outline"></i>
@@ -1770,10 +2196,20 @@
                         </div>`;
                 }
 
-                // 2. Update Row Details with Auto-Extracted Passport Number, Gender, Expiry Badge, Father Name
+                // 2. Update Row Details with Auto-Extracted Given Name, Surname, Father Name, CNIC, etc.
                 const nameEl = document.getElementById(`pilgrim_name_${currentScanPersonId}`);
                 if (nameEl && data.person.full_name) {
                     nameEl.textContent = data.person.full_name;
+                }
+
+                const partsEl = document.getElementById(`pilgrim_parts_${currentScanPersonId}`);
+                if (partsEl) {
+                    if (data.person.given_name || data.person.surname) {
+                        partsEl.innerHTML = `
+                            ${data.person.given_name ? `<span>Given: <strong class="text-dark">${escapeHtml(data.person.given_name)}</strong></span>` : ''}
+                            ${data.person.surname ? `<span class="ms-1">· Surname: <strong class="text-dark">${escapeHtml(data.person.surname)}</strong></span>` : ''}`;
+                        partsEl.classList.remove('d-none');
+                    }
                 }
 
                 const fatherEl = document.getElementById(`pilgrim_father_${currentScanPersonId}`);
@@ -1784,6 +2220,11 @@
                     } else {
                         fatherEl.classList.add('d-none');
                     }
+                }
+
+                const cnicSpan = document.getElementById(`pilgrim_cnic_span_${currentScanPersonId}`);
+                if (cnicSpan && data.person.cnic) {
+                    cnicSpan.innerHTML = `<span class="ms-1">· CNIC: <strong>${escapeHtml(data.person.cnic)}</strong></span>`;
                 }
 
                 const genderEl = document.getElementById(`pilgrim_gender_${currentScanPersonId}`);
@@ -1808,20 +2249,20 @@
                         </span>`;
                 }
 
-                showToast('Passport Verified', `Passport verified and details auto-filled for ${data.person.full_name}! (Pass: ${data.person.passport_number || 'N/A'})`, 'success');
+                showToast('Passport Saved', `Passport details saved successfully for ${data.person.full_name}!`, 'success');
 
                 if (scannerModalInstance) {
                     scannerModalInstance.hide();
                 }
             } else {
-                showToast('Upload Blocked', data.message || 'Could not verify passport.', 'danger');
+                showToast('Save Failed', data.message || 'Could not save passport details.', 'danger');
             }
         })
         .catch(err => {
             console.error(err);
             btn.disabled = false;
             btn.innerHTML = origBtnText;
-            showToast('Error', 'Server error while saving verified passport.', 'danger');
+            showToast('Error', 'Server error while saving passport details.', 'danger');
         });
     }
 

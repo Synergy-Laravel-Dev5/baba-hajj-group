@@ -298,7 +298,7 @@ class PilgrimDocumentController extends Controller
         $person = BookingPerson::findOrFail($personId);
 
         $request->validate([
-            'file' => 'required|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
+            'file' => 'nullable|file|mimes:jpeg,png,jpg,webp,pdf|max:10240',
         ]);
 
         $scannedName = trim($request->input('scanned_name', ''));
@@ -312,11 +312,13 @@ class PilgrimDocumentController extends Controller
         $expiryDate = trim($request->input('passport_expiry_date', ''));
         $forceOverride = $request->boolean('force_override', false);
 
-        // Name Verification Check
+        $file = $request->file('file');
+
+        // Name Verification Check (only if new file is uploaded)
         $personName = strtoupper(trim($person->full_name));
         $nameMatch = false;
 
-        if (!empty($scannedName)) {
+        if ($file && !empty($scannedName)) {
             $scannedUpper = strtoupper($scannedName);
             // Check if any major name token matches
             $personTokens = array_filter(explode(' ', preg_replace('/[^A-Z]/', ' ', $personName)));
@@ -326,45 +328,46 @@ class PilgrimDocumentController extends Controller
             if (!empty($common) || str_contains($scannedUpper, $personName) || str_contains($personName, $scannedUpper)) {
                 $nameMatch = true;
             }
-        } else {
-            // If scanner couldn't read name, consider it neutral
-            $nameMatch = true;
+
+            if (!$nameMatch && !$forceOverride) {
+                return response()->json([
+                    'success' => false,
+                    'mismatch' => true,
+                    'message' => "Invalid Passport! This is not the passport of this pilgrim. Uploaded passport belongs to '{$scannedName}', but target pilgrim is '{$person->full_name}'.",
+                    'scanned_name' => $scannedName,
+                    'target_name' => $person->full_name,
+                ], 422);
+            }
         }
 
-        if (!$nameMatch && !$forceOverride) {
-            return response()->json([
-                'success' => false,
-                'mismatch' => true,
-                'message' => "Invalid Passport! This is not the passport of this pilgrim. Uploaded passport belongs to '{$scannedName}', but target pilgrim is '{$person->full_name}'.",
-                'scanned_name' => $scannedName,
-                'target_name' => $person->full_name,
-            ], 422);
+        $relativePath = $person->passport_image;
+        $filename = basename($person->passport_image ?? '');
+
+        // Upload and save file if provided
+        if ($file) {
+            $uploadDir = public_path('uploads/booking_persons');
+            if (!File::isDirectory($uploadDir)) {
+                File::makeDirectory($uploadDir, 0755, true, true);
+            }
+
+            if (!empty($person->passport_image) && file_exists(public_path($person->passport_image))) {
+                @unlink(public_path($person->passport_image));
+            }
+
+            $filename = 'pass_' . time() . '_' . $person->id . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $filename);
+            $relativePath = 'uploads/booking_persons/' . $filename;
+            $person->passport_image = $relativePath;
         }
 
-        // Upload and save file
-        $file = $request->file('file');
-        $uploadDir = public_path('uploads/booking_persons');
-        if (!File::isDirectory($uploadDir)) {
-            File::makeDirectory($uploadDir, 0755, true, true);
-        }
-
-        if (!empty($person->passport_image) && file_exists(public_path($person->passport_image))) {
-            @unlink(public_path($person->passport_image));
-        }
-
-        $filename = 'pass_' . time() . '_' . $person->id . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        $file->move($uploadDir, $filename);
-        $relativePath = 'uploads/booking_persons/' . $filename;
-
-        // Auto-fill person details from scanned passport
-        $person->passport_image = $relativePath;
-        if (!empty($givenName)) {
+        // Auto-fill person details
+        if ($request->has('given_name')) {
             $person->given_name = $givenName;
         }
-        if (!empty($surname)) {
+        if ($request->has('surname')) {
             $person->surname = $surname;
         }
-        if (!empty($fatherName)) {
+        if ($request->has('father_name')) {
             $person->father_name = $fatherName;
         }
         if (!empty($scannedName)) {
@@ -372,34 +375,39 @@ class PilgrimDocumentController extends Controller
         } elseif (!empty($givenName) || !empty($surname)) {
             $person->full_name = trim(($givenName ?: '') . ' ' . ($surname ?: ''));
         }
-        if (!empty($passportNo)) {
+        if ($request->has('passport_number')) {
             $person->passport_number = $passportNo;
         }
         if (!empty($gender) && in_array(ucfirst(strtolower($gender)), ['Male', 'Female'])) {
             $person->gender = ucfirst(strtolower($gender));
         }
-        if (!empty($dob)) {
+        if ($request->has('dob')) {
             $person->dob = $dob;
         }
-        if (!empty($issueDate)) {
+        if ($request->has('date_of_issue')) {
             $person->date_of_issue = $issueDate;
             $person->passport_issue_date = $issueDate;
         }
-        if (!empty($expiryDate)) {
+        if ($request->has('passport_expiry_date')) {
             $person->passport_expiry_date = $expiryDate;
+        }
+        if ($request->has('cnic')) {
+            $person->cnic = trim($request->input('cnic', ''));
         }
         $person->save();
 
         // Sync PersonDocument
-        $doc = PersonDocument::firstOrNew(['person_id' => $person->id]);
-        $doc->booking_id = $person->booking_id;
-        $doc->passport = $relativePath;
-        $doc->save();
+        if (!empty($relativePath)) {
+            $doc = PersonDocument::firstOrNew(['person_id' => $person->id]);
+            $doc->booking_id = $person->booking_id;
+            $doc->passport = $relativePath;
+            $doc->save();
+        }
 
         return response()->json([
             'success' => true,
-            'message' => "Passport verified and pilgrim details auto-filled successfully!",
-            'file_url' => asset($relativePath),
+            'message' => "Passport details saved and updated successfully!",
+            'file_url' => !empty($relativePath) ? asset($relativePath) : null,
             'filename' => $filename,
             'person' => [
                 'id' => $person->id,
@@ -412,6 +420,7 @@ class PilgrimDocumentController extends Controller
                 'dob' => $person->dob,
                 'date_of_issue' => $person->date_of_issue,
                 'passport_expiry_date' => $person->passport_expiry_date,
+                'cnic' => $person->cnic,
             ]
         ]);
     }
@@ -471,6 +480,27 @@ class PilgrimDocumentController extends Controller
             $file->move($uploadDir, $filename);
             $person->passport_image = 'uploads/booking_persons/' . $filename;
         }
+
+        // Auto-fill person details if scanned from client (MRZ / OCR) or provided
+        if ($request->filled('given_name')) $person->given_name = trim($request->input('given_name'));
+        if ($request->filled('surname')) $person->surname = trim($request->input('surname'));
+        if ($request->filled('father_name')) $person->father_name = trim($request->input('father_name'));
+        if ($request->filled('scanned_name')) {
+            $person->full_name = trim($request->input('scanned_name'));
+        } elseif ($request->filled('given_name') || $request->filled('surname')) {
+            $person->full_name = trim(($request->input('given_name') ?: '') . ' ' . ($request->input('surname') ?: ''));
+        }
+        if ($request->filled('passport_number')) $person->passport_number = trim($request->input('passport_number'));
+        if ($request->filled('gender') && in_array(ucfirst(strtolower($request->input('gender'))), ['Male', 'Female'])) {
+            $person->gender = ucfirst(strtolower($request->input('gender')));
+        }
+        if ($request->filled('dob')) $person->dob = trim($request->input('dob'));
+        if ($request->filled('date_of_issue')) {
+            $person->date_of_issue = trim($request->input('date_of_issue'));
+            $person->passport_issue_date = trim($request->input('date_of_issue'));
+        }
+        if ($request->filled('passport_expiry_date')) $person->passport_expiry_date = trim($request->input('passport_expiry_date'));
+        if ($request->filled('cnic')) $person->cnic = trim($request->input('cnic'));
 
         // 2. Picture
         if ($request->hasFile('picture')) {
