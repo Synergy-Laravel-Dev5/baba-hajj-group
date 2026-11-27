@@ -589,6 +589,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/dashboard', [App\Http\Controllers\MobileOps\DashboardController::class, 'index'])->name('dashboard');
             Route::get('/inquiries', [App\Http\Controllers\MobileOps\DashboardController::class, 'inquiries'])->name('inquiries.index');
             Route::post('/inquiries/{id}/status', [App\Http\Controllers\MobileOps\DashboardController::class, 'updateInquiryStatus'])->name('inquiries.status');
+            Route::post('/inquiries/{id}/confirm', [App\Http\Controllers\MobileOps\DashboardController::class, 'confirmBooking'])->name('inquiries.confirm');
+            Route::get('/api-docs', [App\Http\Controllers\MobileOps\DashboardController::class, 'apiDocs'])->name('api-docs');
+
+            // Live In-App Chat
+            Route::get('/chat', [App\Http\Controllers\MobileOps\ChatController::class, 'index'])->name('chat.index');
+            Route::get('/chat/{userId}/messages', [App\Http\Controllers\MobileOps\ChatController::class, 'getMessages'])->name('chat.messages');
+            Route::post('/chat/{userId}/send', [App\Http\Controllers\MobileOps\ChatController::class, 'sendMessage'])->name('chat.send');
+
+            // App Registered Users
+            Route::get('/users', [App\Http\Controllers\MobileOps\AppUserController::class, 'index'])->name('users.index');
+            Route::post('/users/{id}/toggle-status', [App\Http\Controllers\MobileOps\AppUserController::class, 'toggleStatus'])->name('users.toggle-status');
 
             // Gallery / Ziarat CRUD & Trash
             Route::get('/gallery/trash', [GalleryController::class, 'trash'])->name('gallery.trash');

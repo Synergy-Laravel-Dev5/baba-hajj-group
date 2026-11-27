@@ -260,150 +260,107 @@
                     </div>
 
                     <ul id="side-menu" class="mt-2">
-                        <li class="menu-title text-muted text-uppercase fs-11 px-3 py-2">Mobile Ops Modules</li>
+                        <li class="menu-title text-muted text-uppercase fs-11 px-3 py-2">Core Operations</li>
 
-                        @can('mobile_ops_dashboard_view')
-                        <li
-                            class="menu-item {{ request()->routeIs('mobile-ops.dashboard') ? 'menuitem-active' : '' }}">
+                        <li class="menu-item {{ request()->routeIs('mobile-ops.dashboard') ? 'menuitem-active' : '' }}">
                             <a href="{{ route('mobile-ops.dashboard') }}"
                                 class="menu-link py-2 px-3 d-flex align-items-center gap-2">
                                 <i class="mdi mdi-view-dashboard-outline fs-18"></i>
                                 <span>Dashboard</span>
                             </a>
                         </li>
-                        @endcan
 
-                        @canany(['umrah_package_view', 'domestic_package_view', 'international_package_view'])
                         @php
-                            $isPackageActive =
-                                request()->routeIs('mobile-ops.umrah-packages.*') ||
-                                request()->routeIs('mobile-ops.domestic-packages.*') ||
-                                request()->routeIs('mobile-ops.international-packages.*');
+                            $pendingCount = \App\Models\PackageInquiry::where('status', 'pending')->count();
                         @endphp
-                        <li class="menu-item {{ $isPackageActive ? 'menuitem-active' : '' }}">
-                            <a href="#sidebarMobilePackages" data-bs-toggle="collapse"
-                                class="menu-link py-2 px-3 {{ $isPackageActive ? '' : 'collapsed' }}"
-                                aria-expanded="{{ $isPackageActive ? 'true' : 'false' }}">
-                                <i class="mdi mdi-package-variant-closed fs-18"></i>
-                                <span>Package Management</span>
-                                <span class="menu-arrow"></span>
-                            </a>
-                            <div class="collapse {{ $isPackageActive ? 'show' : '' }}" id="sidebarMobilePackages">
-                                <ul class="nav-second-level list-unstyled ps-4 py-1">
-                                    @can('umrah_package_view')
-                                    <li class="py-1">
-                                        <a href="{{ route('mobile-ops.umrah-packages.index') }}"
-                                            class="py-1 px-2 d-flex align-items-center gap-2 {{ request()->routeIs('mobile-ops.umrah-packages.*') ? 'text-primary fw-bold' : 'text-muted' }}">
-                                            <span>&#128507;</span>
-                                            <span>Umrah Packages</span>
-                                        </a>
-                                    </li>
-                                    @endcan
-                                    @can('domestic_package_view')
-                                    <li class="py-1">
-                                        <a href="{{ route('mobile-ops.domestic-packages.index') }}"
-                                            class="py-1 px-2 d-flex align-items-center gap-2 {{ request()->routeIs('mobile-ops.domestic-packages.*') ? 'text-primary fw-bold' : 'text-muted' }}">
-                                            <i class="mdi mdi-map-marker-distance fs-15"></i>
-                                            <span>Domestic Packages</span>
-                                        </a>
-                                    </li>
-                                    @endcan
-                                    @can('international_package_view')
-                                    <li class="py-1">
-                                        <a href="{{ route('mobile-ops.international-packages.index') }}"
-                                            class="py-1 px-2 d-flex align-items-center gap-2 {{ request()->routeIs('mobile-ops.international-packages.*') ? 'text-primary fw-bold' : 'text-muted' }}">
-                                            <i class="mdi mdi-earth fs-15"></i>
-                                            <span>International Packages</span>
-                                        </a>
-                                    </li>
-                                    @endcan
-                                </ul>
-                            </div>
-                        </li>
-                        @endcanany
-
-                        @can('mobile_ops_inquiry_view')
                         <li class="menu-item {{ request()->routeIs('mobile-ops.inquiries.*') ? 'menuitem-active' : '' }}">
                             <a href="{{ route('mobile-ops.inquiries.index') }}"
                                 class="menu-link py-2 px-3 d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="mdi mdi-email-fast-outline fs-18"></i>
-                                    <span>Package Inquiries</span>
+                                    <i class="mdi mdi-calendar-check fs-18"></i>
+                                    <span>App Bookings</span>
                                 </div>
-                                @php
-                                    $pendingCount = \App\Models\PackageInquiry::where('status', 'pending')->count();
-                                @endphp
                                 @if ($pendingCount > 0)
-                                    <span
-                                        class="badge bg-danger rounded-pill px-2 py-1 fs-10">{{ $pendingCount }}</span>
+                                    <span class="badge bg-warning text-dark rounded-pill px-2 py-1 fs-10 fw-bold">{{ $pendingCount }}</span>
                                 @endif
                             </a>
                         </li>
-                        @endcan
 
-                        @can('gallery_view')
-                        <li
-                            class="menu-item {{ request()->routeIs('mobile-ops.gallery.*') ? 'menuitem-active' : '' }}">
-                            <a href="{{ route('mobile-ops.gallery.index') }}"
-                                class="menu-link py-2 px-3 d-flex align-items-center gap-2">
-                                <i class="mdi mdi-image-multiple-outline fs-18"></i>
-                                <span>Ziarat Management</span>
+                        @php
+                            $unreadChatCount = \App\Models\AppChat::where('sender_type', 'user')->where('is_read', false)->count();
+                        @endphp
+                        <li class="menu-item {{ request()->routeIs('mobile-ops.chat.*') ? 'menuitem-active' : '' }}">
+                            <a href="{{ route('mobile-ops.chat.index') }}"
+                                class="menu-link py-2 px-3 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="mdi mdi-chat-processing-outline fs-18"></i>
+                                    <span>Live App Chat</span>
+                                </div>
+                                @if ($unreadChatCount > 0)
+                                    <span class="badge bg-danger rounded-pill px-2 py-1 fs-10">{{ $unreadChatCount }}</span>
+                                @endif
                             </a>
                         </li>
-                        @endcan
 
-                        @can('book_view')
-                        <li class="menu-item {{ request()->routeIs('mobile-ops.books.*') ? 'menuitem-active' : '' }}">
-                            <a href="{{ route('mobile-ops.books.index') }}"
+                        <li class="menu-item {{ request()->routeIs('mobile-ops.users.*') ? 'menuitem-active' : '' }}">
+                            <a href="{{ route('mobile-ops.users.index') }}"
                                 class="menu-link py-2 px-3 d-flex align-items-center gap-2">
-                                <i class="mdi mdi-book-open-page-variant-outline fs-18"></i>
-                                <span>Hajj Books</span>
+                                <i class="mdi mdi-account-group-outline fs-18"></i>
+                                <span>App Users</span>
                             </a>
                         </li>
-                        @endcan
 
-                        @can('guideline_view')
-                        <li
-                            class="menu-item {{ request()->routeIs('mobile-ops.guidelines.*') ? 'menuitem-active' : '' }}">
+                        <li class="menu-title text-muted text-uppercase fs-11 px-3 py-2 mt-2">Packages & Offerings</li>
+
+                        <li class="menu-item {{ (request()->routeIs('package.*') && request('package') == 'hajj') ? 'menuitem-active' : '' }}">
+                            <a href="{{ route('package.index', ['package' => 'hajj']) }}"
+                                class="menu-link py-2 px-3 d-flex align-items-center gap-2">
+                                <i class="mdi mdi-kaaba fs-18 text-warning"></i>
+                                <span>Hajj Packages</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-item {{ request()->routeIs('mobile-ops.umrah-packages.*') ? 'menuitem-active' : '' }}">
+                            <a href="{{ route('mobile-ops.umrah-packages.index') }}"
+                                class="menu-link py-2 px-3 d-flex align-items-center gap-2">
+                                <i class="mdi mdi-mosque fs-18 text-success"></i>
+                                <span>Umrah Packages</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title text-muted text-uppercase fs-11 px-3 py-2 mt-2">Pilgrim Resources & Media</li>
+
+                        <li class="menu-item {{ request()->routeIs('mobile-ops.guidelines.*') ? 'menuitem-active' : '' }}">
                             <a href="{{ route('mobile-ops.guidelines.index') }}"
                                 class="menu-link py-2 px-3 d-flex align-items-center gap-2">
-                                <i class="mdi mdi-information-outline fs-18"></i>
-                                <span>Hujjaj Guidelines</span>
+                                <i class="mdi mdi-information-outline fs-18 text-info"></i>
+                                <span>Hajj Guidelines</span>
                             </a>
                         </li>
-                        @endcan
 
-                        @can('video_view')
                         <li class="menu-item {{ request()->routeIs('mobile-ops.videos.*') ? 'menuitem-active' : '' }}">
                             <a href="{{ route('mobile-ops.videos.index') }}"
                                 class="menu-link py-2 px-3 d-flex align-items-center gap-2">
-                                <i class="mdi mdi-play-circle-outline fs-18"></i>
+                                <i class="mdi mdi-play-circle-outline fs-18 text-danger"></i>
                                 <span>Video Tutorials</span>
                             </a>
                         </li>
-                        @endcan
 
-                        @can('visa_country_view')
-                        <li
-                            class="menu-item {{ request()->routeIs('mobile-ops.visa-countries.*') ? 'menuitem-active' : '' }}">
-                            <a href="{{ route('mobile-ops.visa-countries.index') }}"
+                        <li class="menu-item {{ request()->routeIs('mobile-ops.books.*') ? 'menuitem-active' : '' }}">
+                            <a href="{{ route('mobile-ops.books.index') }}"
                                 class="menu-link py-2 px-3 d-flex align-items-center gap-2">
-                                <i class="mdi mdi-passport fs-18"></i>
-                                <span>Visa Countries</span>
+                                <i class="mdi mdi-book-open-page-variant-outline fs-18 text-warning"></i>
+                                <span>Hajj Books & PDF</span>
                             </a>
                         </li>
-                        @endcan
 
-                        @can('visa_inquiry_view')
-                        <li
-                            class="menu-item {{ request()->routeIs('mobile-ops.visa-inquiries.*') ? 'menuitem-active' : '' }}">
-                            <a href="{{ route('mobile-ops.visa-inquiries.index') }}"
+                        <li class="menu-item {{ request()->routeIs('mobile-ops.gallery.*') ? 'menuitem-active' : '' }}">
+                            <a href="{{ route('mobile-ops.gallery.index') }}"
                                 class="menu-link py-2 px-3 d-flex align-items-center gap-2">
-                                <i class="mdi mdi-clipboard-text-clock-outline fs-18"></i>
-                                <span>Visa Inquiries</span>
+                                <i class="mdi mdi-image-multiple-outline fs-18 text-success"></i>
+                                <span>Ziyarat Places</span>
                             </a>
                         </li>
-                        @endcan
                     </ul>
                 </div>
                 <div class="clearfix"></div>

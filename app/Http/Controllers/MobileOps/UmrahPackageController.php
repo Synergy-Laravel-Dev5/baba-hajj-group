@@ -215,14 +215,23 @@ class UmrahPackageController extends Controller
 
             $durationPricingOptions = [];
             if ($request->has('duration_pricing') && is_array($request->duration_pricing)) {
-                foreach ($request->duration_pricing as $duration => $matrix) {
-                    if (!empty($matrix['enabled'])) {
+                foreach ($request->duration_pricing as $key => $matrix) {
+                    if (!is_array($matrix)) {
+                        continue;
+                    }
+                    $durName = !empty($matrix['duration']) ? trim($matrix['duration']) : (is_string($key) && !is_numeric($key) ? trim($key) : '');
+                    if (empty($durName)) {
+                        continue;
+                    }
+
+                    $isEnabled = isset($matrix['enabled']) ? !empty($matrix['enabled']) : true;
+                    if ($isEnabled) {
                         $durationPricingOptions[] = [
-                            'duration' => $duration,
-                            'sharing'  => isset($matrix['sharing']) ? (float)$matrix['sharing'] : 0,
-                            'quad'     => isset($matrix['quad']) ? (float)$matrix['quad'] : 0,
-                            'triple'   => isset($matrix['triple']) ? (float)$matrix['triple'] : 0,
-                            'double'   => isset($matrix['double']) ? (float)$matrix['double'] : 0,
+                            'duration' => $durName,
+                            'sharing'  => isset($matrix['sharing']) && $matrix['sharing'] !== '' ? (float)$matrix['sharing'] : 0,
+                            'quad'     => isset($matrix['quad']) && $matrix['quad'] !== '' ? (float)$matrix['quad'] : 0,
+                            'triple'   => isset($matrix['triple']) && $matrix['triple'] !== '' ? (float)$matrix['triple'] : 0,
+                            'double'   => isset($matrix['double']) && $matrix['double'] !== '' ? (float)$matrix['double'] : 0,
                         ];
                     }
                 }
@@ -244,6 +253,24 @@ class UmrahPackageController extends Controller
                 }
             }
 
+            $priceSharing = (float)($request->price_sharing ?? 0);
+            $priceQuad    = (float)($request->price_quad ?? 0);
+            $priceTriple  = (float)($request->price_triple ?? 0);
+            $priceDouble  = (float)($request->price_double ?? 0);
+
+            if ($priceSharing <= 0 && !empty($durationPricingOptions[0]['sharing'])) {
+                $priceSharing = (float)$durationPricingOptions[0]['sharing'];
+            }
+            if ($priceQuad <= 0 && !empty($durationPricingOptions[0]['quad'])) {
+                $priceQuad = (float)$durationPricingOptions[0]['quad'];
+            }
+            if ($priceTriple <= 0 && !empty($durationPricingOptions[0]['triple'])) {
+                $priceTriple = (float)$durationPricingOptions[0]['triple'];
+            }
+            if ($priceDouble <= 0 && !empty($durationPricingOptions[0]['double'])) {
+                $priceDouble = (float)$durationPricingOptions[0]['double'];
+            }
+
             $package = Package::create([
                 'package_type'             => 'umrah',
                 'package_title'            => $request->package_title,
@@ -258,10 +285,10 @@ class UmrahPackageController extends Controller
                 'additional_destinations'  => $additionalDestinations,
                 'valid_from'               => $request->valid_from,
                 'valid_until'              => $request->valid_until,
-                'price_sharing'            => (float)($request->price_sharing ?? 0),
-                'price_quad'               => (float)($request->price_quad ?? 0),
-                'price_triple'             => (float)($request->price_triple ?? 0),
-                'price_double'             => (float)($request->price_double ?? 0),
+                'price_sharing'            => $priceSharing,
+                'price_quad'               => $priceQuad,
+                'price_triple'             => $priceTriple,
+                'price_double'             => $priceDouble,
                 'duration_pricing_options' => $durationPricingOptions,
                 'key_features'             => $request->key_features,
                 'inclusions'               => $request->inclusions,
@@ -451,14 +478,23 @@ class UmrahPackageController extends Controller
 
             $durationPricingOptions = [];
             if ($request->has('duration_pricing') && is_array($request->duration_pricing)) {
-                foreach ($request->duration_pricing as $duration => $matrix) {
-                    if (!empty($matrix['enabled'])) {
+                foreach ($request->duration_pricing as $key => $matrix) {
+                    if (!is_array($matrix)) {
+                        continue;
+                    }
+                    $durName = !empty($matrix['duration']) ? trim($matrix['duration']) : (is_string($key) && !is_numeric($key) ? trim($key) : '');
+                    if (empty($durName)) {
+                        continue;
+                    }
+
+                    $isEnabled = isset($matrix['enabled']) ? !empty($matrix['enabled']) : true;
+                    if ($isEnabled) {
                         $durationPricingOptions[] = [
-                            'duration' => $duration,
-                            'sharing'  => isset($matrix['sharing']) ? (float)$matrix['sharing'] : 0,
-                            'quad'     => isset($matrix['quad']) ? (float)$matrix['quad'] : 0,
-                            'triple'   => isset($matrix['triple']) ? (float)$matrix['triple'] : 0,
-                            'double'   => isset($matrix['double']) ? (float)$matrix['double'] : 0,
+                            'duration' => $durName,
+                            'sharing'  => isset($matrix['sharing']) && $matrix['sharing'] !== '' ? (float)$matrix['sharing'] : 0,
+                            'quad'     => isset($matrix['quad']) && $matrix['quad'] !== '' ? (float)$matrix['quad'] : 0,
+                            'triple'   => isset($matrix['triple']) && $matrix['triple'] !== '' ? (float)$matrix['triple'] : 0,
+                            'double'   => isset($matrix['double']) && $matrix['double'] !== '' ? (float)$matrix['double'] : 0,
                         ];
                     }
                 }
@@ -480,6 +516,24 @@ class UmrahPackageController extends Controller
                 }
             }
 
+            $priceSharing = (float)($request->price_sharing ?? 0);
+            $priceQuad    = (float)($request->price_quad ?? 0);
+            $priceTriple  = (float)($request->price_triple ?? 0);
+            $priceDouble  = (float)($request->price_double ?? 0);
+
+            if ($priceSharing <= 0 && !empty($durationPricingOptions[0]['sharing'])) {
+                $priceSharing = (float)$durationPricingOptions[0]['sharing'];
+            }
+            if ($priceQuad <= 0 && !empty($durationPricingOptions[0]['quad'])) {
+                $priceQuad = (float)$durationPricingOptions[0]['quad'];
+            }
+            if ($priceTriple <= 0 && !empty($durationPricingOptions[0]['triple'])) {
+                $priceTriple = (float)$durationPricingOptions[0]['triple'];
+            }
+            if ($priceDouble <= 0 && !empty($durationPricingOptions[0]['double'])) {
+                $priceDouble = (float)$durationPricingOptions[0]['double'];
+            }
+
             $package->update([
                 'package_title'            => $request->package_title,
                 'name'                     => $request->package_title,
@@ -493,10 +547,10 @@ class UmrahPackageController extends Controller
                 'additional_destinations'  => $additionalDestinations,
                 'valid_from'               => $request->valid_from,
                 'valid_until'              => $request->valid_until,
-                'price_sharing'            => (float)($request->price_sharing ?? 0),
-                'price_quad'               => (float)($request->price_quad ?? 0),
-                'price_triple'             => (float)($request->price_triple ?? 0),
-                'price_double'             => (float)($request->price_double ?? 0),
+                'price_sharing'            => $priceSharing,
+                'price_quad'               => $priceQuad,
+                'price_triple'             => $priceTriple,
+                'price_double'             => $priceDouble,
                 'duration_pricing_options' => $durationPricingOptions,
                 'key_features'             => $request->key_features,
                 'inclusions'               => $request->inclusions,

@@ -47,4 +47,9 @@ class PackageInquiry extends Model
     {
         return $this->belongsTo(Package::class);
     }
+
+    public function appUser()
+    {
+        return $this->belongsTo(AppUser::class, 'app_user_id');
+    }
 }

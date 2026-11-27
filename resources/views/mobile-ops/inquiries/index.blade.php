@@ -71,6 +71,26 @@
         </div>
     @endif
 
+    @if (session('whatsapp_url'))
+        <div class="alert alert-success border-success alert-dismissible fade show d-flex align-items-center justify-content-between p-3 mb-3 shadow-sm" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <div class="avatar-sm rounded-circle bg-success text-white d-flex align-items-center justify-content-center fs-20">
+                    <i class="mdi mdi-whatsapp"></i>
+                </div>
+                <div>
+                    <h5 class="fs-14 fw-bold text-success mb-1">Booking Confirmed Successfully!</h5>
+                    <p class="fs-12 mb-0 text-dark">Pre-filled WhatsApp confirmation message ready for <strong>{{ session('client_name') }}</strong>.</p>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ session('whatsapp_url') }}" target="_blank" class="btn btn-sm btn-success px-3 fw-bold shadow-sm">
+                    <i class="mdi mdi-send me-1"></i> Send WhatsApp Alert Now
+                </a>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    @endif
+
     <!-- Inquiries Table Card -->
     <div class="card border-0 shadow-sm" style="overflow: visible;">
         <div class="card-body p-0" style="overflow: visible;">
@@ -90,17 +110,26 @@
                         @forelse($inquiries as $item)
                             <tr>
                                 <td class="ps-3">
-                                    <div class="fw-bold text-dark">{{ $item->full_name }}</div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span class="fw-bold text-dark">{{ $item->full_name }}</span>
+                                        @if($item->app_user_id || $item->appUser)
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-10 px-1 py-0" title="Registered Mobile App User">
+                                                <i class="mdi mdi-cellphone"></i> App
+                                            </span>
+                                        @endif
+                                    </div>
                                     <div class="fs-12 text-muted mt-1">
                                         <i class="mdi mdi-phone me-1 text-primary"></i>
                                         <a href="tel:{{ $item->contact }}"
                                             class="text-secondary text-decoration-none">{{ $item->contact }}</a>
                                     </div>
+                                    @if($item->email)
                                     <div class="fs-12 text-muted">
                                         <i class="mdi mdi-email me-1 text-danger"></i>
                                         <a href="mailto:{{ $item->email }}"
                                             class="text-secondary text-decoration-none">{{ $item->email }}</a>
                                     </div>
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="badge bg-light text-dark border px-2 py-1 text-wrap text-start">
@@ -135,6 +164,55 @@
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="d-inline-flex align-items-center gap-1">
+                                        <!-- Confirm & Auto WhatsApp Button -->
+                                        @php
+                                            $cleanPhone = preg_replace('/\D/', '', $item->contact);
+                                            if (str_starts_with($cleanPhone, '0')) {
+                                                $cleanPhone = '92' . substr($cleanPhone, 1);
+                                            } elseif (!str_starts_with($cleanPhone, '92') && strlen($cleanPhone) === 10) {
+                                                $cleanPhone = '92' . $cleanPhone;
+                                            }
+                                            $pkgTitle = $item->package?->package_title ?? 'Hajj/Umrah Package';
+                                            $pax = $item->pax ?? 1;
+                                            $room = ucfirst($item->room_type ?? 'Sharing');
+                                            $duration = $item->duration_days ? "({$item->duration_days} Days)" : "";
+                                            $waMsg = "Assalam-o-Alaikum *{$item->full_name}*!\n\n"
+                                                . "✨ *BOOKING CONFIRMED* ✨\n"
+                                                . "We are delighted to inform you that your booking with *Baba Hajj & Umrah Group* has been confirmed!\n\n"
+                                                . "📋 *Booking Details:*\n"
+                                                . "• Booking ID: #{$item->id}\n"
+                                                . "• Package: {$pkgTitle} {$duration}\n"
+                                                . "• Travelers: {$pax} Pax\n"
+                                                . "• Room Category: {$room}\n\n"
+                                                . "Our operations desk will now initiate your visa approval, flight manifests, and hotel allocation.\n"
+                                                . "You can also view this booking inside the *Baba Hajj Mobile App*.\n\n"
+                                                . "For any inquiries, feel free to reply to this message.\n"
+                                                . "JazakAllah Khair!\n"
+                                                . "*Baba Hajj & Umrah Group*";
+                                            $directWaUrl = "https://wa.me/{$cleanPhone}?text=" . urlencode($waMsg);
+                                        @endphp
+
+                                        @if($item->status !== 'closed')
+                                            <form action="{{ route('mobile-ops.inquiries.confirm', $item->id) }}" method="POST" class="d-inline"
+                                                onsubmit="return handleConfirmBooking(event, this, '{{ $directWaUrl }}', '{{ addslashes($item->full_name) }}');">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success d-inline-flex align-items-center gap-1"
+                                                    title="Confirm Booking & Auto Open WhatsApp">
+                                                    <i class="mdi mdi-whatsapp"></i> Confirm & WA
+                                                </button>
+                                            </form>
+                                        @else
+                                            <a href="{{ $directWaUrl }}" target="_blank"
+                                                class="btn btn-sm btn-outline-success" title="Chat on WhatsApp">
+                                                <i class="mdi mdi-whatsapp"></i>
+                                            </a>
+                                        @endif
+
+                                        <a href="{{ route('mobile-ops.chat.index', ['inquiry_id' => $item->id]) }}"
+                                            class="btn btn-sm btn-outline-info" title="Open Live Chat with Applicant">
+                                            <i class="mdi mdi-chat-outline"></i>
+                                        </a>
+
                                         <!-- Details Button opens Popup -->
                                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                             data-bs-target="#inquiryModal{{ $item->id }}">
@@ -430,8 +508,19 @@
                                                     <span class="badge bg-success text-white">Closed</span>
                                                 @endif
                                             </div>
-                                            <button type="button" class="btn btn-secondary btn-sm"
-                                                data-bs-dismiss="modal">Close</button>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if($item->status !== 'closed')
+                                                    <form action="{{ route('mobile-ops.inquiries.confirm', $item->id) }}" method="POST"
+                                                        onsubmit="return handleConfirmBooking(event, this, '{{ $directWaUrl }}', '{{ addslashes($item->full_name) }}');">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
+                                                            <i class="mdi mdi-whatsapp"></i> Confirm & Auto Open WhatsApp
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                    data-bs-dismiss="modal">Close</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -474,4 +563,26 @@
             background-color: #f8f9fa;
         }
     </style>
+
+    <script>
+        function handleConfirmBooking(e, form, waUrl, clientName) {
+            if (!confirm('Confirm booking for ' + clientName + ' and auto open WhatsApp confirmation?')) {
+                e.preventDefault();
+                return false;
+            }
+            if (waUrl) {
+                window.open(waUrl, '_blank');
+            }
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            @if (session('whatsapp_url'))
+                const waUrl = @json(session('whatsapp_url'));
+                if (waUrl) {
+                    window.open(waUrl, '_blank');
+                }
+            @endif
+        });
+    </script>
 @endsection

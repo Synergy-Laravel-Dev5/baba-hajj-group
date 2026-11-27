@@ -14,13 +14,18 @@
         </div>
 
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <a href="{{ route('mobile-ops.visa-inquiries.index') }}"
+            <a href="{{ route('mobile-ops.chat.index') }}"
                 class="btn btn-sm btn-white border shadow-sm px-3 d-flex align-items-center gap-1">
-                <i class="mdi mdi-passport text-primary"></i>
-                <span>Visa Inquiries</span>
-                @if ($stats['visa_inquiries_pending'] > 0)
-                    <span class="badge bg-warning text-dark rounded-pill ms-1">{{ $stats['visa_inquiries_pending'] }}</span>
+                <i class="mdi mdi-chat-processing-outline text-info"></i>
+                <span>Live Chat</span>
+                @if (($stats['app_chats_unread'] ?? 0) > 0)
+                    <span class="badge bg-danger rounded-pill ms-1">{{ $stats['app_chats_unread'] }}</span>
                 @endif
+            </a>
+            <a href="{{ route('mobile-ops.users.index') }}"
+                class="btn btn-sm btn-white border shadow-sm px-3 d-flex align-items-center gap-1">
+                <i class="mdi mdi-account-group text-primary"></i>
+                <span>App Users ({{ $stats['app_users_total'] ?? 0 }})</span>
             </a>
             <a href="{{ route('mobile-ops.inquiries.index') }}"
                 class="btn btn-sm btn-white border shadow-sm px-3 d-flex align-items-center gap-1">
@@ -29,11 +34,6 @@
                 @if ($stats['inquiries_pending'] > 0)
                     <span class="badge bg-danger rounded-pill ms-1">{{ $stats['inquiries_pending'] }}</span>
                 @endif
-            </a>
-            <a href="{{ route('mobile-ops.gallery.index') }}"
-                class="btn btn-sm btn-primary px-3 shadow-sm d-flex align-items-center gap-1">
-                <i class="mdi mdi-plus fs-15"></i>
-                <span>Manage Ziarat</span>
             </a>
         </div>
     </div>
@@ -66,24 +66,24 @@
             </div>
         </div>
 
-        <!-- Visa Inquiries Pending Card -->
+        <!-- Hajj & Umrah Packages Metric Card -->
         <div class="col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
                 <div class="card-body p-3">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-muted fs-12 fw-semibold text-uppercase">Visa Applications</span>
+                        <span class="text-muted fs-12 fw-semibold text-uppercase">Hajj & Umrah Packages</span>
                         <div class="avatar-xs rounded bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
                             style="width: 32px; height: 32px;">
-                            <i class="mdi mdi-passport fs-18"></i>
+                            <i class="mdi mdi-kaaba fs-18 text-warning"></i>
                         </div>
                     </div>
                     <div class="d-flex align-items-baseline gap-2 mb-2">
-                        <h3 class="fw-bold mb-0 text-dark fs-24">{{ $stats['visa_inquiries_pending'] }}</h3>
-                        <span class="fs-12 text-muted">pending action</span>
+                        <h3 class="fw-bold mb-0 text-dark fs-24">{{ ($stats['hajj_packages_total'] ?? 0) + ($stats['umrah_packages_total'] ?? 0) }}</h3>
+                        <span class="fs-12 text-muted">active offerings</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-between pt-2 border-top border-light fs-12">
-                        <span class="text-muted">Total: {{ $stats['visa_inquiries_total'] }}</span>
-                        <a href="{{ route('mobile-ops.visa-inquiries.index', ['status' => 'pending']) }}"
+                        <span class="text-muted">{{ $stats['hajj_packages_total'] ?? 0 }} Hajj • {{ $stats['umrah_packages_total'] ?? 0 }} Umrah</span>
+                        <a href="{{ route('mobile-ops.umrah-packages.index') }}"
                             class="text-primary text-decoration-none fw-semibold">
                             Manage &rarr;
                         </a>
@@ -147,112 +147,52 @@
         </div>
     </div>
 
-    <!-- Main Content Area: Recent Visa & Package Inquiries + Quick Operational Launchpad -->
-    <div class="row g-3">
-        <!-- Recent Visa Inquiries Section -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm mb-3" style="border-radius: 12px; overflow: visible;">
-                <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
+    <!-- App Users & In-App Chat Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; border-left: 4px solid #0d6efd !important;">
+                <div class="card-body p-3 d-flex align-items-center justify-content-between">
                     <div>
-                        <h5 class="fs-15 fw-bold text-dark m-0 d-flex align-items-center gap-2">
-                            <i class="mdi mdi-passport text-primary"></i>
-                            <span>Recent Visa Inquiries</span>
-                        </h5>
-                        <p class="text-muted fs-12 mb-0">Latest guest visa applications submitted through the mobile
-                            application.</p>
+                        <span class="text-muted fs-12 fw-semibold text-uppercase">Mobile App Pilgrims</span>
+                        <div class="d-flex align-items-baseline gap-2 my-1">
+                            <h3 class="fw-bold mb-0 text-dark fs-24">{{ $stats['app_users_total'] ?? 0 }}</h3>
+                            <span class="badge bg-success-subtle text-success fs-11">{{ $stats['app_users_active'] ?? 0 }} Active</span>
+                        </div>
+                        <span class="fs-12 text-muted">Registered in Mobile Application</span>
                     </div>
-                    <a href="{{ route('mobile-ops.visa-inquiries.index') }}"
-                        class="btn btn-sm btn-light border px-2 py-1 fs-12">
-                        View All
-                    </a>
-                </div>
-                <div class="card-body p-0" style="overflow: visible;">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-3 fs-12">Applicant</th>
-                                    <th class="fs-12">Destination / Visa</th>
-                                    <th class="fs-12">Documents</th>
-                                    <th class="fs-12">Status</th>
-                                    <th class="fs-12">Submitted</th>
-                                    <th class="text-end pe-3 fs-12">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($recentVisaInquiries as $vInq)
-                                    @php
-                                        $docs = is_array($vInq->documents)
-                                            ? $vInq->documents
-                                            : (is_string($vInq->documents)
-                                                ? json_decode($vInq->documents, true)
-                                                : []);
-                                        if (!is_array($docs)) {
-                                            $docs = [];
-                                        }
-                                    @endphp
-                                    <tr>
-                                        <td class="ps-3">
-                                            <div class="fw-semibold text-dark fs-13">{{ $vInq->full_name }}</div>
-                                            <div class="fs-11 text-muted">{{ $vInq->phone_number ?? $vInq->contact }}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-light text-primary border px-2 py-1 fs-11">
-                                                <i
-                                                    class="mdi mdi-earth me-1"></i>{{ $vInq->country->country_name ?? '—' }}
-                                            </span>
-                                            <div class="fs-11 text-muted mt-1">
-                                                {{ $vInq->visaType->visa_name ?? 'General' }}</div>
-                                        </td>
-                                        <td>
-                                            @if (!empty($docs) && count($docs) > 0)
-                                                <span class="badge bg-light text-dark border px-2 py-1 fs-11">
-                                                    <i
-                                                        class="mdi mdi-file-document-outline me-1 text-primary"></i>{{ count($docs) }}
-                                                    Doc(s)
-                                                </span>
-                                            @else
-                                                <span class="text-muted fs-11">None</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($vInq->status === 'pending')
-                                                <span class="badge bg-warning text-dark px-2 py-1 fs-11">Pending</span>
-                                            @elseif($vInq->status === 'contacted')
-                                                <span class="badge bg-info text-white px-2 py-1 fs-11">Contacted</span>
-                                            @elseif($vInq->status === 'in_progress')
-                                                <span class="badge bg-primary text-white px-2 py-1 fs-11">In
-                                                    Progress</span>
-                                            @elseif($vInq->status === 'completed')
-                                                <span class="badge bg-success text-white px-2 py-1 fs-11">Completed</span>
-                                            @else
-                                                <span class="badge bg-danger text-white px-2 py-1 fs-11">Cancelled</span>
-                                            @endif
-                                        </td>
-                                        <td class="fs-12 text-muted">
-                                            {{ $vInq->created_at ? $vInq->created_at->diffForHumans() : '—' }}
-                                        </td>
-                                        <td class="text-end pe-3">
-                                            <a href="{{ route('mobile-ops.visa-inquiries.index') }}"
-                                                class="btn btn-xs btn-outline-primary py-1 px-2 fs-11">
-                                                <i class="mdi mdi-arrow-right"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4 text-muted fs-13">
-                                            <i class="mdi mdi-passport fs-24 d-block mb-1 text-secondary"></i>
-                                            No visa inquiries recorded yet.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div>
+                        <a href="{{ route('mobile-ops.users.index') }}" class="btn btn-sm btn-primary px-3">
+                            <i class="mdi mdi-account-group me-1"></i> View Directory
+                        </a>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; border-left: 4px solid #198754 !important;">
+                <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted fs-12 fw-semibold text-uppercase">Live App Chat Support</span>
+                        <div class="d-flex align-items-baseline gap-2 my-1">
+                            <h3 class="fw-bold mb-0 text-dark fs-24">{{ $stats['app_chats_unread'] ?? 0 }}</h3>
+                            <span class="badge bg-danger fs-11">Unread Message(s)</span>
+                        </div>
+                        <span class="fs-12 text-muted">Pilgrims awaiting response</span>
+                    </div>
+                    <div>
+                        <a href="{{ route('mobile-ops.chat.index') }}" class="btn btn-sm btn-success px-3">
+                            <i class="mdi mdi-chat-processing me-1"></i> Open Live Chat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area: Recent Package Bookings & Content Modules -->
+    <div class="row g-3">
+        <!-- Recent Package Inquiries Section (Primary) -->
+        <div class="col-lg-8">
 
             <!-- Recent Package Inquiries Section -->
             <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: visible;">
@@ -337,55 +277,6 @@
         <!-- Right Side: Pipelines & Quick Operational Modules -->
         <div class="col-lg-4">
             <div class="d-flex flex-column gap-3 h-100">
-                <!-- Visa Applications Status Pipeline Card -->
-                <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                    <div class="card-body p-3">
-                        <h6
-                            class="fs-13 fw-bold text-dark text-uppercase mb-3 d-flex align-items-center justify-content-between">
-                            <span>Visa Applications Pipeline</span>
-                            <span class="badge bg-light text-muted border">{{ $stats['visa_inquiries_total'] }}
-                                Total</span>
-                        </h6>
-                        @php
-                            $totalVisa = max(1, $stats['visa_inquiries_total']);
-                            $vCompletedPct = round(($stats['visa_inquiries_completed'] / $totalVisa) * 100);
-                            $vProgressPct = round(($stats['visa_inquiries_progress'] / $totalVisa) * 100);
-                            $vContactedPct = round(($stats['visa_inquiries_contacted'] / $totalVisa) * 100);
-                            $vPendingPct = round(($stats['visa_inquiries_pending'] / $totalVisa) * 100);
-                        @endphp
-
-                        <div class="progress mb-3" style="height: 8px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $vCompletedPct }}%"
-                                title="Completed: {{ $stats['visa_inquiries_completed'] }}"></div>
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $vProgressPct }}%"
-                                title="In Progress: {{ $stats['visa_inquiries_progress'] }}"></div>
-                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ $vContactedPct }}%"
-                                title="Contacted: {{ $stats['visa_inquiries_contacted'] }}"></div>
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $vPendingPct }}%"
-                                title="Pending: {{ $stats['visa_inquiries_pending'] }}"></div>
-                        </div>
-
-                        <div class="row g-2 text-center pt-2 border-top border-light">
-                            <div class="col-3">
-                                <div class="fs-11 text-muted text-uppercase fw-semibold">Pending</div>
-                                <div class="fs-14 fw-bold text-warning">{{ $stats['visa_inquiries_pending'] }}</div>
-                            </div>
-                            <div class="col-3">
-                                <div class="fs-11 text-muted text-uppercase fw-semibold">Contacted</div>
-                                <div class="fs-14 fw-bold text-info">{{ $stats['visa_inquiries_contacted'] }}</div>
-                            </div>
-                            <div class="col-3">
-                                <div class="fs-11 text-muted text-uppercase fw-semibold">Active</div>
-                                <div class="fs-14 fw-bold text-primary">{{ $stats['visa_inquiries_progress'] }}</div>
-                            </div>
-                            <div class="col-3">
-                                <div class="fs-11 text-muted text-uppercase fw-semibold">Done</div>
-                                <div class="fs-14 fw-bold text-success">{{ $stats['visa_inquiries_completed'] }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Package Inquiry Pipeline Card -->
                 <div class="card border-0 shadow-sm" style="border-radius: 12px;">
                     <div class="card-body p-3">
@@ -432,16 +323,31 @@
                     <div class="card-body p-3">
                         <h6 class="fs-13 fw-bold text-dark text-uppercase mb-3">App Content Modules</h6>
                         <div class="d-flex flex-column gap-2">
-                            <a href="{{ route('mobile-ops.visa-countries.index') }}"
+                            <a href="{{ route('mobile-ops.umrah-packages.index') }}"
                                 class="d-flex align-items-center justify-content-between p-2 rounded border bg-light-subtle text-decoration-none hover-shadow">
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar-xs rounded bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
+                                    <div class="avatar-xs rounded bg-success-subtle text-success d-flex align-items-center justify-content-center"
                                         style="width: 32px; height: 32px;">
-                                        <i class="mdi mdi-earth fs-16"></i>
+                                        <i class="mdi mdi-mosque fs-16"></i>
                                     </div>
                                     <div>
-                                        <div class="fw-semibold text-dark fs-13">Visa Countries & Types</div>
-                                        <div class="text-muted fs-11">Manage countries & requirements</div>
+                                        <div class="fw-semibold text-dark fs-13">Umrah Packages</div>
+                                        <div class="text-muted fs-11">{{ $stats['umrah_packages_total'] ?? 0 }} active packages</div>
+                                    </div>
+                                </div>
+                                <i class="mdi mdi-chevron-right text-muted fs-18"></i>
+                            </a>
+
+                            <a href="{{ route('package.index', ['package' => 'hajj']) }}"
+                                class="d-flex align-items-center justify-content-between p-2 rounded border bg-light-subtle text-decoration-none hover-shadow">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-xs rounded bg-warning-subtle text-warning d-flex align-items-center justify-content-center"
+                                        style="width: 32px; height: 32px;">
+                                        <i class="mdi mdi-kaaba fs-16"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold text-dark fs-13">Hajj Packages</div>
+                                        <div class="text-muted fs-11">{{ $stats['hajj_packages_total'] ?? 0 }} active packages</div>
                                     </div>
                                 </div>
                                 <i class="mdi mdi-chevron-right text-muted fs-18"></i>

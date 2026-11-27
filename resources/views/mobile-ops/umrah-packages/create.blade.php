@@ -405,81 +405,85 @@
             </div>
         </div>
 
-        <!-- 5. Multiple Duration Options Card -->
+        <!-- 5. Multiple Duration Options Card (Dynamic Add More) -->
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
-            <div class="card-header bg-white border-bottom py-3">
-                <h5 class="fs-15 fw-bold text-success m-0">
-                    <i class="mdi mdi-clock-time-four-outline text-success me-2"></i>Multiple Duration Options
-                </h5>
+            <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <h5 class="fs-15 fw-bold text-success m-0 d-flex align-items-center">
+                        <i class="mdi mdi-clock-time-four-outline text-success me-2 fs-18"></i>
+                        <span>Multiple Duration Options</span>
+                    </h5>
+                    <p class="text-muted fs-12 mb-0 mt-1">Add custom stay durations (e.g. 7 Days, 10 Days, 14 Days, 21 Days) with custom room sharing rates. App pilgrims can select their preferred duration.</p>
+                </div>
+                <button type="button" id="addDurationBtn" class="btn btn-success btn-sm px-3 shadow-sm d-inline-flex align-items-center gap-1">
+                    <i class="mdi mdi-plus-circle fs-15"></i>
+                    <span class="fw-semibold">Add Duration Option</span>
+                </button>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-bordered align-middle mb-0" style="border-color: #e9edf1;">
-                        <thead style="background-color: #f1f4f7;">
+                    <table class="table table-bordered align-middle mb-0" id="durationPricingTable" style="border-color: #e9edf1;">
+                        <thead style="background-color: #f8fafc;">
                             <tr class="text-dark fw-bold fs-13">
-                                <th class="ps-3 py-3" style="width: 14%;">Duration</th>
-                                <th class="py-3 text-center" style="width: 13%;">Enable</th>
+                                <th class="ps-3 py-3" style="width: 22%;">Duration / Stay</th>
                                 <th class="py-3" style="width: 18%;">Price (Sharing)</th>
                                 <th class="py-3" style="width: 18%;">Price (Quad)</th>
                                 <th class="py-3" style="width: 18%;">Price (Triple)</th>
                                 <th class="py-3" style="width: 18%;">Price (Double)</th>
+                                <th class="py-3 text-center" style="width: 6%;">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($durationOptions as $duration)
-                                <tr>
-                                    <td class="ps-3 fw-bold text-dark fs-13">{{ $duration }}</td>
-                                    <td class="text-center">
-                                        <div class="d-inline-flex align-items-center justify-content-center">
-                                            <div class="form-check form-switch m-0 d-flex align-items-center">
-                                                <input class="form-check-input" type="checkbox"
-                                                    name="duration_pricing[{{ $duration }}][enabled]" value="1"
-                                                    id="dur_{{ Str::slug($duration) }}"
-                                                    {{ old("duration_pricing.{$duration}.enabled") ? 'checked' : '' }}
-                                                    style="cursor: pointer; width: 38px; height: 20px;">
-                                                <label class="form-check-label fw-semibold ms-2 fs-13 text-dark"
-                                                    for="dur_{{ Str::slug($duration) }}"
-                                                    style="cursor: pointer;">Active</label>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="p-2">
-                                        <input type="number" step="0.01"
-                                            name="duration_pricing[{{ $duration }}][sharing]"
-                                            class="form-control form-control-sm" placeholder="Sharing Price"
-                                            value="{{ old("duration_pricing.{$duration}.sharing") }}">
-                                    </td>
-                                    <td class="p-2">
-                                        <input type="number" step="0.01"
-                                            name="duration_pricing[{{ $duration }}][quad]"
-                                            class="form-control form-control-sm" placeholder="Quad Price"
-                                            value="{{ old("duration_pricing.{$duration}.quad") }}">
-                                    </td>
-                                    <td class="p-2">
-                                        <input type="number" step="0.01"
-                                            name="duration_pricing[{{ $duration }}][triple]"
-                                            class="form-control form-control-sm" placeholder="Triple Price"
-                                            value="{{ old("duration_pricing.{$duration}.triple") }}">
-                                    </td>
-                                    <td class="p-2">
-                                        <input type="number" step="0.01"
-                                            name="duration_pricing[{{ $duration }}][double]"
-                                            class="form-control form-control-sm" placeholder="Double Price"
-                                            value="{{ old("duration_pricing.{$duration}.double") }}">
-                                    </td>
-                                </tr>
-                            @endforeach
+                        <tbody id="durationPricingContainer">
+                            <!-- Dynamic rows appended via JS -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Empty state shown when no rows exist -->
+                <div id="durationEmptyState" class="text-center py-4 px-3" style="display: none; background: #fafbfc;">
+                    <i class="mdi mdi-calendar-range text-muted" style="font-size: 36px;"></i>
+                    <p class="text-muted fs-13 mt-1 mb-2">No duration options added yet.</p>
+                    <button type="button" class="btn btn-outline-success btn-sm px-3" onclick="document.getElementById('addDurationBtn').click();">
+                        <i class="mdi mdi-plus me-1"></i> Add First Duration
+                    </button>
+                </div>
+
+                <!-- Quick-add shortcuts & Add More bottom bar -->
+                <div class="card-footer bg-light-subtle border-top py-2 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                        <span class="fs-12 text-muted fw-semibold me-1">Quick add:</span>
+                        @foreach ($durationOptions as $durOpt)
+                            <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 fs-11 rounded btn-quick-dur" data-duration="{{ $durOpt }}">
+                                + {{ $durOpt }}
+                            </button>
+                        @endforeach
+                    </div>
+                    <button type="button" id="addDurationBtnBottom" class="btn btn-outline-success btn-sm px-3">
+                        <i class="mdi mdi-plus me-1"></i> Add More Duration
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- 5. Transportation Plan & Content Details -->
+        <datalist id="commonDurationsList">
+            @foreach ($durationOptions as $durOpt)
+                <option value="{{ $durOpt }}">
+            @endforeach
+            <option value="7 Days / 6 Nights">
+            <option value="10 Days / 9 Nights">
+            <option value="14 Days / 13 Nights">
+            <option value="15 Days / 14 Nights">
+            <option value="20 Days / 19 Nights">
+            <option value="21 Days / 20 Nights">
+            <option value="28 Days / 27 Nights">
+            <option value="30 Days / 29 Nights">
+        </datalist>
+
+        <!-- 6. Transportation Plan & Content Details -->
         <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
             <div class="card-header bg-white border-bottom py-3">
                 <h5 class="fs-15 fw-bold text-dark m-0"><i
-                        class="mdi mdi-file-document-edit-outline text-primary me-2"></i>Transportation Plan & Package
+                        class="mdi mdi-file-document-edit-outline text-primary me-2"></i>6. Transportation Plan & Package
                     Details</h5>
             </div>
             <div class="card-body p-4">
@@ -704,6 +708,141 @@
                     }
                 });
             });
+
+            // Duration Pricing Dynamic "Add More" Management
+            const durationContainer = document.getElementById('durationPricingContainer');
+            const durationEmptyState = document.getElementById('durationEmptyState');
+            const addDurationBtn = document.getElementById('addDurationBtn');
+            const addDurationBtnBottom = document.getElementById('addDurationBtnBottom');
+            let durationRowIndex = 0;
+
+            function checkDurationEmptyState() {
+                if (!durationContainer || !durationEmptyState) return;
+                const rowCount = durationContainer.querySelectorAll('tr.duration-pricing-row').length;
+                durationEmptyState.style.display = (rowCount === 0) ? 'block' : 'none';
+            }
+
+            function addDurationRow(data = {}) {
+                if (!durationContainer) return;
+                const idx = durationRowIndex++;
+                const durationVal = data.duration || '';
+                const sharingVal = (data.sharing !== undefined && data.sharing !== null) ? data.sharing : '';
+                const quadVal = (data.quad !== undefined && data.quad !== null) ? data.quad : '';
+                const tripleVal = (data.triple !== undefined && data.triple !== null) ? data.triple : '';
+                const doubleVal = (data.double !== undefined && data.double !== null) ? data.double : '';
+
+                const tr = document.createElement('tr');
+                tr.className = 'duration-pricing-row';
+                tr.id = `duration_row_${idx}`;
+                tr.innerHTML = `
+                    <td class="ps-3 py-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white text-muted border-end-0">
+                                <i class="mdi mdi-clock-outline"></i>
+                            </span>
+                            <input type="text"
+                                   name="duration_pricing[${idx}][duration]"
+                                   list="commonDurationsList"
+                                   class="form-control form-control-sm fw-bold text-dark border-start-0"
+                                   placeholder="e.g. 14 Days"
+                                   value="${durationVal}"
+                                   required>
+                        </div>
+                    </td>
+                    <td class="p-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-muted fs-11">PKR</span>
+                            <input type="number" step="0.01" min="0"
+                                   name="duration_pricing[${idx}][sharing]"
+                                   class="form-control form-control-sm"
+                                   placeholder="0.00"
+                                   value="${sharingVal}">
+                        </div>
+                    </td>
+                    <td class="p-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-muted fs-11">PKR</span>
+                            <input type="number" step="0.01" min="0"
+                                   name="duration_pricing[${idx}][quad]"
+                                   class="form-control form-control-sm"
+                                   placeholder="0.00"
+                                   value="${quadVal}">
+                        </div>
+                    </td>
+                    <td class="p-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-muted fs-11">PKR</span>
+                            <input type="number" step="0.01" min="0"
+                                   name="duration_pricing[${idx}][triple]"
+                                   class="form-control form-control-sm"
+                                   placeholder="0.00"
+                                   value="${tripleVal}">
+                        </div>
+                    </td>
+                    <td class="p-2">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-muted fs-11">PKR</span>
+                            <input type="number" step="0.01" min="0"
+                                   name="duration_pricing[${idx}][double]"
+                                   class="form-control form-control-sm"
+                                   placeholder="0.00"
+                                   value="${doubleVal}">
+                        </div>
+                    </td>
+                    <td class="p-2 text-center">
+                        <button type="button" class="btn btn-outline-danger btn-sm px-2 py-1 btn-remove-duration" title="Remove Duration Option">
+                            <i class="mdi mdi-trash-can-outline fs-14"></i>
+                        </button>
+                    </td>
+                `;
+
+                tr.querySelector('.btn-remove-duration').addEventListener('click', function() {
+                    tr.remove();
+                    checkDurationEmptyState();
+                });
+
+                durationContainer.appendChild(tr);
+                checkDurationEmptyState();
+                return tr;
+            }
+
+            if (addDurationBtn) {
+                addDurationBtn.addEventListener('click', function() {
+                    addDurationRow();
+                });
+            }
+
+            if (addDurationBtnBottom) {
+                addDurationBtnBottom.addEventListener('click', function() {
+                    addDurationRow();
+                });
+            }
+
+            document.querySelectorAll('.btn-quick-dur').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const dur = this.getAttribute('data-duration');
+                    addDurationRow({ duration: dur });
+                });
+            });
+
+            // Populate old inputs or default initial row
+            const oldDurationData = @json(old('duration_pricing', []));
+            if (Array.isArray(oldDurationData) && oldDurationData.length > 0) {
+                oldDurationData.forEach(item => addDurationRow(item));
+            } else if (typeof oldDurationData === 'object' && oldDurationData !== null && Object.keys(oldDurationData).length > 0) {
+                Object.keys(oldDurationData).forEach(key => {
+                    const item = oldDurationData[key];
+                    addDurationRow({
+                        duration: item.duration || key,
+                        sharing: item.sharing || '',
+                        quad: item.quad || '',
+                        triple: item.triple || '',
+                        double: item.double || '',
+                    });
+                });
+            } else {
+                addDurationRow({ duration: '14 Days' });
+            }
         });
     </script>
 @endsection

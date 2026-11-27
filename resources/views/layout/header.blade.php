@@ -39,7 +39,7 @@
                         </div>
                     </li>
 
-                    @canany(['mobile_ops_dashboard_view', 'umrah_package_view', 'domestic_package_view', 'international_package_view', 'mobile_ops_inquiry_view', 'gallery_view', 'book_view', 'guideline_view', 'video_view', 'visa_country_view', 'visa_inquiry_view'])
+                    @if(auth()->check())
                     <li class="d-none d-md-block">
                         <div class="position-relative">
                             <a href="{{ route('mobile-ops.dashboard') }}"
@@ -50,7 +50,7 @@
                             </a>
                         </div>
                     </li>
-                    @endcanany
+                    @endif
                     <li class="dropdown notification-list topbar-dropdown">
                         <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#"
                             role="button" aria-haspopup="false" aria-expanded="false">
@@ -339,6 +339,8 @@
                             </a>
                         </li>
                     @endcanany
+
+
                     @can('person_report_view')
                     <li>
                         <a href="{{ route('report.person') }}">
